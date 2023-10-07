@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&family=Amiri&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════ */
+/* THEMES                                      */
+/* ═══════════════════════════════════════════ */
+:root, [data-theme="space"] {
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,0.92);--card-hover:rgba(20,28,80,0.95);
+  --border:rgba(100,140,255,0.15);--border-hover:rgba(68,229,160,0.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,0.12);--accent-glow:rgba(68,229,160,0.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --font-display:'Fredoka',sans-serif;
+  --font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"] {
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,0.92);--card-hover:rgba(55,35,15,0.95);
+  --border:rgba(255,160,60,0.2);--border-hover:rgba(255,140,66,0.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,0.12);--accent-glow:rgba(255,140,66,0.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:0.6;
+}
+[data-theme="synthwave"] {
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,0.92);--card-hover:rgba(35,12,75,0.95);
+  --border:rgba(168,85,247,0.2);--border-hover:rgba(244,114,182,0.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,0.12);--accent-glow:rgba(244,114,182,0.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:0.8;
+}
+[data-theme="paper"] {
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,0.92);--card-hover:rgba(255,255,255,0.98);
+  --border:rgba(180,160,130,0.3);--border-hover:rgba(34,150,100,0.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,0.1);--accent-glow:rgba(34,150,106,0.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,0.08);
+  --star-opacity:0;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BASE                                        */
+/* ═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s;
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,0.1)}
+::-webkit-scrollbar-thumb{background:var(--accent-glow);border-radius:3px}
+[dir="rtl"]{direction:rtl;text-align:right}
+[dir="rtl"] .code-text{direction:ltr;text-align:left}
+
+/* ═══════════════════════════════════════════ */
+/* STARS                                       */
+/* ═══════════════════════════════════════════ */
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+/* ═══════════════════════════════════════════ */
+/* APP SHELL                                   */
+/* ═══════════════════════════════════════════ */
+.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 16px 80px}
+
+/* ═══════════════════════════════════════════ */
+/* HEADER                                      */
+/* ═══════════════════════════════════════════ */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 4px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+  position:sticky;top:0;z-index:100;
+  background:
+    radial-gradient(circle at top left,rgba(68,229,160,0.06),transparent 55%),
+    radial-gradient(circle at bottom right,rgba(77,201,246,0.08),transparent 60%),
+    var(--bg);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  margin:0 -16px;padding:14px 16px;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow),0 0 0 1px rgba(0,0,0,0.2);
+  transition:transform .3s,box-shadow .3s;overflow:hidden;
+}
+.logo-icon:hover{transform:rotate(-5deg) scale(1.08);box-shadow:0 8px 30px var(--accent-glow)}
+.logo-icon img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 0 4px var(--accent-glow))}
+.logo-text{font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.logo-text span{
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.65rem;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-chip{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 12px;
+  border-radius:var(--radius-pill);font-size:.72rem;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  border:1px solid var(--accent-glow);
+  background:var(--accent-soft);color:var(--accent);
+  transition:all .3s;
+}
+.status-chip.off{border-color:rgba(255,92,106,0.4);background:rgba(255,92,106,0.08);color:var(--red)}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 8px var(--accent-glow);
+  animation:pulse 2s ease infinite;
+}
+.status-chip.off .status-dot{background:var(--red);box-shadow:0 0 8px rgba(255,92,106,0.5);animation:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* Header dropdowns */
+.hdr-select{
+  padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;
+  font-family:var(--font-body);background:var(--bg3);color:var(--text);
+  border:1px solid var(--border);cursor:pointer;font-weight:600;
+}
+.hdr-select:focus{outline:none;border-color:var(--accent)}
+
+/* ═══════════════════════════════════════════ */
+/* NAV TABS                                    */
+/* ═══════════════════════════════════════════ */
+.nav{display:flex;gap:4px;margin:16px 0;background:var(--bg2);border-radius:var(--radius);padding:5px;border:1px solid var(--border)}
+.nav-btn{
+  flex:1;padding:12px 8px;border-radius:12px;border:none;font-family:var(--font-display);
+  font-size:.88rem;font-weight:600;background:transparent;color:var(--text2);
+  cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.nav-btn:hover:not(.active){background:var(--bg3);color:var(--text)}
+.nav-btn.active{
+  background:var(--gradient-btn);color:var(--bg);
+  box-shadow:0 4px 16px var(--accent-glow);
+}
+
+/* ═══════════════════════════════════════════ */
+/* PAGES                                       */
+/* ═══════════════════════════════════════════ */
+.page{display:none;animation:fadeUp .4s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════ */
+/* CARDS                                       */
+/* ═══════════════════════════════════════════ */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;position:relative;overflow:hidden;transition:all .25s;
+}
+.card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,0.03),transparent 60%);
+}
+.card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+
+/* ═══════════════════════════════════════════ */
+/* BUTTONS                                     */
+/* ═══════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 22px;
+  border-radius:var(--radius-pill);border:none;font-family:var(--font-display);
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .25s;
+}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 20px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 30px var(--accent-glow)}
+.btn-outline{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(255,92,106,0.15);color:var(--red);border:1px solid rgba(255,92,106,0.3)}
+.btn-large{padding:16px 40px;font-size:1.1rem;border-radius:var(--radius-pill)}
+
+/* ═══════════════════════════════════════════ */
+/* COMMAND CENTER                              */
+/* ═══════════════════════════════════════════ */
+
+/* ByteBot mascot */
+.bytebot{
+  width:80px;height:80px;margin:0 auto 8px;position:relative;
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.bytebot-body{
+  width:60px;height:60px;border-radius:18px;
+  background:var(--gradient-btn);margin:0 auto;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;box-shadow:0 8px 24px var(--accent-glow);
+  transition:transform .3s;position:relative;
+}
+.bytebot-body:hover{transform:scale(1.1) rotate(5deg)}
+.bytebot-antenna{
+  width:4px;height:16px;background:var(--accent);
+  margin:0 auto;border-radius:2px;position:relative;
+}
+.bytebot-antenna::after{
+  content:"";position:absolute;top:-6px;left:-4px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent-glow);
+  animation:blink-light 1.5s ease infinite;
+}
+@keyframes blink-light{0%,100%{opacity:1}50%{opacity:.3}}
+.bytebot-speech{
+  text-align:center;font-size:.82rem;color:var(--text2);
+  font-family:var(--font-display);margin-top:4px;
+  padding:6px 14px;background:var(--bg3);border-radius:var(--radius-pill);
+  display:inline-block;position:relative;
+}
+
+/* Connection orb */
+.orb-wrapper{text-align:center;padding:24px 0 16px}
+.orb{
+  width:140px;height:140px;border-radius:50%;margin:0 auto;
+  position:relative;cursor:pointer;
+  transition:all .5s cubic-bezier(.4,0,.2,1);
+}
+.orb-bg{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-soft) 0%,transparent 70%);
+  border:2px solid var(--border);transition:all .5s;
+}
+.orb.connected .orb-bg{border-color:var(--accent);box-shadow:0 0 40px var(--accent-glow),inset 0 0 30px var(--accent-soft)}
+.orb.connecting .orb-bg{border-color:var(--yellow);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb-rings{position:absolute;inset:0;pointer-events:none}
+.orb-ring{
+  position:absolute;inset:-10px;border-radius:50%;
+  border:1px solid var(--accent-glow);opacity:0;
+}
+.orb.connected .orb-ring{animation:ring-pulse 2.4s ease-out infinite}
+.orb-ring:nth-child(2){inset:-20px;animation-delay:.8s !important}
+.orb-ring:nth-child(3){inset:-30px;animation-delay:1.6s !important}
+@keyframes ring-pulse{0%{opacity:.6;transform:scale(.9)}100%{opacity:0;transform:scale(1.3)}}
+.orb-center{
+  position:absolute;inset:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;z-index:2;
+}
+.orb-status{
+  text-align:center;margin-top:12px;font-family:var(--font-display);
+  font-size:.95rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text2);transition:color .3s;
+}
+.orb-status.on{color:var(--accent)}
+.orb-status.connecting{color:var(--yellow)}
+.orb-sub{text-align:center;font-size:.78rem;color:var(--text3);margin-top:4px}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px;text-align:center;transition:all .25s;
+}
+.stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.stat-icon{font-size:1.3rem;margin-bottom:4px}
+.stat-label{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.stat-value{font-size:1.3rem;font-weight:800;font-family:var(--font-display);color:var(--text);margin-top:2px}
+.stat-sub{font-size:.7rem;color:var(--text2);margin-top:2px}
+
+/* Server list */
+.section-title{
+  font-family:var(--font-display);font-size:1rem;font-weight:700;
+  margin:20px 0 10px;display:flex;align-items:center;gap:8px;
+}
+.server-list{display:flex;flex-direction:column;gap:4px}
+.server-item{
+  display:grid;grid-template-columns:1fr 70px 70px 30px;align-items:center;
+  padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;
+  background:var(--card);border:1px solid transparent;transition:all .2s;
+}
+.server-item:hover{background:var(--card-hover);border-color:var(--border)}
+.server-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+.server-info{display:flex;align-items:center;gap:10px}
+.server-flag{font-size:1.4rem}
+.server-name{font-size:.85rem;font-weight:700}
+.server-country{font-size:.72rem;color:var(--text2)}
+.server-ping{font-size:.78rem;font-weight:600;text-align:center}
+.ping-good{color:var(--accent)}.ping-mid{color:var(--yellow)}.ping-bad{color:var(--red)}
+.server-load-bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.server-load-fill{height:100%;border-radius:2px;transition:width .5s}
+.server-load-text{font-size:.65rem;color:var(--text3);text-align:center;margin-top:2px}
+.server-active-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+
+/* Settings */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:600px){.settings-grid{grid-template-columns:1fr}}
+.setting-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+.setting-label{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.toggle{
+  width:44px;height:24px;border-radius:12px;background:var(--bg3);
+  border:1px solid var(--border);cursor:pointer;position:relative;transition:all .3s;
+}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle-knob{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:all .3s;box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+.toggle.on .toggle-knob{left:22px}
+
+/* Ship customizer */
+.ship-colors{display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap}
+.ship-color{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:all .2s;
+}
+.ship-color:hover{transform:scale(1.2) rotate(10deg)}
+.ship-color.active{border-color:#fff;box-shadow:0 0 16px var(--accent-glow)}
+
+/* ═══════════════════════════════════════════ */
+/* MISSION ACADEMY                             */
+/* ═══════════════════════════════════════════ */
+.mode-tabs{display:flex;gap:6px;margin-bottom:16px}
+.mode-tab{
+  flex:1;padding:14px 10px;border-radius:var(--radius);border:2px solid var(--border);
+  background:var(--card);cursor:pointer;text-align:center;
+  font-family:var(--font-display);font-weight:600;transition:all .25s;
+}
+.mode-tab:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.mode-tab.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 4px 16px var(--accent-glow)}
+.mode-tab .mode-emoji{font-size:1.6rem;display:block;margin-bottom:4px}
+.mode-tab .mode-name{font-size:.82rem}
+.mode-tab .mode-count{font-size:.68rem;color:var(--text2);margin-top:2px}
+
+/* Concept card grid */
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.concept-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;
+  min-height:160px;
+}
+.concept-card:hover{border-color:var(--border-hover);transform:translateY(-4px);box-shadow:var(--shadow)}
+.concept-card .cc-emoji{font-size:2rem;margin-bottom:8px}
+.concept-card .cc-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:4px}
+.concept-card .cc-hint{font-size:.78rem;color:var(--text2)}
+.concept-card.completed::after{
+  content:"✓";position:absolute;top:10px;right:10px;
+  width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;
+}
+
+/* Concept detail modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(4px);animation:fadeIn .2s ease;
+}
+.modal-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  max-width:560px;width:100%;max-height:85vh;overflow-y:auto;
+  padding:28px;position:relative;animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{
+  position:absolute;top:12px;right:12px;width:32px;height:32px;
+  border-radius:50%;border:1px solid var(--border);background:var(--bg3);
+  color:var(--text);cursor:pointer;font-size:1rem;display:flex;
+  align-items:center;justify-content:center;transition:all .2s;
+}
+[dir="rtl"] .modal-close{right:auto;left:12px}
+.modal-close:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.modal-emoji{font-size:3rem;text-align:center;margin-bottom:12px}
+.modal-title{font-family:var(--font-display);font-size:1.4rem;font-weight:700;text-align:center;margin-bottom:16px}
+.modal-section{margin-bottom:20px}
+.modal-section-title{
+  font-family:var(--font-display);font-size:.82rem;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.modal-text{font-size:.92rem;line-height:1.7;color:var(--text)}
+.fun-fact{
+  background:var(--accent-soft);border:1px solid var(--accent-glow);
+  border-radius:var(--radius-sm);padding:12px 16px;
+  font-size:.85rem;color:var(--text);
+}
+.fun-fact strong{color:var(--accent)}
+
+/* Quiz */
+.quiz-options{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.quiz-opt{
+  padding:12px 16px;border-radius:var(--radius-pill);
+  border:1px solid var(--border);background:var(--card);
+  cursor:pointer;font-size:.85rem;font-family:var(--font-body);
+  font-weight:600;color:var(--text);transition:all .2s;text-align:start;
+}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:var(--accent-soft)}
+.quiz-opt.correct{border-color:var(--accent);background:rgba(68,229,160,0.15);color:var(--accent)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(255,92,106,0.1);color:var(--red)}
+.quiz-result{
+  margin-top:10px;padding:10px 16px;border-radius:var(--radius-pill);
+  font-weight:700;font-size:.85rem;text-align:center;
+}
+.quiz-result.pass{background:rgba(68,229,160,0.12);color:var(--accent);border:1px solid var(--accent-glow)}
+.quiz-result.fail{background:rgba(255,92,106,0.1);color:var(--red);border:1px solid rgba(255,92,106,0.3)}
+
+/* Badge */
+.badge-display{
+  text-align:center;padding:20px;margin-top:16px;
+  background:var(--accent-soft);border:1px solid var(--accent-glow);
+  border-radius:var(--radius);
+}
+.badge-emoji{font-size:3rem}
+.badge-text{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:8px}
+
+/* ═══════════════════════════════════════════ */
+/* LAUNCH PAD                                  */
+/* ═══════════════════════════════════════════ */
+.steps-progress{
+  display:flex;gap:4px;margin-bottom:20px;
+}
+.step-dot{
+  flex:1;height:6px;border-radius:3px;background:var(--bg3);
+  transition:background .3s;
+}
+.step-dot.done{background:var(--accent)}
+.step-dot.current{background:var(--yellow)}
+.step-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin-bottom:12px;animation:fadeUp .3s ease;
+}
+.step-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.step-num{
+  width:40px;height:40px;border-radius:50%;background:var(--gradient-btn);
+  color:var(--bg);font-family:var(--font-display);font-size:1.2rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700}
+.step-content{font-size:.9rem;line-height:1.7;color:var(--text2)}
+.step-content strong{color:var(--text)}
+.check-item{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-radius:var(--radius-sm);background:var(--bg3);margin:8px 0;
+  cursor:pointer;transition:all .2s;font-size:.88rem;
+}
+.check-item:hover{background:var(--accent-soft)}
+.check-box{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .2s;font-size:.75rem;
+}
+.check-item.checked .check-box{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.step-nav{display:flex;gap:8px;margin-top:16px;justify-content:center}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE                                  */
+/* ═══════════════════════════════════════════ */
+@media(max-width:640px){
+  .header{padding:10px 16px;margin:0 -16px}
+  .logo-text{font-size:1.1rem}
+  .nav-btn{font-size:.78rem;padding:10px 6px}
+  .concept-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .server-item{grid-template-columns:1fr 60px 60px 20px;padding:8px 10px}
+  .settings-grid{grid-template-columns:1fr}
+  .mode-tabs{flex-direction:column}
+}
+
+/* ═══════════════════════════════════════════ */
+/* CONFETTI                                    */
+/* ═══════════════════════════════════════════ */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:2000}
+.confetti-piece{
+  position:absolute;width:8px;height:8px;top:-10px;
+  animation:confetti-fall 2.5s ease forwards;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+}
+
+/* Threat radar */
+.radar-wrap{text-align:center;margin:16px 0}
+.radar{
+  width:100px;height:100px;border-radius:50%;margin:0 auto;
+  border:2px solid var(--border);position:relative;overflow:hidden;
+  background:radial-gradient(circle,var(--accent-soft) 0%,transparent 70%);
+}
+.radar-sweep{
+  position:absolute;top:0;left:50%;width:50%;height:50%;
+  background:linear-gradient(to right,transparent,var(--accent-glow));
+  transform-origin:bottom left;animation:sweep 3s linear infinite;
+}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.radar-label{font-size:.72rem;color:var(--text2);margin-top:6px;font-weight:600}
+</style>
+</head>
+<body>
+<!-- ═══════════════════════════════════════════ -->
+<!-- STARS BACKGROUND                           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="stars-container" id="stars"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- CONFETTI                                   -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="confetti-container" id="confetti"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- APP                                        -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon"><img src="data:image/jpeg;base64,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" alt="Logo"></div>
+      <div>
+        <div class="logo-text">ROCKET <span>SHIELD</span></div>
+        <div class="logo-sub" data-i18n="logoSub">VPN for Young Explorers</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-chip off" id="statusChip">
+        <div class="status-dot"></div>
+        <span id="statusText">—</span>
+      </div>
+      <select class="hdr-select" id="langSelect" onchange="setLang(this.value)">
+        <option value="en">🇬🇧 EN</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ar">🇩🇿 عربي</option>
+      </select>
+      <select class="hdr-select" id="themeSelect" onchange="setTheme(this.value)">
+        <option value="space">🌌 Space</option>
+        <option value="desert">🏜️ Desert</option>
+        <option value="synthwave">🎮 Synth</option>
+        <option value="paper">📜 Paper</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('command')" data-page="command"><span>🚀</span> <span data-i18n="navCommand">Command Center</span></button>
+    <button class="nav-btn" onclick="showPage('academy')" data-page="academy"><span>🧠</span> <span data-i18n="navAcademy">Academy</span></button>
+    <button class="nav-btn" onclick="showPage('launchpad')" data-page="launchpad"><span>🔧</span> <span data-i18n="navLaunchpad">Launch Pad</span></button>
+  </div>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- PAGE: COMMAND CENTER           -->
+  <!-- ═══════════════════════════════ -->
+  <div class="page active" id="page-command">
+
+    <!-- ByteBot -->
+    <div style="text-align:center;margin-top:16px">
+      <div class="bytebot" id="bytebot" onclick="bytebotClick()">
+        <div class="bytebot-antenna"></div>
+        <div class="bytebot-body" id="bytebotFace">🤖</div>
+      </div>
+      <div class="bytebot-speech" id="bytebotSpeech" data-i18n="botSleep">Zzz... tap me!</div>
+    </div>
+
+    <!-- Connection Orb -->
+    <div class="orb-wrapper">
+      <div class="orb" id="orb" onclick="toggleConnection()">
+        <div class="orb-bg"></div>
+        <div class="orb-rings">
+          <div class="orb-ring"></div>
+          <div class="orb-ring"></div>
+          <div class="orb-ring"></div>
+        </div>
+        <div class="orb-center" id="orbEmoji">🛡️</div>
+      </div>
+      <div class="orb-status" id="orbStatus" data-i18n="readyLaunch">Ready to Launch!</div>
+      <div class="orb-sub" id="orbSub" data-i18n="tapOrb">Tap the orb to connect</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:16px">
+      <button class="btn btn-large btn-primary" id="connectBtn" onclick="toggleConnection()">
+        <span id="connectBtnText" data-i18n="launchShields">🚀 Launch Shields!</span>
+      </button>
+    </div>
+
+    <!-- Stats (hidden until connected) -->
+    <div class="stats-grid" id="statsGrid" style="display:none">
+      <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-label" data-i18n="missionTime">Mission Time</div><div class="stat-value" id="statTime">00:00:00</div></div>
+      <div class="stat-card"><div class="stat-icon">⬇️</div><div class="stat-label" data-i18n="received">Received</div><div class="stat-value" id="statDown">0 B</div><div class="stat-sub" id="statDownSpeed">0 B/s</div></div>
+      <div class="stat-card"><div class="stat-icon">⬆️</div><div class="stat-label" data-i18n="sent">Sent</div><div class="stat-value" id="statUp">0 B</div><div class="stat-sub" id="statUpSpeed">0 B/s</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-label" data-i18n="speed">Speed</div><div class="stat-value" id="statPing">—</div></div>
+    </div>
+
+    <!-- Threat Radar -->
+    <div class="radar-wrap" id="radarWrap">
+      <div class="radar"><div class="radar-sweep"></div></div>
+      <div class="radar-label" id="radarLabel" data-i18n="threatsDetected">⚠️ Threats detected!</div>
+    </div>
+
+    <!-- Servers -->
+    <div class="section-title" data-i18n="chooseBase">🌍 Choose Your Base!</div>
+    <div class="server-list" id="serverList"></div>
+
+    <!-- Ship Customizer -->
+    <div class="section-title" data-i18n="shipColor">🎨 Ship Color</div>
+    <div class="ship-colors" id="shipColors"></div>
+
+    <!-- Settings -->
+    <div class="section-title" data-i18n="missionControl">⚙️ Mission Control</div>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <div class="setting-label">🛡️ <span data-i18n="forceField">Force Field</span></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">🚀 <span data-i18n="autoLaunch">Auto-Launch</span></div>
+        <div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">🔊 <span data-i18n="soundFx">Sound FX</span></div>
+        <div class="toggle on" id="sfxToggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">⚡ <span data-i18n="protocol">Protocol</span></div>
+        <select class="hdr-select" style="width:auto">
+          <option>WireGuard</option>
+          <option>OpenVPN (UDP)</option>
+          <option>OpenVPN (TCP)</option>
+          <option>IKEv2</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- PAGE: MISSION ACADEMY          -->
+  <!-- ═══════════════════════════════ -->
+  <div class="page" id="page-academy">
+    <div style="text-align:center;margin:16px 0">
+      <div class="bytebot">
+        <div class="bytebot-antenna"></div>
+        <div class="bytebot-body">📚</div>
+      </div>
+      <div class="bytebot-speech" data-i18n="pickMode">Pick your level, Commander!</div>
+    </div>
+
+    <div class="mode-tabs" id="modeTabs">
+      <div class="mode-tab active" onclick="setMode('newbie')">
+        <div class="mode-emoji">🟢</div>
+        <div class="mode-name" data-i18n="newbie">Newbie Cadet</div>
+        <div class="mode-count" id="newbieCount">0/8</div>
+      </div>
+      <div class="mode-tab" onclick="setMode('explorer')">
+        <div class="mode-emoji">🟡</div>
+        <div class="mode-name" data-i18n="explorer">Explorer Pilot</div>
+        <div class="mode-count" id="explorerCount">0/10</div>
+      </div>
+      <div class="mode-tab" onclick="setMode('advanced')">
+        <div class="mode-emoji">🔴</div>
+        <div class="mode-name" data-i18n="advanced">Advanced Commander</div>
+        <div class="mode-count" id="advancedCount">0/12</div>
+      </div>
+    </div>
+
+    <div class="concept-grid" id="conceptGrid"></div>
+    <div id="badgeArea"></div>
+  </div>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- PAGE: LAUNCH PAD               -->
+  <!-- ═══════════════════════════════ -->
+  <div class="page" id="page-launchpad">
+    <div style="text-align:center;margin:16px 0">
+      <div class="bytebot">
+        <div class="bytebot-antenna"></div>
+        <div class="bytebot-body">🔧</div>
+      </div>
+      <div class="bytebot-speech" data-i18n="installGuide">Let's install a real VPN!</div>
+    </div>
+
+    <div class="steps-progress" id="stepsProgress"></div>
+    <div id="stepContent"></div>
+    <div class="step-nav">
+      <button class="btn btn-outline" id="stepPrev" onclick="stepNav(-1)" data-i18n="prev">⬅ Back</button>
+      <button class="btn btn-primary" id="stepNext" onclick="stepNav(1)" data-i18n="next">Next ➡</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL                                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// i18n TRANSLATIONS
+// ═══════════════════════════════════════════
+const i18n = {
+  en: {
+    logoSub:"VPN for Young Explorers",navCommand:"Command Center",navAcademy:"Academy",navLaunchpad:"Launch Pad",
+    readyLaunch:"Ready to Launch! 🚀",tapOrb:"Tap the orb to connect",
+    blastingOff:"Blasting Off... 🔥",shieldsUp:"Shields Up! ✅",
+    launchShields:"🚀 Launch Shields!",disconnect:"🛑 Disconnect",connecting:"⏳ Blasting Off...",
+    protected:"PROTECTED",unprotected:"UNPROTECTED",
+    missionTime:"Mission Time",received:"Received",sent:"Sent",speed:"Speed",
+    chooseBase:"🌍 Choose Your Base!",shipColor:"🎨 Ship Color",
+    missionControl:"⚙️ Mission Control",forceField:"Force Field",autoLaunch:"Auto-Launch",
+    soundFx:"Sound FX",protocol:"Protocol",
+    botSleep:"Zzz... tap me!",botAwake:"I'm ByteBot! Let's go!",botConnected:"Shields activated, Commander!",
+    botQuiz:"Let's test your knowledge!",
+    pickMode:"Pick your level, Commander!",
+    newbie:"Newbie Cadet",explorer:"Explorer Pilot",advanced:"Advanced Commander",
+    installGuide:"Let's install a real VPN!",
+    prev:"⬅ Back",next:"Next ➡",
+    threatsDetected:"⚠️ Threats detected — shields down!",allClear:"✅ All clear — you're protected!",
+    metaphor:"🚀 Space Metaphor",funFact:"💡 Did You Know?",quizTime:"🧪 Quiz Time!",
+    correct:"🎉 Correct! ByteBot approves!",wrong:"❌ Try again, Commander!",
+    badgeEarned:"🎖️ Badge Earned!",
+    badgeNewbie:"Newbie Cadet Badge",badgeExplorer:"Explorer Pilot Badge",badgeAdvanced:"Galaxy Commander Badge",
+    step1title:"Choose Your VPN",step1text:"First, pick your spaceship! Ask a parent to help choose a VPN app.",
+    step1free:"<strong>Free VPNs</strong> — Good for trying, limited data",
+    step1paid:"<strong>Paid VPNs</strong> — Full power, faster, safer",
+    step1builtin:"<strong>Built-in VPNs</strong> — Some browsers have one!",
+    step1warn:"⚠️ Always ask a parent before downloading!",
+    step2title:"Download & Install",step2text:"Download the app from your app store:",
+    step2ios:"🍎 App Store (iPhone/iPad)",step2android:"🤖 Google Play (Android)",step2pc:"💻 Website (Windows/Mac)",
+    step3title:"Create Account & Connect",step3text:"Open the app, create an account (ask a parent for help), pick a server, and hit <strong>Connect</strong>!",
+    step4title:"Test Your VPN",step4text:"Let's make sure it's working! Complete each check:",
+    step4check1:"🕵️ Go to whatismyip.com — is your IP different?",
+    step4check2:"📍 Connect to Japan — does it show Japan?",
+    step4check3:"⚡ Go to fast.com — test your speed",
+    step4check4:"🔒 Go to dnsleaktest.com — no leaks?",
+    step5title:"You're Protected!",step5text:"Amazing work, Commander! Your shields are up and running. You're now browsing safely! 🎉",
+    // Concept cards - Newbie
+    n1t:"What is a VPN?",n1h:"Your invisible bubble",
+    n1m:"A VPN is like an invisible bubble around you. When you go on the internet, nobody can see what you're doing inside your bubble!",
+    n1f:"VPN stands for Virtual Private Network — but you can call it Very Private Navigation!",
+    n1q:"A VPN is like...",n1a:"An invisible bubble",n1b:"A video game",n1c:"A type of computer",n1x:"0",
+    n2t:"What's an IP Address?",n2h:"Your internet home address",
+    n2m:"Every device has a number called an IP address — it's like your home address but for the internet. A VPN hides it so strangers can't find you!",
+    n2f:"Your phone, tablet, AND computer all have different IP addresses!",
+    n2q:"An IP address is...",n2a:"A secret password",n2b:"Your internet address",n2c:"A website name",n2x:"1",
+    n3t:"Good WiFi vs Sneaky WiFi",n3h:"Not all WiFi is safe",
+    n3m:"WiFi at home is like your safe spaceship. But WiFi at a café or airport? Aliens might be watching! A VPN keeps you safe everywhere.",
+    n3f:"There are over 500 million public WiFi spots in the world!",
+    n3q:"Public WiFi is...",n3a:"Always dangerous",n3b:"Safe with a VPN",n3c:"Faster than home",n3x:"1",
+    n4t:"What is a Password?",n4h:"Your secret key",
+    n4m:"A password is like a secret key to your spaceship. If it's too easy (like '1234'), space pirates can guess it! Make it long and weird.",
+    n4f:"The most common password in the world is still '123456' — don't be that person!",
+    n4q:"A good password is...",n4a:"Your birthday",n4b:"Long and unique",n4c:"The word 'password'",n4x:"1",
+    n5t:"What are Cookies?",n5h:"Not the tasty kind!",
+    n5m:"Internet cookies are tiny notes websites leave on your device. They remember you — like a shopkeeper who remembers your favorite candy. Some are helpful, some are sneaky trackers!",
+    n5f:"The name 'cookie' comes from 'magic cookie', a term programmers used in the 1980s!",
+    n5q:"Internet cookies...",n5a:"Are food",n5b:"Remember your visits",n5c:"Are viruses",n5x:"1",
+    n6t:"How Does the Internet Work?",n6h:"The world's biggest network",
+    n6m:"The internet is like a giant web of roads connecting every computer on Earth. When you visit a website, your request travels through these roads at the speed of light!",
+    n6f:"Over 5 billion people use the internet — that's more than half of everyone on Earth!",
+    n6q:"The internet connects...",n6a:"Only nearby computers",n6b:"Computers worldwide",n6c:"Only phones",n6x:"1",
+    n7t:"What is Personal Data?",n7h:"Info that's YOU",
+    n7m:"Personal data is anything that identifies you — your name, photos, location, what you search for. It's like your spaceship's flight log. Keep it safe!",
+    n7f:"Every day, humans create 2.5 quintillion bytes of data. That's a 25 followed by 17 zeros!",
+    n7q:"Personal data includes...",n7a:"Only your name",n7b:"Name, photos, location & more",n7c:"Just passwords",n7x:"1",
+    n8t:"What to Never Share Online",n8h:"Keep these secret!",
+    n8m:"Never share your real name, address, school name, phone number, or passwords with strangers online. It's like giving a stranger the keys to your spaceship!",
+    n8f:"95% of cybersecurity problems happen because of human mistakes, not computer bugs!",
+    n8q:"You should never share...",n8a:"Your favorite color",n8b:"Your home address",n8c:"Your favorite game",n8x:"1",
+    // Explorer
+    e1t:"Encryption",e1h:"Secret alien language",
+    e1m:"Encryption turns your messages into alien language. You type 'Hello' but it becomes '✦◈✧⬡⬢'. Only the person you're sending to has the decoder ring to read it!",
+    e1f:"Modern encryption is so strong, every computer on Earth working together for a billion years still couldn't crack it!",
+    e1q:"Encryption...",e1a:"Deletes your data",e1b:"Turns data into secret code",e1c:"Makes internet faster",e1x:"1",
+    e2t:"Servers & Locations",e2h:"Secret space bases",
+    e2m:"VPN servers are secret bases on different planets. Connect to Tokyo Base and websites think you're in Japan. It's like teleporting!",
+    e2f:"Big VPN companies have over 10,000 servers in 100 countries!",
+    e2q:"Connecting to a server in France means...",e2a:"You move to France",e2b:"Websites think you're in France",e2c:"You speak French now",e2x:"1",
+    e3t:"Tunneling",e3h:"Your secret passage",
+    e3m:"A VPN builds a secret tunnel for your data. Imagine a hidden underground passage — nobody above ground can see you traveling!",
+    e3f:"Data in a VPN tunnel moves at nearly the speed of light — 186,000 miles per SECOND!",
+    e3q:"A VPN tunnel...",e3a:"Is a real hole underground",e3b:"Is a protected path for your data",e3c:"Only works on weekends",e3x:"1",
+    e4t:"What is a Firewall?",e4h:"Your castle wall",
+    e4m:"A firewall is like the wall around your space station. It checks everyone trying to get in and blocks the bad guys. Only approved visitors get through!",
+    e4f:"The name 'firewall' comes from real walls built to stop fire from spreading in buildings!",
+    e4q:"A firewall...",e4a:"Starts fires",e4b:"Blocks unauthorized access",e4c:"Is an antivirus",e4x:"1",
+    e5t:"What is DNS?",e5h:"The internet's phone book",
+    e5m:"DNS translates website names (like google.com) into numbers computers understand. It's like a phone book — you look up a name and get the number!",
+    e5f:"DNS was invented in 1983. Before that, there was literally a text file with every computer's address!",
+    e5q:"DNS translates...",e5a:"Languages",e5b:"Website names to numbers",e5c:"Emojis",e5x:"1",
+    e6t:"What Does 'Anonymous' Mean?",e6h:"Being a mystery",
+    e6m:"Being anonymous means nobody knows who you are — like wearing an invisible cloak in space. A VPN helps, but remember: no tool makes you 100% invisible!",
+    e6f:"The word 'anonymous' comes from Greek and literally means 'without a name'!",
+    e6q:"Being anonymous means...",e6a:"Being famous",e6b:"Nobody knows who you are",e6c:"Having a cool username",e6x:"1",
+    e7t:"What is Phishing?",e7h:"Fake bait!",
+    e7m:"Phishing is when hackers send fake emails or messages pretending to be someone you trust — like a space pirate disguised as mission control! They want your passwords and data.",
+    e7f:"Over 3.4 billion phishing emails are sent every single day worldwide!",
+    e7q:"Phishing is...",e7a:"A sport",e7b:"Fake messages to steal your info",e7c:"A computer virus",e7x:"1",
+    e8t:"What is Bandwidth?",e8h:"How fat your internet pipe is",
+    e8m:"Bandwidth is how much data can flow through your internet connection at once. Think of it like a water pipe — a fat pipe = more water (data) flowing fast!",
+    e8f:"The fastest internet speed ever recorded was 319 terabits per second. You could download all of Netflix in under a second!",
+    e8q:"More bandwidth means...",e8a:"More storage",e8b:"Faster data flow",e8c:"Better graphics",e8x:"1",
+    e9t:"Two-Factor Authentication",e9h:"Double lock on your door",
+    e9m:"2FA means using two keys instead of one. First your password, then a code sent to your phone. Even if pirates steal your password, they can't get in without your phone!",
+    e9f:"Enabling 2FA blocks over 99% of automated hacking attacks!",
+    e9q:"2FA uses...",e9a:"Two passwords",e9b:"Password plus a second check",e9c:"Two computers",e9x:"1",
+    e10t:"Man-in-the-Middle Attack",e10h:"The spy between you",
+    e10m:"Imagine sending a letter to your friend, but someone secretly intercepts it, reads it, maybe changes it, then passes it along. That's a man-in-the-middle attack. A VPN stops this!",
+    e10f:"This attack type has existed since ancient times — Julius Caesar worried about intercepted messages!",
+    e10q:"A man-in-the-middle attack...",e10a:"Blocks your internet",e10b:"Secretly intercepts your data",e10c:"Speeds up connection",e10x:"1",
+    // Advanced
+    a1t:"Protocols",a1h:"Your rocket engine",
+    a1m:"Protocols are like different rocket engines. WireGuard is the new hyperdrive — only 4,000 lines of code, super fast. OpenVPN is the reliable old engine. IKEv2 reconnects instantly when you switch networks.",
+    a1f:"WireGuard was created by one person. OpenVPN took a whole team years to build!",
+    a1q:"WireGuard is known for being...",a1a:"The oldest protocol",a1b:"Fast and lightweight",a1c:"Only for phones",a1x:"1",
+    a2t:"Kill Switch",a2h:"Emergency airlock",
+    a2m:"If your VPN drops for even a millisecond, a kill switch instantly cuts ALL internet traffic. Zero data leaks. It's like an emergency airlock — seal everything before the air escapes.",
+    a2f:"A kill switch reacts in under 1 millisecond — that's 300x faster than a blink!",
+    a2q:"A kill switch activates when...",a2a:"You press a button",a2b:"The VPN connection drops",a2c:"Your battery dies",a2x:"1",
+    a3t:"Double VPN & Onion Routing",a3h:"Layers of protection",
+    a3m:"Normal VPN = one tunnel. Double VPN = tunnel inside a tunnel! Your data gets encrypted twice. Onion routing wraps data in layers — each server peels one layer but never sees the full picture.",
+    a3f:"The Tor network uses onion routing through about 7,000 volunteer servers worldwide!",
+    a3q:"Double VPN means...",a3a:"Paying twice",a3b:"Data encrypted through two servers",a3c:"Two internet connections",a3x:"1",
+    a4t:"DNS & WebRTC Leaks",a4h:"Sneaky data escapes",
+    a4m:"Even with a VPN, sneaky leaks can reveal you. DNS leaks happen when your device secretly asks your normal provider to find websites. WebRTC lets browsers accidentally share your real IP. Good VPNs block both!",
+    a4f:"About 25% of VPN users have experienced a DNS leak without even knowing it!",
+    a4q:"A DNS leak means...",a4a:"Water in your computer",a4b:"Your real location sneaks out",a4c:"Your DNS is broken",a4x:"1",
+    a5t:"No-Log Policy",a5h:"VPNs that forget you",
+    a5m:"A no-log VPN promises to never record what you do. It's like a taxi driver who forgets every passenger the moment they get out. Some VPNs get audited by independent companies to prove it!",
+    a5f:"In 2011, a VPN provider's logs were used in a court case — that's why no-log policies became so important!",
+    a5q:"No-log means...",a5a:"No login needed",a5b:"Your activity isn't recorded",a5c:"No download limits",a5x:"1",
+    a6t:"AES-256 Encryption",a6h:"Military-grade math",
+    a6m:"AES-256 is the encryption standard used by militaries and banks. The '256' means 2²⁵⁶ possible keys — that's more combinations than atoms in the observable universe!",
+    a6f:"If you could check a billion billion keys per second, cracking AES-256 would still take longer than the age of the universe!",
+    a6q:"AES-256 is...",a6a:"A video codec",a6b:"An encryption standard",a6c:"A programming language",a6x:"1",
+    a7t:"IPv4 vs IPv6",a7h:"Running out of addresses",
+    a7m:"IPv4 gives us about 4 billion addresses — we've run out! IPv6 creates 340 undecillion addresses (that's 340 followed by 36 zeros). Enough for every grain of sand on Earth to have billions of addresses.",
+    a7f:"IPv6 was designed in 1998 but still isn't fully adopted. The internet moves slowly!",
+    a7q:"We switched to IPv6 because...",a7a:"It's faster",a7b:"IPv4 ran out of addresses",a7c:"It uses less data",a7x:"1",
+    a8t:"Split Tunneling",a8h:"VPN for some, normal for others",
+    a8m:"Split tunneling lets you choose which apps use the VPN and which don't. Streaming through your local internet while your browser stays encrypted — best of both worlds!",
+    a8f:"Split tunneling can increase your internet speed by up to 50% for non-VPN traffic!",
+    a8q:"Split tunneling...",a8a:"Splits your screen",a8b:"Routes some traffic through VPN, some not",a8c:"Uses two VPNs",a8x:"1",
+    a9t:"Port Forwarding",a9h:"Opening secret doors",
+    a9m:"Ports are like numbered doors on your spaceship (65,535 of them!). Port forwarding tells your VPN to open a specific door so certain traffic can reach you directly — useful for gaming and hosting servers.",
+    a9f:"Port 80 is for regular web traffic, 443 is for encrypted HTTPS. Port 25 is for email!",
+    a9q:"Port forwarding...",a9a:"Sends mail faster",a9b:"Opens specific network doors",a9c:"Blocks all traffic",a9x:"1",
+    a10t:"Obfuscation",a10h:"Hiding that you're hiding",
+    a10m:"Some networks can detect and block VPN traffic. Obfuscation disguises your VPN data to look like regular internet traffic — it's like a spy wearing a normal outfit to blend into the crowd!",
+    a10f:"Countries like China use 'deep packet inspection' to detect VPNs — obfuscation is the counter-weapon!",
+    a10q:"Obfuscation...",a10a:"Makes VPN faster",a10b:"Disguises VPN traffic as normal traffic",a10c:"Encrypts twice",a10x:"1",
+    a11t:"Handshake & Key Exchange",a11h:"The secret greeting",
+    a11m:"Before encrypting, two devices must agree on a secret key — without anyone listening! It's like two spies meeting and creating a code by exchanging clues in public, but nobody else can figure it out.",
+    a11f:"The Diffie-Hellman key exchange (1976) made this possible and changed cryptography forever!",
+    a11q:"A handshake in VPN...",a11a:"Is a physical greeting",a11b:"Establishes a shared secret key",a11c:"Tests internet speed",a11x:"1",
+    a12t:"Myth vs Fact",a12h:"5 VPN myths busted!",
+    a12m:"Myth: VPNs make you 100% anonymous. Fact: They help a lot but aren't magic. Myth: VPNs are illegal. Fact: They're legal in most countries. Myth: Free VPNs are just as good. Fact: Many sell your data! Myth: VPNs slow you way down. Fact: Modern ones barely affect speed. Myth: Only hackers use VPNs. Fact: Billions of normal people do!",
+    a12f:"Over 1.5 billion people worldwide use VPNs — including businesses, students, and families!",
+    a12q:"VPNs make you 100% anonymous...",a12a:"True",a12b:"False — they help but aren't magic",a12c:"Only on Tuesdays",a12x:"1",
+  },
+  fr: {
+    logoSub:"VPN pour Jeunes Explorateurs",navCommand:"Centre de Commande",navAcademy:"Académie",navLaunchpad:"Rampe de Lancement",
+    readyLaunch:"Prêt au décollage ! 🚀",tapOrb:"Touche l'orbe pour te connecter",
+    blastingOff:"Décollage... 🔥",shieldsUp:"Boucliers activés ! ✅",
+    launchShields:"🚀 Activer les Boucliers !",disconnect:"🛑 Déconnecter",connecting:"⏳ Décollage...",
+    protected:"PROTÉGÉ",unprotected:"NON PROTÉGÉ",
+    missionTime:"Temps de Mission",received:"Reçu",sent:"Envoyé",speed:"Vitesse",
+    chooseBase:"🌍 Choisis ta Base !",shipColor:"🎨 Couleur du Vaisseau",
+    missionControl:"⚙️ Contrôle de Mission",forceField:"Champ de Force",autoLaunch:"Auto-Lancement",
+    soundFx:"Effets Sonores",protocol:"Protocole",
+    botSleep:"Zzz... touche-moi !",botAwake:"Je suis ByteBot ! C'est parti !",botConnected:"Boucliers activés, Commandant !",
+    botQuiz:"Testons tes connaissances !",
+    pickMode:"Choisis ton niveau, Commandant !",
+    newbie:"Cadet Débutant",explorer:"Pilote Explorateur",advanced:"Commandant Avancé",
+    installGuide:"Installons un vrai VPN !",
+    prev:"⬅ Retour",next:"Suivant ➡",
+    threatsDetected:"⚠️ Menaces détectées — boucliers baissés !",allClear:"✅ Tout est clair — tu es protégé !",
+    metaphor:"🚀 Métaphore Spatiale",funFact:"💡 Le Savais-Tu ?",quizTime:"🧪 Quiz !",
+    correct:"🎉 Correct ! ByteBot approuve !",wrong:"❌ Réessaie, Commandant !",
+    badgeEarned:"🎖️ Badge Obtenu !",
+    badgeNewbie:"Badge Cadet Débutant",badgeExplorer:"Badge Pilote Explorateur",badgeAdvanced:"Badge Commandant Galactique",
+    step1title:"Choisis ton VPN",step1text:"D'abord, choisis ton vaisseau ! Demande à un parent de t'aider.",
+    step1free:"<strong>VPN Gratuits</strong> — Bon pour essayer, données limitées",
+    step1paid:"<strong>VPN Payants</strong> — Pleine puissance, plus rapide",
+    step1builtin:"<strong>VPN Intégrés</strong> — Certains navigateurs en ont un !",
+    step1warn:"⚠️ Demande toujours à un parent avant de télécharger !",
+    step2title:"Télécharge & Installe",step2text:"Télécharge l'appli depuis ton store :",
+    step2ios:"🍎 App Store (iPhone/iPad)",step2android:"🤖 Google Play (Android)",step2pc:"💻 Site Web (Windows/Mac)",
+    step3title:"Crée un Compte & Connecte-toi",step3text:"Ouvre l'appli, crée un compte (demande de l'aide), choisis un serveur et appuie sur <strong>Connecter</strong> !",
+    step4title:"Teste ton VPN",step4text:"Vérifions que ça marche ! Complète chaque vérification :",
+    step4check1:"🕵️ Va sur whatismyip.com — ton IP est différente ?",
+    step4check2:"📍 Connecte-toi au Japon — ça montre le Japon ?",
+    step4check3:"⚡ Va sur fast.com — teste ta vitesse",
+    step4check4:"🔒 Va sur dnsleaktest.com — pas de fuites ?",
+    step5title:"Tu es Protégé !",step5text:"Super travail, Commandant ! Tes boucliers sont activés. Tu navigues en sécurité ! 🎉",
+    n1t:"C'est quoi un VPN ?",n1h:"Ta bulle invisible",
+    n1m:"Un VPN c'est comme une bulle invisible autour de toi. Quand tu vas sur internet, personne ne peut voir ce que tu fais dans ta bulle !",
+    n1f:"VPN veut dire Réseau Privé Virtuel — mais tu peux l'appeler Navigation Très Privée !",
+    n1q:"Un VPN c'est comme...",n1a:"Une bulle invisible",n1b:"Un jeu vidéo",n1c:"Un type d'ordinateur",n1x:"0",
+    n2t:"C'est quoi une adresse IP ?",n2h:"Ton adresse internet",
+    n2m:"Chaque appareil a un numéro appelé adresse IP — c'est comme ton adresse maison mais pour internet. Un VPN la cache !",
+    n2f:"Ton téléphone, ta tablette ET ton ordinateur ont tous des adresses IP différentes !",
+    n2q:"Une adresse IP c'est...",n2a:"Un mot de passe",n2b:"Ton adresse internet",n2c:"Un nom de site",n2x:"1",
+    n3t:"WiFi Sûr vs WiFi Piégé",n3h:"Tous les WiFi ne sont pas sûrs",
+    n3m:"Le WiFi à la maison c'est ton vaisseau sûr. Mais le WiFi au café ? Des aliens pourraient regarder ! Un VPN te protège partout.",
+    n3f:"Il y a plus de 500 millions de spots WiFi publics dans le monde !",
+    n3q:"Le WiFi public est...",n3a:"Toujours dangereux",n3b:"Sûr avec un VPN",n3c:"Plus rapide que chez toi",n3x:"1",
+    n4t:"C'est quoi un Mot de Passe ?",n4h:"Ta clé secrète",
+    n4m:"Un mot de passe c'est une clé secrète pour ton vaisseau. S'il est trop facile (comme '1234'), les pirates peuvent le deviner !",
+    n4f:"Le mot de passe le plus courant au monde est toujours '123456' !",
+    n4q:"Un bon mot de passe est...",n4a:"Ta date d'anniversaire",n4b:"Long et unique",n4c:"Le mot 'password'",n4x:"1",
+    n5t:"C'est quoi les Cookies ?",n5h:"Pas les gâteaux !",
+    n5m:"Les cookies internet sont des petites notes que les sites laissent sur ton appareil. Certains sont utiles, d'autres sont des trackers sournois !",
+    n5f:"Le nom 'cookie' vient de 'magic cookie', un terme des programmeurs des années 80 !",
+    n5q:"Les cookies internet...",n5a:"Sont de la nourriture",n5b:"Se souviennent de tes visites",n5c:"Sont des virus",n5x:"1",
+    n6t:"Comment Fonctionne Internet ?",n6h:"Le plus grand réseau du monde",
+    n6m:"Internet c'est comme un réseau géant de routes qui connecte tous les ordinateurs. Quand tu visites un site, ta demande voyage à la vitesse de la lumière !",
+    n6f:"Plus de 5 milliards de personnes utilisent internet !",
+    n6q:"Internet connecte...",n6a:"Seulement les ordinateurs proches",n6b:"Les ordinateurs du monde entier",n6c:"Seulement les téléphones",n6x:"1",
+    n7t:"C'est quoi les Données Personnelles ?",n7h:"Les infos qui te concernent",
+    n7m:"Les données personnelles c'est tout ce qui t'identifie — ton nom, tes photos, ta position. C'est le journal de bord de ton vaisseau. Garde-le en sécurité !",
+    n7f:"Chaque jour, les humains créent 2,5 quintillions d'octets de données !",
+    n7q:"Les données personnelles incluent...",n7a:"Seulement ton nom",n7b:"Nom, photos, position et plus",n7c:"Juste les mots de passe",n7x:"1",
+    n8t:"Ne Jamais Partager en Ligne",n8h:"Garde ces secrets !",
+    n8m:"Ne partage jamais ton vrai nom, adresse, école ou numéro de téléphone avec des inconnus en ligne !",
+    n8f:"95% des problèmes de cybersécurité viennent d'erreurs humaines !",
+    n8q:"Tu ne dois jamais partager...",n8a:"Ta couleur préférée",n8b:"Ton adresse",n8c:"Ton jeu préféré",n8x:"1",
+    e1t:"Le Chiffrement",e1h:"Langage alien secret",
+    e1m:"Le chiffrement transforme tes messages en langage alien. Tu tapes 'Bonjour' mais ça devient '✦◈✧⬡⬢'. Seul le destinataire a le décodeur !",
+    e1f:"Le chiffrement moderne est si fort que tous les ordinateurs du monde ne pourraient pas le casser en un milliard d'années !",
+    e1q:"Le chiffrement...",e1a:"Supprime tes données",e1b:"Transforme les données en code secret",e1c:"Accélère internet",e1x:"1",
+    e2t:"Serveurs & Emplacements",e2h:"Bases spatiales secrètes",
+    e2m:"Les serveurs VPN sont des bases sur différentes planètes. Connecte-toi à la Base Tokyo et les sites pensent que tu es au Japon. Téléportation !",
+    e2f:"Les grands fournisseurs VPN ont plus de 10 000 serveurs dans 100 pays !",
+    e2q:"Se connecter à un serveur en France signifie...",e2a:"Tu déménages en France",e2b:"Les sites pensent que tu es en France",e2c:"Tu parles français maintenant",e2x:"1",
+    e3t:"Le Tunneling",e3h:"Ton passage secret",
+    e3m:"Un VPN construit un tunnel secret pour tes données. Imagine un passage souterrain caché — personne en surface ne te voit !",
+    e3f:"Les données dans un tunnel VPN voyagent presque à la vitesse de la lumière !",
+    e3q:"Un tunnel VPN...",e3a:"Est un vrai trou sous terre",e3b:"Est un chemin protégé pour tes données",e3c:"Ne fonctionne que le weekend",e3x:"1",
+    e4t:"C'est quoi un Pare-feu ?",e4h:"Le mur de ton château",
+    e4m:"Un pare-feu vérifie tous ceux qui essaient d'entrer dans ta station spatiale et bloque les méchants !",
+    e4f:"Le nom 'pare-feu' vient des vrais murs construits pour empêcher le feu de se propager !",
+    e4q:"Un pare-feu...",e4a:"Allume des feux",e4b:"Bloque les accès non autorisés",e4c:"Est un antivirus",e4x:"1",
+    e5t:"C'est quoi le DNS ?",e5h:"L'annuaire d'internet",
+    e5m:"Le DNS traduit les noms de sites (comme google.com) en numéros. C'est comme un annuaire téléphonique !",
+    e5f:"Le DNS a été inventé en 1983. Avant ça, il y avait un simple fichier texte avec toutes les adresses !",
+    e5q:"Le DNS traduit...",e5a:"Des langues",e5b:"Les noms de sites en numéros",e5c:"Des emojis",e5x:"1",
+    e6t:"Que Signifie 'Anonyme' ?",e6h:"Être un mystère",
+    e6m:"Être anonyme signifie que personne ne sait qui tu es — comme porter une cape d'invisibilité. Un VPN aide, mais ce n'est pas magique !",
+    e6f:"Le mot 'anonyme' vient du grec et signifie littéralement 'sans nom' !",
+    e6q:"Être anonyme signifie...",e6a:"Être célèbre",e6b:"Personne ne sait qui tu es",e6c:"Avoir un pseudo cool",e6x:"1",
+    e7t:"C'est quoi le Phishing ?",e7h:"Un faux appât !",
+    e7m:"Le phishing c'est quand des hackers envoient des faux messages en se faisant passer pour quelqu'un de confiance — comme un pirate déguisé en contrôle de mission !",
+    e7f:"Plus de 3,4 milliards d'emails de phishing sont envoyés chaque jour !",
+    e7q:"Le phishing c'est...",e7a:"Un sport",e7b:"De faux messages pour voler tes infos",e7c:"Un virus",e7x:"1",
+    e8t:"C'est quoi la Bande Passante ?",e8h:"La taille de ton tuyau internet",
+    e8m:"La bande passante c'est la quantité de données qui peut circuler en même temps. Un gros tuyau = plus de données qui passent vite !",
+    e8f:"La vitesse internet la plus rapide jamais enregistrée était de 319 térabits par seconde !",
+    e8q:"Plus de bande passante signifie...",e8a:"Plus de stockage",e8b:"Un flux de données plus rapide",e8c:"De meilleurs graphiques",e8x:"1",
+    e9t:"Authentification à Deux Facteurs",e9h:"Double verrou sur ta porte",
+    e9m:"La 2FA utilise deux clés au lieu d'une. D'abord ton mot de passe, puis un code sur ton téléphone. Même si les pirates volent ton mot de passe, ils ne peuvent pas entrer !",
+    e9f:"Activer la 2FA bloque plus de 99% des attaques automatisées !",
+    e9q:"La 2FA utilise...",e9a:"Deux mots de passe",e9b:"Mot de passe plus une deuxième vérification",e9c:"Deux ordinateurs",e9x:"1",
+    e10t:"Attaque de l'Homme du Milieu",e10h:"L'espion entre toi et le site",
+    e10m:"Imagine envoyer une lettre mais quelqu'un l'intercepte secrètement, la lit, peut-être la modifie. C'est une attaque man-in-the-middle. Un VPN empêche ça !",
+    e10f:"Ce type d'attaque existe depuis l'Antiquité — Jules César s'inquiétait déjà des messages interceptés !",
+    e10q:"Une attaque man-in-the-middle...",e10a:"Bloque ton internet",e10b:"Intercepte secrètement tes données",e10c:"Accélère la connexion",e10x:"1",
+    a1t:"Protocoles",a1h:"Le moteur de ta fusée",
+    a1m:"Les protocoles sont comme différents moteurs. WireGuard est le nouveau hyperdrive — seulement 4 000 lignes de code. OpenVPN est le vieux moteur fiable. IKEv2 se reconnecte instantanément.",
+    a1f:"WireGuard a été créé par une seule personne !",
+    a1q:"WireGuard est connu pour être...",a1a:"Le plus ancien protocole",a1b:"Rapide et léger",a1c:"Seulement pour les téléphones",a1x:"1",
+    a2t:"Kill Switch",a2h:"Sas d'urgence",
+    a2m:"Si ton VPN tombe ne serait-ce qu'une milliseconde, le kill switch coupe TOUT le trafic. Zéro fuite. Comme un sas d'urgence !",
+    a2f:"Un kill switch réagit en moins d'1 milliseconde — 300x plus vite qu'un clignement d'œil !",
+    a2q:"Un kill switch s'active quand...",a2a:"Tu appuies sur un bouton",a2b:"La connexion VPN tombe",a2c:"Ta batterie meurt",a2x:"1",
+    a3t:"Double VPN & Routage en Oignon",a3h:"Des couches de protection",
+    a3m:"VPN normal = un tunnel. Double VPN = tunnel dans un tunnel ! Tes données sont chiffrées deux fois. Le routage en oignon emballe les données en couches.",
+    a3f:"Le réseau Tor utilise le routage en oignon à travers environ 7 000 serveurs bénévoles !",
+    a3q:"Double VPN signifie...",a3a:"Payer deux fois",a3b:"Données chiffrées via deux serveurs",a3c:"Deux connexions internet",a3x:"1",
+    a4t:"Fuites DNS & WebRTC",a4h:"Des échappées sournoises",
+    a4m:"Même avec un VPN, des fuites sournoises peuvent te révéler. Les fuites DNS arrivent quand ton appareil demande secrètement à ton fournisseur normal. Les bons VPN bloquent ça !",
+    a4f:"Environ 25% des utilisateurs VPN ont subi une fuite DNS sans le savoir !",
+    a4q:"Une fuite DNS signifie...",a4a:"De l'eau dans ton ordi",a4b:"Ta vraie position s'échappe",a4c:"Ton DNS est cassé",a4x:"1",
+    a5t:"Politique Zéro Logs",a5h:"Les VPN qui t'oublient",
+    a5m:"Un VPN zéro logs promet de ne jamais enregistrer ce que tu fais. C'est comme un taxi qui oublie chaque passager !",
+    a5f:"En 2011, les logs d'un fournisseur VPN ont été utilisés en justice — c'est pourquoi le zéro logs est devenu crucial !",
+    a5q:"Zéro logs signifie...",a5a:"Pas de connexion nécessaire",a5b:"Ton activité n'est pas enregistrée",a5c:"Pas de limite de téléchargement",a5x:"1",
+    a6t:"Chiffrement AES-256",a6h:"Mathématiques militaires",
+    a6m:"AES-256 est le standard utilisé par les militaires et les banques. Le '256' signifie 2²⁵⁶ clés possibles — plus que d'atomes dans l'univers !",
+    a6f:"Même en vérifiant un milliard de milliards de clés par seconde, craquer l'AES-256 prendrait plus longtemps que l'âge de l'univers !",
+    a6q:"L'AES-256 est...",a6a:"Un codec vidéo",a6b:"Un standard de chiffrement",a6c:"Un langage de programmation",a6x:"1",
+    a7t:"IPv4 vs IPv6",a7h:"Pénurie d'adresses",
+    a7m:"IPv4 nous donne environ 4 milliards d'adresses — on les a épuisées ! IPv6 en crée 340 undécillions. Assez pour chaque grain de sable sur Terre !",
+    a7f:"IPv6 a été conçu en 1998 mais n'est toujours pas totalement adopté !",
+    a7q:"On est passé à IPv6 parce que...",a7a:"C'est plus rapide",a7b:"IPv4 a manqué d'adresses",a7c:"Ça utilise moins de données",a7x:"1",
+    a8t:"Split Tunneling",a8h:"VPN pour certains, normal pour d'autres",
+    a8m:"Le split tunneling te laisse choisir quelles applis utilisent le VPN et lesquelles non. Le meilleur des deux mondes !",
+    a8f:"Le split tunneling peut augmenter ta vitesse de 50% pour le trafic non-VPN !",
+    a8q:"Le split tunneling...",a8a:"Divise ton écran",a8b:"Route une partie du trafic via VPN",a8c:"Utilise deux VPN",a8x:"1",
+    a9t:"Redirection de Ports",a9h:"Ouvrir des portes secrètes",
+    a9m:"Les ports sont comme des portes numérotées sur ton vaisseau (65 535 !). La redirection de port ouvre une porte spécifique pour certains trafics.",
+    a9f:"Le port 80 est pour le web, 443 pour HTTPS, 25 pour les emails !",
+    a9q:"La redirection de port...",a9a:"Envoie le courrier plus vite",a9b:"Ouvre des portes réseau spécifiques",a9c:"Bloque tout le trafic",a9x:"1",
+    a10t:"Obfuscation",a10h:"Cacher que tu te caches",
+    a10m:"Certains réseaux détectent et bloquent les VPN. L'obfuscation déguise ton trafic VPN en trafic normal — comme un espion en tenue civile !",
+    a10f:"Des pays comme la Chine utilisent l'inspection profonde des paquets pour détecter les VPN !",
+    a10q:"L'obfuscation...",a10a:"Accélère le VPN",a10b:"Déguise le trafic VPN en trafic normal",a10c:"Chiffre deux fois",a10x:"1",
+    a11t:"Handshake & Échange de Clés",a11h:"Le salut secret",
+    a11m:"Avant de chiffrer, deux appareils doivent s'accorder sur une clé secrète — sans que personne n'écoute ! Comme deux espions qui créent un code en échangeant des indices en public.",
+    a11f:"L'échange de clés Diffie-Hellman (1976) a rendu cela possible et a changé la cryptographie !",
+    a11q:"Un handshake VPN...",a11a:"Est une poignée de main physique",a11b:"Établit une clé secrète partagée",a11c:"Teste la vitesse internet",a11x:"1",
+    a12t:"Mythe vs Réalité",a12h:"5 mythes VPN démystifiés !",
+    a12m:"Mythe : Les VPN te rendent 100% anonyme. Fait : Ils aident beaucoup mais ne sont pas magiques. Mythe : Les VPN sont illégaux. Fait : Légaux dans la plupart des pays. Mythe : Les VPN gratuits sont aussi bons. Fait : Beaucoup vendent tes données !",
+    a12f:"Plus de 1,5 milliard de personnes dans le monde utilisent des VPN !",
+    a12q:"Les VPN te rendent 100% anonyme...",a12a:"Vrai",a12b:"Faux — ils aident mais ne sont pas magiques",a12c:"Seulement le mardi",a12x:"1",
+  },
+  ar: {
+    logoSub:"VPN للمستكشفين الصغار",navCommand:"مركز القيادة",navAcademy:"الأكاديمية",navLaunchpad:"منصة الإطلاق",
+    readyLaunch:"جاهز للإطلاق! 🚀",tapOrb:"اضغط على الكرة للاتصال",
+    blastingOff:"جاري الإطلاق... 🔥",shieldsUp:"الدروع مفعّلة! ✅",
+    launchShields:"🚀 فعّل الدروع!",disconnect:"🛑 قطع الاتصال",connecting:"⏳ جاري الإطلاق...",
+    protected:"محمي",unprotected:"غير محمي",
+    missionTime:"وقت المهمة",received:"مُستلَم",sent:"مُرسَل",speed:"السرعة",
+    chooseBase:"🌍 اختر قاعدتك!",shipColor:"🎨 لون السفينة",
+    missionControl:"⚙️ مركز التحكم",forceField:"حقل القوة",autoLaunch:"إطلاق تلقائي",
+    soundFx:"مؤثرات صوتية",protocol:"البروتوكول",
+    botSleep:"Zzz... اضغط عليّ!",botAwake:"أنا بايت بوت! يلا!",botConnected:"الدروع مفعّلة يا قائد!",
+    botQuiz:"يلا نختبر معلوماتك!",
+    pickMode:"اختر مستواك يا قائد!",
+    newbie:"مبتدئ",explorer:"مستكشف",advanced:"قائد متقدم",
+    installGuide:"يلا نثبّت VPN حقيقي!",
+    prev:"⬅ رجوع",next:"التالي ➡",
+    threatsDetected:"⚠️ تهديدات — الدروع معطلة!",allClear:"✅ كل شيء آمن — أنت محمي!",
+    metaphor:"🚀 تشبيه فضائي",funFact:"💡 هل تعلم؟",quizTime:"🧪 وقت الاختبار!",
+    correct:"🎉 صحيح! بايت بوت فرحان!",wrong:"❌ حاول مرة ثانية يا قائد!",
+    badgeEarned:"🎖️ حصلت على وسام!",
+    badgeNewbie:"وسام المبتدئ",badgeExplorer:"وسام المستكشف",badgeAdvanced:"وسام قائد المجرة",
+    step1title:"اختر الـ VPN",step1text:"أول شيء، اختر سفينتك! اطلب مساعدة الوالدين.",
+    step1free:"<strong>VPN مجاني</strong> — جيد للتجربة، بيانات محدودة",
+    step1paid:"<strong>VPN مدفوع</strong> — قوة كاملة، أسرع وأأمن",
+    step1builtin:"<strong>VPN مدمج</strong> — بعض المتصفحات فيها واحد!",
+    step1warn:"⚠️ دائماً اسأل والديك قبل التحميل!",
+    step2title:"حمّل وثبّت",step2text:"حمّل التطبيق من متجرك:",
+    step2ios:"🍎 آب ستور (آيفون/آيباد)",step2android:"🤖 جوجل بلاي (أندرويد)",step2pc:"💻 الموقع (ويندوز/ماك)",
+    step3title:"أنشئ حساب واتصل",step3text:"افتح التطبيق، أنشئ حساب (اطلب مساعدة)، اختر سيرفر واضغط <strong>اتصل</strong>!",
+    step4title:"اختبر الـ VPN",step4text:"نتأكد إنه شغّال! أكمل كل فحص:",
+    step4check1:"🕵️ روح whatismyip.com — الـ IP تغيّر؟",
+    step4check2:"📍 اتصل باليابان — يظهر اليابان؟",
+    step4check3:"⚡ روح fast.com — اختبر سرعتك",
+    step4check4:"🔒 روح dnsleaktest.com — ما في تسريب؟",
+    step5title:"أنت محمي!",step5text:"عمل ممتاز يا قائد! الدروع شغّالة. أنت تتصفح بأمان! 🎉",
+    n1t:"شنو هو VPN؟",n1h:"فقاعتك الخفية",
+    n1m:"الـ VPN مثل فقاعة خفية حولك. لما تروح للإنترنت، محد يقدر يشوف شنو تسوي داخل الفقاعة!",
+    n1f:"VPN معناها شبكة افتراضية خاصة — بس قول عنها ملاحة خاصة جداً!",
+    n1q:"الـ VPN مثل...",n1a:"فقاعة خفية",n1b:"لعبة فيديو",n1c:"نوع كمبيوتر",n1x:"0",
+    n2t:"شنو عنوان IP؟",n2h:"عنوان بيتك على الإنترنت",
+    n2m:"كل جهاز عنده رقم اسمه عنوان IP — مثل عنوان بيتك بس للإنترنت. الـ VPN يخفيه!",
+    n2f:"تلفونك وتابلتك وكمبيوترك كلهم عندهم عناوين IP مختلفة!",
+    n2q:"عنوان IP هو...",n2a:"كلمة سر",n2b:"عنوانك على الإنترنت",n2c:"اسم موقع",n2x:"1",
+    n3t:"WiFi آمن vs WiFi خطير",n3h:"مش كل WiFi آمن",
+    n3m:"WiFi البيت مثل سفينتك الآمنة. بس WiFi المقهى؟ ممكن فضائيين يتجسسوا! الـ VPN يحميك في كل مكان.",
+    n3f:"في أكثر من 500 مليون نقطة WiFi عامة في العالم!",
+    n3q:"WiFi العام...",n3a:"دائماً خطير",n3b:"آمن مع VPN",n3c:"أسرع من البيت",n3x:"1",
+    n4t:"شنو كلمة السر؟",n4h:"مفتاحك السري",
+    n4m:"كلمة السر مثل مفتاح سري لسفينتك. إذا كانت سهلة مثل '1234'، القراصنة يقدرون يحزرونها!",
+    n4f:"أكثر كلمة سر مستخدمة في العالم لحد الآن هي '123456'!",
+    n4q:"كلمة سر جيدة هي...",n4a:"تاريخ ميلادك",n4b:"طويلة وفريدة",n4c:"كلمة 'password'",n4x:"1",
+    n5t:"شنو الكوكيز؟",n5h:"مش من النوع اللذيذ!",
+    n5m:"كوكيز الإنترنت هي ملاحظات صغيرة تتركها المواقع على جهازك. بعضها مفيد وبعضها متتبعات خبيثة!",
+    n5f:"اسم 'كوكي' جاء من 'magic cookie'، مصطلح من المبرمجين في الثمانينات!",
+    n5q:"كوكيز الإنترنت...",n5a:"أكل",n5b:"تتذكر زياراتك",n5c:"فيروسات",n5x:"1",
+    n6t:"كيف يشتغل الإنترنت؟",n6h:"أكبر شبكة في العالم",
+    n6m:"الإنترنت مثل شبكة طرق عملاقة تربط كل الكمبيوترات. لما تزور موقع، طلبك يسافر بسرعة الضوء!",
+    n6f:"أكثر من 5 مليارات شخص يستخدمون الإنترنت!",
+    n6q:"الإنترنت يربط...",n6a:"بس الكمبيوترات القريبة",n6b:"كمبيوترات العالم كله",n6c:"بس التلفونات",n6x:"1",
+    n7t:"شنو البيانات الشخصية؟",n7h:"معلومات تخصك",
+    n7m:"البيانات الشخصية هي كل شيء يعرّف عليك — اسمك، صورك، موقعك. مثل سجل رحلات سفينتك. احفظه بأمان!",
+    n7f:"كل يوم البشر ينتجون 2.5 كوينتيليون بايت من البيانات!",
+    n7q:"البيانات الشخصية تشمل...",n7a:"بس اسمك",n7b:"الاسم والصور والموقع وأكثر",n7c:"بس كلمات السر",n7x:"1",
+    n8t:"لا تشارك هذي أونلاين",n8h:"خلي هذي سر!",
+    n8m:"لا تشارك اسمك الحقيقي أو عنوانك أو مدرستك أو رقم تلفونك مع غرباء على الإنترنت!",
+    n8f:"95% من مشاكل الأمن السيبراني بسبب أخطاء بشرية!",
+    n8q:"لازم ما تشارك أبداً...",n8a:"لونك المفضل",n8b:"عنوان بيتك",n8c:"لعبتك المفضلة",n8x:"1",
+    e1t:"التشفير",e1h:"لغة الفضائيين السرية",
+    e1m:"التشفير يحوّل رسائلك للغة فضائية. تكتب 'مرحبا' بس تصير '✦◈✧⬡⬢'. بس اللي ترسله هو اللي عنده فك الشفرة!",
+    e1f:"التشفير الحديث قوي لدرجة كل كمبيوترات العالم ما تقدر تفكه في مليار سنة!",
+    e1q:"التشفير...",e1a:"يحذف بياناتك",e1b:"يحوّل البيانات لشفرة سرية",e1c:"يسرّع الإنترنت",e1x:"1",
+    e2t:"السيرفرات والمواقع",e2h:"قواعد فضائية سرية",
+    e2m:"سيرفرات VPN هي قواعد على كواكب مختلفة. اتصل بقاعدة طوكيو والمواقع تفتكر إنك في اليابان!",
+    e2f:"الشركات الكبيرة عندها أكثر من 10,000 سيرفر في 100 دولة!",
+    e2q:"الاتصال بسيرفر في فرنسا يعني...",e2a:"تنتقل لفرنسا",e2b:"المواقع تفتكر إنك في فرنسا",e2c:"تتكلم فرنسي",e2x:"1",
+    e3t:"الأنفاق",e3h:"ممرك السري",
+    e3m:"الـ VPN يبني نفق سري لبياناتك. تخيل ممر تحت الأرض مخفي — محد فوق يقدر يشوفك!",
+    e3f:"البيانات في نفق VPN تسافر تقريباً بسرعة الضوء!",
+    e3q:"نفق VPN...",e3a:"حفرة حقيقية تحت الأرض",e3b:"مسار محمي لبياناتك",e3c:"يشتغل بس في العطلة",e3x:"1",
+    e4t:"شنو الجدار الناري؟",e4h:"سور قلعتك",
+    e4m:"الجدار الناري يفحص كل واحد يحاول يدخل محطتك الفضائية ويمنع الأشرار!",
+    e4f:"اسم 'جدار ناري' جاء من الجدران الحقيقية اللي تمنع النار من الانتشار!",
+    e4q:"الجدار الناري...",e4a:"يشعل النار",e4b:"يمنع الوصول غير المصرح",e4c:"مضاد فيروسات",e4x:"1",
+    e5t:"شنو DNS؟",e5h:"دليل هاتف الإنترنت",
+    e5m:"DNS يترجم أسماء المواقع مثل google.com لأرقام. مثل دليل الهاتف!",
+    e5f:"DNS اخترع في 1983. قبلها كان في ملف نصي بسيط فيه كل العناوين!",
+    e5q:"DNS يترجم...",e5a:"لغات",e5b:"أسماء المواقع لأرقام",e5c:"إيموجي",e5x:"1",
+    e6t:"شنو معنى 'مجهول'؟",e6h:"تكون غامض",
+    e6m:"تكون مجهول يعني محد يعرف مين أنت — مثل لبس عباءة الإخفاء. الـ VPN يساعد بس مو سحر!",
+    e6f:"كلمة 'مجهول' أصلها يوناني ومعناها 'بدون اسم'!",
+    e6q:"تكون مجهول يعني...",e6a:"تكون مشهور",e6b:"محد يعرف مين أنت",e6c:"عندك اسم مستعار حلو",e6x:"1",
+    e7t:"شنو التصيّد؟",e7h:"طُعم مزيف!",
+    e7m:"التصيّد هو لما الهاكرز يرسلون رسائل مزيفة يتظاهرون إنهم شخص تثق فيه — مثل قرصان متنكر بمركز القيادة!",
+    e7f:"أكثر من 3.4 مليار إيميل تصيّد يُرسل كل يوم!",
+    e7q:"التصيّد هو...",e7a:"رياضة",e7b:"رسائل مزيفة لسرقة معلوماتك",e7c:"فيروس كمبيوتر",e7x:"1",
+    e8t:"شنو عرض النطاق؟",e8h:"حجم أنبوب الإنترنت",
+    e8m:"عرض النطاق هو كمية البيانات اللي تمر في اتصالك بنفس الوقت. أنبوب عريض = بيانات أكثر وأسرع!",
+    e8f:"أسرع سرعة إنترنت مسجلة كانت 319 تيرابت في الثانية!",
+    e8q:"عرض نطاق أكبر يعني...",e8a:"تخزين أكثر",e8b:"تدفق بيانات أسرع",e8c:"رسومات أحسن",e8x:"1",
+    e9t:"المصادقة الثنائية",e9h:"قفل مزدوج على بابك",
+    e9m:"المصادقة الثنائية تستخدم مفتاحين بدل واحد. أول كلمة سرك، بعدين رمز على تلفونك!",
+    e9f:"تفعيل المصادقة الثنائية يمنع أكثر من 99% من الاختراقات!",
+    e9q:"المصادقة الثنائية تستخدم...",e9a:"كلمتين سر",e9b:"كلمة سر + تحقق ثاني",e9c:"كمبيوترين",e9x:"1",
+    e10t:"هجوم الرجل في المنتصف",e10h:"الجاسوس بينك وبين الموقع",
+    e10m:"تخيل ترسل رسالة بس واحد يعترضها سراً ويقرأها وممكن يغيرها. هذا هجوم man-in-the-middle. الـ VPN يمنعه!",
+    e10f:"هذا النوع من الهجمات موجود من أيام يوليوس قيصر!",
+    e10q:"هجوم man-in-the-middle...",e10a:"يقطع إنترنتك",e10b:"يعترض بياناتك سراً",e10c:"يسرّع الاتصال",e10x:"1",
+    a1t:"البروتوكولات",a1h:"محرك صاروخك",
+    a1m:"البروتوكولات مثل محركات مختلفة. WireGuard هو المحرك الجديد — 4,000 سطر كود بس. OpenVPN المحرك القديم الموثوق.",
+    a1f:"WireGuard صنعه شخص واحد بس!",
+    a1q:"WireGuard معروف بأنه...",a1a:"أقدم بروتوكول",a1b:"سريع وخفيف",a1c:"بس للتلفونات",a1x:"1",
+    a2t:"مفتاح القطع",a2h:"قفل الطوارئ",
+    a2m:"إذا الـ VPN وقف ولو ميلي ثانية، مفتاح القطع يوقف كل الإنترنت فوراً. صفر تسريب!",
+    a2f:"مفتاح القطع يتفاعل بأقل من 1 ميلي ثانية — 300 مرة أسرع من رمشة عين!",
+    a2q:"مفتاح القطع يشتغل لما...",a2a:"تضغط زر",a2b:"اتصال VPN ينقطع",a2c:"البطارية تموت",a2x:"1",
+    a3t:"VPN مزدوج وتوجيه البصل",a3h:"طبقات حماية",
+    a3m:"VPN عادي = نفق واحد. VPN مزدوج = نفق داخل نفق! توجيه البصل يلف البيانات بطبقات.",
+    a3f:"شبكة Tor تستخدم توجيه البصل عبر 7,000 سيرفر متطوع!",
+    a3q:"VPN مزدوج يعني...",a3a:"تدفع مرتين",a3b:"بيانات مشفرة عبر سيرفرين",a3c:"اتصالين إنترنت",a3x:"1",
+    a4t:"تسريبات DNS و WebRTC",a4h:"هروب خبيث للبيانات",
+    a4m:"حتى مع VPN، تسريبات خبيثة ممكن تكشفك. تسريبات DNS تصير لما جهازك يسأل مزودك العادي سراً!",
+    a4f:"حوالي 25% من مستخدمي VPN تعرضوا لتسريب DNS بدون ما يدرون!",
+    a4q:"تسريب DNS يعني...",a4a:"ماء في الكمبيوتر",a4b:"موقعك الحقيقي يتسرب",a4c:"الـ DNS خربان",a4x:"1",
+    a5t:"سياسة عدم السجلات",a5h:"VPN ينساك",
+    a5m:"VPN بدون سجلات يعد إنه ما يسجل شيء تسويه. مثل سائق تاكسي ينسى كل راكب!",
+    a5f:"في 2011 سجلات مزود VPN استُخدمت في محكمة — لهذا سياسة عدم السجلات صارت مهمة!",
+    a5q:"عدم السجلات يعني...",a5a:"ما تحتاج تسجل دخول",a5b:"نشاطك ما يُسجل",a5c:"ما في حد تحميل",a5x:"1",
+    a6t:"تشفير AES-256",a6h:"رياضيات عسكرية",
+    a6m:"AES-256 معيار التشفير المستخدم من الجيوش والبنوك. الـ '256' يعني 2²⁵⁶ مفتاح ممكن — أكثر من الذرات في الكون!",
+    a6f:"حتى لو تفحص مليار مليار مفتاح في الثانية، كسر AES-256 يحتاج أطول من عمر الكون!",
+    a6q:"AES-256 هو...",a6a:"كوديك فيديو",a6b:"معيار تشفير",a6c:"لغة برمجة",a6x:"1",
+    a7t:"IPv4 ضد IPv6",a7h:"نفاد العناوين",
+    a7m:"IPv4 يعطينا 4 مليارات عنوان — خلصوا! IPv6 يصنع 340 أندسيليون عنوان. يكفي لكل حبة رمل على الأرض!",
+    a7f:"IPv6 صُمم في 1998 بس لحد الآن ما انتشر بالكامل!",
+    a7q:"انتقلنا لـ IPv6 لأن...",a7a:"أسرع",a7b:"IPv4 خلصت عناوينه",a7c:"يستخدم بيانات أقل",a7x:"1",
+    a8t:"الأنفاق المنقسمة",a8h:"VPN لبعض التطبيقات",
+    a8m:"الأنفاق المنقسمة تخليك تختار أي تطبيقات تستخدم VPN وأيها لا. أفضل ما في العالمين!",
+    a8f:"الأنفاق المنقسمة ممكن تزيد سرعتك 50% للتطبيقات بدون VPN!",
+    a8q:"الأنفاق المنقسمة...",a8a:"تقسم شاشتك",a8b:"توجه بعض البيانات عبر VPN",a8c:"تستخدم VPN-ين",a8x:"1",
+    a9t:"إعادة توجيه المنافذ",a9h:"فتح أبواب سرية",
+    a9m:"المنافذ مثل أبواب مرقمة على سفينتك (65,535!). إعادة التوجيه تفتح باب محدد لحركة معينة.",
+    a9f:"المنفذ 80 للويب، 443 لـ HTTPS، 25 للإيميل!",
+    a9q:"إعادة توجيه المنافذ...",a9a:"ترسل البريد أسرع",a9b:"تفتح أبواب شبكة محددة",a9c:"تمنع كل الحركة",a9x:"1",
+    a10t:"التمويه",a10h:"إخفاء إنك مختفي",
+    a10m:"بعض الشبكات تكتشف وتمنع VPN. التمويه يخلي بيانات VPN تبان مثل إنترنت عادي — مثل جاسوس بلبس عادي!",
+    a10f:"دول مثل الصين تستخدم فحص الحزم العميق لكشف VPN!",
+    a10q:"التمويه...",a10a:"يسرّع VPN",a10b:"يخفي حركة VPN كحركة عادية",a10c:"يشفر مرتين",a10x:"1",
+    a11t:"المصافحة وتبادل المفاتيح",a11h:"التحية السرية",
+    a11m:"قبل التشفير، جهازين لازم يتفقون على مفتاح سري — بدون ما حد يسمع! مثل جاسوسين يصنعون شفرة بتبادل أدلة علناً.",
+    a11f:"تبادل مفاتيح Diffie-Hellman سنة 1976 غيّر التشفير للأبد!",
+    a11q:"المصافحة في VPN...",a11a:"تحية جسدية",a11b:"تنشئ مفتاح سري مشترك",a11c:"تختبر سرعة الإنترنت",a11x:"1",
+    a12t:"خرافة vs حقيقة",a12h:"5 خرافات VPN!",
+    a12m:"خرافة: VPN يخليك 100% مجهول. حقيقة: يساعد كثير بس مو سحر. خرافة: VPN غير قانوني. حقيقة: قانوني في أغلب الدول. خرافة: VPN المجاني نفس الجودة. حقيقة: كثير يبيعون بياناتك!",
+    a12f:"أكثر من 1.5 مليار شخص في العالم يستخدمون VPN!",
+    a12q:"VPN يخليك 100% مجهول...",a12a:"صح",a12b:"غلط — يساعد بس مو سحر",a12c:"بس يوم الثلاثاء",a12x:"1",
+  }
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let lang = 'en';
+let connected = false;
+let connecting = false;
+let elapsed = 0;
+let downloaded = 0;
+let uploaded = 0;
+let timer = null;
+let currentMode = 'newbie';
+let currentStep = 0;
+let completedCards = { newbie: new Set(), explorer: new Set(), advanced: new Set() };
+let bytebotClicks = 0;
+let selectedServer = 0;
+let checks = [false, false, false, false];
+let konamiSeq = [];
+const konamiCode = [38,38,40,40,37,39,37,39,66,65];
+const shipColorOptions = [
+  {name:'Flame',color:'linear-gradient(135deg,#ff5c6a,#ff8c42)'},
+  {name:'Electric',color:'linear-gradient(135deg,#4dc9f6,#44e5a0)'},
+  {name:'Stealth',color:'linear-gradient(135deg,#b066ff,#6e3fae)'},
+  {name:'Gold',color:'linear-gradient(135deg,#ffe156,#ff8c42)'},
+  {name:'Neon',color:'linear-gradient(135deg,#ff6eb4,#4dc9f6)'},
+];
+const servers = [
+  {flag:'🗽',city:'New York',country:'United States',ping:24,load:42},
+  {flag:'🏰',city:'London',country:'United Kingdom',ping:38,load:67},
+  {flag:'🏗️',city:'Frankfurt',country:'Germany',ping:31,load:55},
+  {flag:'🗼',city:'Tokyo',country:'Japan',ping:112,load:33},
+  {flag:'🌷',city:'Amsterdam',country:'Netherlands',ping:29,load:48},
+  {flag:'🦁',city:'Singapore',country:'Singapore',ping:98,load:27},
+  {flag:'🍁',city:'Toronto',country:'Canada',ping:35,load:39},
+  {flag:'🦘',city:'Sydney',country:'Australia',ping:145,load:22},
+  {flag:'🗼',city:'Paris',country:'France',ping:26,load:61},
+  {flag:'🏔️',city:'Zurich',country:'Switzerland',ping:33,load:19},
+];
+
+const cardDefs = {
+  newbie: ['n1','n2','n3','n4','n5','n6','n7','n8'],
+  explorer: ['e1','e2','e3','e4','e5','e6','e7','e8','e9','e10'],
+  advanced: ['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12'],
+};
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function t(key) { return i18n[lang][key] || i18n['en'][key] || key; }
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+function formatTime(s) {
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+  return [h,m,sec].map(v=>String(v).padStart(2,'0')).join(':');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function init() {
+  generateStars();
+  renderServers();
+  renderShipColors();
+  updateI18n();
+  renderConceptGrid();
+  renderStep();
+  updateStepsProgress();
+}
+
+function generateStars() {
+  const c = document.getElementById('stars');
+  c.innerHTML = '';
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:twinkle ${Math.random()*3+2}s ease-in-out ${Math.random()*3}s infinite alternate;`;
+    c.appendChild(s);
+  }
+}
+
+// ═══════════════════════════════════════════
+// LANGUAGE & THEME
+// ═══════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = l;
+  updateI18n();
+  renderConceptGrid();
+  renderStep();
+  updateConnectionUI();
+}
+
+function updateI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-btn[data-page="${page}"]`).classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// CONNECTION
+// ═══════════════════════════════════════════
+function toggleConnection() {
+  if (connecting) return;
+  if (connected) { disconnect(); return; }
+  connecting = true;
+  updateConnectionUI();
+  setTimeout(() => {
+    connecting = false;
+    connected = true;
+    elapsed = 0; downloaded = 0; uploaded = 0;
+    timer = setInterval(tick, 1000);
+    updateConnectionUI();
+    fireConfetti();
+  }, 2000);
+}
+
+function disconnect() {
+  connected = false;
+  clearInterval(timer);
+  updateConnectionUI();
+}
+
+function tick() {
+  elapsed++;
+  downloaded += Math.floor(Math.random()*500000+100000);
+  uploaded += Math.floor(Math.random()*150000+30000);
+  document.getElementById('statTime').textContent = formatTime(elapsed);
+  document.getElementById('statDown').textContent = formatBytes(downloaded);
+  document.getElementById('statUp').textContent = formatBytes(uploaded);
+  document.getElementById('statDownSpeed').textContent = formatBytes(Math.floor(downloaded/elapsed)) + '/s';
+  document.getElementById('statUpSpeed').textContent = formatBytes(Math.floor(uploaded/elapsed)) + '/s';
+  document.getElementById('statPing').textContent = servers[selectedServer].ping + 'ms';
+}
+
+function updateConnectionUI() {
+  const orb = document.getElementById('orb');
+  const chip = document.getElementById('statusChip');
+  const orbEmoji = document.getElementById('orbEmoji');
+  const orbStatus = document.getElementById('orbStatus');
+  const orbSub = document.getElementById('orbSub');
+  const btn = document.getElementById('connectBtn');
+  const btnText = document.getElementById('connectBtnText');
+  const stats = document.getElementById('statsGrid');
+  const radar = document.getElementById('radarLabel');
+  const botFace = document.getElementById('bytebotFace');
+  const botSpeech = document.getElementById('bytebotSpeech');
+
+  orb.className = 'orb' + (connected ? ' connected' : connecting ? ' connecting' : '');
+
+  if (connecting) {
+    chip.className = 'status-chip off';
+    document.getElementById('statusText').textContent = t('connecting');
+    orbEmoji.textContent = '🔥';
+    orbStatus.textContent = t('blastingOff');
+    orbStatus.className = 'orb-status connecting';
+    orbSub.textContent = '3... 2... 1...';
+    btnText.textContent = t('connecting');
+    botFace.textContent = '😤';
+    botSpeech.textContent = '3... 2... 1... 🚀';
+    stats.style.display = 'none';
+  } else if (connected) {
+    chip.className = 'status-chip';
+    document.getElementById('statusText').textContent = t('protected');
+    orbEmoji.textContent = '✅';
+    orbStatus.textContent = t('shieldsUp');
+    orbStatus.className = 'orb-status on';
+    orbSub.textContent = servers[selectedServer].flag + ' ' + servers[selectedServer].city;
+    btnText.textContent = t('disconnect');
+    btn.className = 'btn btn-large btn-danger';
+    botFace.textContent = '😎';
+    botSpeech.textContent = t('botConnected');
+    stats.style.display = 'grid';
+    radar.textContent = t('allClear');
+  } else {
+    chip.className = 'status-chip off';
+    document.getElementById('statusText').textContent = t('unprotected');
+    orbEmoji.textContent = '🛡️';
+    orbStatus.textContent = t('readyLaunch');
+    orbStatus.className = 'orb-status';
+    orbSub.textContent = t('tapOrb');
+    btnText.textContent = t('launchShields');
+    btn.className = 'btn btn-large btn-primary';
+    botFace.textContent = '😴';
+    botSpeech.textContent = t('botSleep');
+    stats.style.display = 'none';
+    radar.textContent = t('threatsDetected');
+  }
+}
+
+// ═══════════════════════════════════════════
+// SERVERS
+// ═══════════════════════════════════════════
+function renderServers() {
+  const list = document.getElementById('serverList');
+  list.innerHTML = servers.map((s,i) => {
+    const pc = s.ping < 50 ? 'ping-good' : s.ping < 100 ? 'ping-mid' : 'ping-bad';
+    const lc = s.load < 40 ? 'var(--accent)' : s.load < 70 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="server-item ${i===selectedServer?'selected':''}" onclick="selectServer(${i})">
+      <div class="server-info"><span class="server-flag">${s.flag}</span><div><div class="server-name">${s.city}</div><div class="server-country">${s.country}</div></div></div>
+      <div class="server-ping ${pc}">${s.ping}ms</div>
+      <div><div class="server-load-bar"><div class="server-load-fill" style="width:${s.load}%;background:${lc}"></div></div><div class="server-load-text">${s.load}%</div></div>
+      <div>${i===selectedServer && connected ? '<div class="server-active-dot"></div>':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectServer(i) {
+  selectedServer = i;
+  renderServers();
+}
+
+// ═══════════════════════════════════════════
+// SHIP COLORS
+// ═══════════════════════════════════════════
+function renderShipColors() {
+  const el = document.getElementById('shipColors');
+  el.innerHTML = shipColorOptions.map((c,i) =>
+    `<div class="ship-color ${i===0?'active':''}" style="background:${c.color}" onclick="selectShipColor(${i})" title="${c.name}"></div>`
+  ).join('');
+}
+function selectShipColor(i) {
+  document.querySelectorAll('.ship-color').forEach((c,j) => c.classList.toggle('active',j===i));
+}
+
+// ═══════════════════════════════════════════
+// BYTEBOT
+// ═══════════════════════════════════════════
+function bytebotClick() {
+  bytebotClicks++;
+  const face = document.getElementById('bytebotFace');
+  const speech = document.getElementById('bytebotSpeech');
+  if (bytebotClicks >= 5) {
+    face.textContent = '🕺';
+    speech.textContent = '🎉 SECRET DANCE! 🎉';
+    face.style.animation = 'spin 0.5s linear 3';
+    setTimeout(() => { face.style.animation = ''; bytebotClicks = 0; }, 1500);
+  } else {
+    face.textContent = ['🤖','😊','🤩','🥳','😎'][bytebotClicks-1];
+    speech.textContent = t('botAwake');
+  }
+}
+
+// ═══════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════
+function fireConfetti() {
+  const c = document.getElementById('confetti');
+  c.innerHTML = '';
+  const colors = ['var(--accent)','var(--orange)','var(--pink)','var(--yellow)','var(--accent2)','var(--accent3)'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${Math.random()*100}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*0.5}s;animation-duration:${1.5+Math.random()*1.5}s;border-radius:${Math.random()>.5?'50%':'2px'};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;`;
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 3000);
+}
+
+// ═══════════════════════════════════════════
+// MISSION ACADEMY
+// ═══════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach((tab,i) => {
+    tab.classList.toggle('active', ['newbie','explorer','advanced'][i] === mode);
+  });
+  renderConceptGrid();
+}
+
+function renderConceptGrid() {
+  const grid = document.getElementById('conceptGrid');
+  const cards = cardDefs[currentMode];
+  grid.innerHTML = cards.map((id, i) => {
+    const done = completedCards[currentMode].has(id);
+    return `<div class="concept-card ${done?'completed':''}" onclick="openCard('${id}')" style="animation-delay:${i*0.05}s">
+      <div class="cc-emoji">${t(id+'t').charAt(0)==='C'||t(id+'t').charAt(0)==='W'||t(id+'t').charAt(0)==='H'? ['🛡️','🕵️','🦠','🔐','🍪','🌐','👤','📵','🔒','🌍','📡','🧱','🔎','🎭','📨','🛜','🔑','🏴‍☠️','⚡','🔑','🧅','🧬','🪪','🧮','🌐','🪆','🕳️','🧊','🤝','❌'][i]||'📚':['🛡️','🕵️','🦠','🔐','🍪','🌐','👤','📵','🔒','🌍','📡','🧱','🔎','🎭','📨','🛜','🔑','🏴‍☠️','⚡','🔑','🧅','🧬','🪪','🧮','🌐','🪆','🕳️','🧊','🤝','❌'][i]||'📚'}</div>
+      <div class="cc-title">${t(id+'t')}</div>
+      <div class="cc-hint">${t(id+'h')}</div>
+    </div>`;
+  }).join('');
+
+  // Update counts
+  ['newbie','explorer','advanced'].forEach(m => {
+    const el = document.getElementById(m+'Count');
+    if(el) el.textContent = completedCards[m].size + '/' + cardDefs[m].length;
+  });
+
+  // Badge check
+  checkBadge();
+}
+
+const emojiMap = {
+  n1:'🛡️',n2:'🕵️',n3:'🦠',n4:'🔐',n5:'🍪',n6:'🌐',n7:'👤',n8:'📵',
+  e1:'🔒',e2:'🌍',e3:'📡',e4:'🧱',e5:'🔎',e6:'🎭',e7:'📨',e8:'🛜',e9:'🔑',e10:'🏴‍☠️',
+  a1:'⚡',a2:'🔑',a3:'🧅',a4:'🧬',a5:'🪪',a6:'🧮',a7:'🌐',a8:'🪆',a9:'🕳️',a10:'🧊',a11:'🤝',a12:'❌'
+};
+
+function openCard(id) {
+  const modal = document.getElementById('modal');
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-emoji">${emojiMap[id]||'📚'}</div>
+    <div class="modal-title">${t(id+'t')}</div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t('metaphor')}</div>
+      <div class="modal-text">${t(id+'m')}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t('funFact')}</div>
+      <div class="fun-fact"><strong>💡</strong> ${t(id+'f')}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t('quizTime')}</div>
+      <div class="modal-text" style="margin-bottom:8px">${t(id+'q')}</div>
+      <div class="quiz-options" id="quizOpts">
+        ${['a','b','c'].map((opt,i) => `<button class="quiz-opt" onclick="answerQuiz('${id}',${i},this)">${t(id+opt)}</button>`).join('')}
+      </div>
+      <div id="quizResult"></div>
+    </div>
+  `;
+  modal.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function answerQuiz(id, chosen, el) {
+  const correct = parseInt(t(id+'x'));
+  const result = document.getElementById('quizResult');
+  const opts = document.querySelectorAll('#quizOpts .quiz-opt');
+  opts.forEach((o,i) => {
+    o.disabled = true;
+    o.style.pointerEvents = 'none';
+    if (i === correct) o.classList.add('correct');
+    if (i === chosen && chosen !== correct) o.classList.add('wrong');
+  });
+  if (chosen === correct) {
+    result.innerHTML = `<div class="quiz-result pass">${t('correct')}</div>`;
+    completedCards[currentMode].add(id);
+    renderConceptGrid();
+    fireConfetti();
+  } else {
+    result.innerHTML = `<div class="quiz-result fail">${t('wrong')}</div>`;
+  }
+}
+
+function checkBadge() {
+  const area = document.getElementById('badgeArea');
+  const m = currentMode;
+  if (completedCards[m].size === cardDefs[m].length) {
+    const badgeKey = m === 'newbie' ? 'badgeNewbie' : m === 'explorer' ? 'badgeExplorer' : 'badgeAdvanced';
+    const emoji = m === 'newbie' ? '🎖️' : m === 'explorer' ? '🏅' : '🏆';
+    area.innerHTML = `<div class="badge-display"><div class="badge-emoji">${emoji}</div><div class="badge-text">${t('badgeEarned')} ${t(badgeKey)}</div></div>`;
+  } else {
+    area.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════
+// LAUNCH PAD
+// ═══════════════════════════════════════════
+const totalSteps = 5;
+
+function renderStep() {
+  const el = document.getElementById('stepContent');
+  const s = currentStep;
+  let html = '';
+  if (s === 0) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">1</div><div class="step-title">${t('step1title')}</div></div>
+      <div class="step-content"><p>${t('step1text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('step1free')}</div>
+        <div class="card" style="padding:12px">${t('step1paid')}</div>
+        <div class="card" style="padding:12px">${t('step1builtin')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--yellow);font-weight:700">${t('step1warn')}</p></div></div>`;
+  } else if (s === 1) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">2</div><div class="step-title">${t('step2title')}</div></div>
+      <div class="step-content"><p>${t('step2text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('step2ios')}</div>
+        <div class="card" style="padding:12px">${t('step2android')}</div>
+        <div class="card" style="padding:12px">${t('step2pc')}</div>
+      </div></div></div>`;
+  } else if (s === 2) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">3</div><div class="step-title">${t('step3title')}</div></div>
+      <div class="step-content"><p>${t('step3text')}</p></div></div>`;
+  } else if (s === 3) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">4</div><div class="step-title">${t('step4title')}</div></div>
+      <div class="step-content"><p>${t('step4text')}</p>
+      ${[0,1,2,3].map(i => `<div class="check-item ${checks[i]?'checked':''}" onclick="toggleCheck(${i})"><div class="check-box">${checks[i]?'✓':''}</div><span>${t('step4check'+(i+1))}</span></div>`).join('')}
+      </div></div>`;
+  } else if (s === 4) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">5</div><div class="step-title">${t('step5title')}</div></div>
+      <div class="step-content"><p>${t('step5text')}</p>
+      <div style="text-align:center;margin-top:20px;font-size:3rem">🎉🚀🛡️</div></div></div>`;
+  }
+  el.innerHTML = html;
+  document.getElementById('stepPrev').style.visibility = s === 0 ? 'hidden' : 'visible';
+  document.getElementById('stepNext').style.visibility = s === totalSteps-1 ? 'hidden' : 'visible';
+  updateStepsProgress();
+}
+
+function updateStepsProgress() {
+  const el = document.getElementById('stepsProgress');
+  el.innerHTML = Array.from({length:totalSteps}, (_,i) =>
+    `<div class="step-dot ${i < currentStep ? 'done' : i === currentStep ? 'current' : ''}"></div>`
+  ).join('');
+}
+
+function stepNav(dir) {
+  currentStep = Math.max(0, Math.min(totalSteps-1, currentStep + dir));
+  renderStep();
+}
+
+function toggleCheck(i) {
+  checks[i] = !checks[i];
+  renderStep();
+  if (checks.every(c => c)) fireConfetti();
+}
+
+// ═══════════════════════════════════════════
+// KONAMI CODE
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  konamiSeq.push(e.keyCode);
+  if (konamiSeq.length > 10) konamiSeq.shift();
+  if (konamiSeq.join(',') === konamiCode.join(',')) {
+    document.documentElement.style.filter = 'hue-rotate(90deg)';
+    setTimeout(() => document.documentElement.style.filter = '', 5000);
+    fireConfetti();
+    konamiSeq = [];
+  }
+});
+
+// ═══════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
