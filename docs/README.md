@@ -50,6 +50,7 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 | [crypto-quiz.html](../crypto-quiz.html) | 🧪 50-question timed cybersecurity quiz with leaderboard |
 | [phishing-detector.html](../phishing-detector.html) | 🎣 Spot the phishing email — 15 scenarios training game |
 | [firewall-builder.html](../firewall-builder.html) | 🧱 Build firewall rules, see iptables commands, test with packets |
+| [vpn-dashboard.html](../vpn-dashboard.html) | 📡 See real connected VPN devices — Freebox API, wg show parser, demo |
 | [docs.html](../docs.html) | 📚 Full HTML documentation hub with search and sidebar |
 
 ---

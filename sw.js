@@ -18,6 +18,7 @@ const ASSETS = [
   '/crypto-quiz.html',
   '/phishing-detector.html',
   '/firewall-builder.html',
+  '/vpn-dashboard.html',
   '/icon-512.png',
   '/manifest.json'
 ];
