@@ -519,6 +519,114 @@ body{
 }
 @keyframes sweep{to{transform:rotate(360deg)}}
 .radar-label{font-size:.72rem;color:var(--text2);margin-top:6px;font-weight:600}
+
+/* ═══════════════════════════════════════════ */
+/* FREEBOX DIAGRAMS                           */
+/* ═══════════════════════════════════════════ */
+@keyframes packetFlow{from{left:-10px}to{left:100%}}
+@keyframes packetFlowRev{from{left:calc(100% + 10px)}to{left:-10px}}
+@keyframes threatBounce{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-8px);opacity:.7}}
+
+.fbx-diagram{text-align:center;margin:20px 0}
+.fbx-router{font-size:2.8rem;animation:float 3s ease-in-out infinite}
+.fbx-router-label{font-family:var(--font-display);font-size:.82rem;color:var(--text2);margin-bottom:12px}
+
+/* Step 1: Client vs Server lanes */
+.fbx-vs-lanes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fbx-lane{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .3s}
+.fbx-lane-client:hover,.fbx-lane-client.active{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.fbx-lane-server:hover,.fbx-lane-server.active{border-color:var(--accent2);box-shadow:0 0 20px rgba(77,201,246,.25)}
+.fbx-lane-hdr{font-family:var(--font-display);font-size:.95rem;font-weight:700;margin-bottom:6px}
+.fbx-lane-flow{display:flex;align-items:center;justify-content:center;gap:4px;margin:10px 0}
+.fbx-node{font-size:1.7rem}
+.fbx-pipe{flex:1;height:4px;max-width:80px;background:var(--bg3);border-radius:2px;position:relative;overflow:hidden}
+.fbx-packet{position:absolute;width:10px;height:4px;border-radius:2px}
+.fbx-pipe-out .fbx-packet{animation:packetFlow 1.2s linear infinite}
+.fbx-pipe-in .fbx-packet{animation:packetFlowRev 1.2s linear infinite}
+.fbx-lane-lbl{font-size:.75rem;font-weight:700;color:var(--text2)}
+.fbx-lane-detail{font-size:.78rem;color:var(--text2);max-height:0;overflow:hidden;transition:max-height .4s ease,margin .4s;margin-top:0;line-height:1.5}
+.fbx-lane.active .fbx-lane-detail{max-height:200px;margin-top:10px}
+
+/* Step 2: Browser mockup */
+.fbx-browser{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:380px;margin:16px auto}
+.fbx-bbar{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.fbx-bdots{display:flex;gap:4px}
+.fbx-bdots span{width:8px;height:8px;border-radius:50%;display:inline-block}
+.fbx-url{flex:1;padding:4px 10px;border-radius:var(--radius-pill);background:var(--card);font-size:.73rem;font-weight:600;color:var(--accent);font-family:monospace}
+.fbx-bbody{padding:14px;text-align:center}
+.fbx-os-menu{display:flex;gap:5px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.fbx-os-item{font-size:.63rem;padding:4px 8px;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);transition:all .2s}
+.fbx-os-active{border-color:var(--accent)!important;background:var(--accent-soft)!important;color:var(--accent);font-weight:700}
+.fbx-path{display:flex;align-items:center;justify-content:center;gap:6px;margin:16px 0;flex-wrap:wrap}
+.fbx-path-step{text-align:center;font-size:1.2rem;padding:8px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);transition:all .3s;cursor:default;min-width:58px}
+.fbx-path-step span{display:block;font-size:.6rem;color:var(--text2);margin-top:2px}
+.fbx-path-step:hover{border-color:var(--accent);transform:scale(1.08)}
+.fbx-path-arrow{color:var(--text3);font-size:.9rem}
+
+/* Step 3: Config flow */
+.fbx-flow{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0;flex-wrap:wrap}
+.fbx-flow-node{text-align:center;padding:8px 10px;min-width:65px}
+.fbx-flow-label{font-size:.7rem;font-weight:700;font-family:var(--font-display);margin-top:4px}
+.fbx-flow-pipe{width:50px;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);position:relative;margin:0 4px}
+.fbx-flow-file{position:absolute;top:-12px;left:0;font-size:.85rem;animation:packetFlow 2s linear infinite}
+.fbx-proto-pick{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.fbx-proto{padding:8px 16px;border-radius:var(--radius-pill);background:var(--bg3);border:1px solid var(--border);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .25s}
+.fbx-proto.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.fbx-proto:hover{border-color:var(--border-hover)}
+
+/* Step 4: Interactive dashboard */
+.fbx-dash{max-width:340px;margin:16px auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.fbx-dash-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.fbx-mini-orb{width:70px;height:70px;border-radius:50%;margin:0 auto;border:2px solid var(--border);position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
+.fbx-mini-orb.connected{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.fbx-mini-orb.connecting{border-color:var(--yellow);animation:spin 1s linear infinite}
+.fbx-morb-ring{position:absolute;border-radius:50%;border:1px solid var(--accent-glow);opacity:0;pointer-events:none}
+.fbx-morb-ring:nth-child(1){inset:-8px}
+.fbx-morb-ring:nth-child(2){inset:-16px}
+.fbx-mini-orb.connected .fbx-morb-ring{animation:ring-pulse 2.4s ease-out infinite}
+.fbx-mini-orb.connected .fbx-morb-ring:nth-child(2){animation-delay:.8s}
+.fbx-morb-center{font-size:1.5rem;z-index:1}
+.fbx-dash-status{text-align:center;font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:8px 0;transition:color .3s}
+.fbx-verify{display:flex;gap:8px;margin-top:12px}
+.fbx-devices{display:flex;justify-content:center;gap:16px;margin-top:14px;font-size:1.3rem}
+.fbx-devices span{transition:all .3s;opacity:.4}
+.fbx-devices.on span{opacity:1;animation:fadeUp .4s ease both}
+.fbx-devices.on span:nth-child(2){animation-delay:.1s}
+.fbx-devices.on span:nth-child(3){animation-delay:.2s}
+.fbx-devices.on span:nth-child(4){animation-delay:.3s}
+
+/* Step 5: Timeline */
+.fbx-timeline{position:relative;max-width:320px;margin:0 auto;padding-left:28px;border-left:2px dashed var(--border)}
+.fbx-tl-item{display:flex;align-items:center;gap:10px;margin:14px 0;padding:8px 12px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);transition:all .3s;cursor:default}
+.fbx-tl-item:hover{border-color:var(--border-hover);transform:translateX(4px)}
+.fbx-tl-dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--bg);margin-left:-40px}
+.fbx-tl-text{font-size:.8rem;font-weight:600}
+.fbx-config-eject{text-align:center;margin-top:16px}
+.fbx-config-file{display:inline-block;padding:8px 16px;border-radius:var(--radius-pill);background:var(--accent-soft);border:1px solid var(--accent);font-family:monospace;font-size:.78rem;font-weight:700;color:var(--accent);animation:pulse 2s ease infinite}
+
+/* Step 6: Journey */
+.fbx-journey{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0}
+.fbx-j-zone{text-align:center;padding:12px;min-width:75px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.fbx-j-tunnel{flex:1;max-width:180px;text-align:center;position:relative;padding:16px 0}
+.fbx-j-tpipe{height:6px;background:var(--bg3);border-radius:3px;position:relative;overflow:hidden;margin:0 8px;border:1px solid var(--accent2);box-shadow:0 0 8px rgba(77,201,246,.2)}
+.fbx-j-tlabel{font-size:.63rem;font-weight:700;color:var(--accent2);margin-top:6px;font-family:var(--font-display)}
+.fbx-j-threats{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.fbx-threat{font-size:.75rem;animation:threatBounce 1.5s ease infinite}
+
+/* Step 7: Progress ring */
+.fbx-ring{width:90px;height:90px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;transition:all .5s}
+.fbx-ring-inner{width:64px;height:64px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text)}
+.fbx-ring-icons{display:flex;justify-content:center;gap:12px;margin-bottom:12px;font-size:1.2rem}
+.fbx-ring-icons span{opacity:.3;transition:all .3s;filter:grayscale(1)}
+.fbx-ring-icons span.lit{opacity:1;filter:none;transform:scale(1.15)}
+
+@media(max-width:640px){
+  .fbx-vs-lanes{grid-template-columns:1fr}
+  .fbx-journey{flex-direction:column;gap:8px}
+  .fbx-j-tunnel{max-width:100%;padding:8px 0}
+  .fbx-j-tpipe{margin:0 30%}
+  .fbx-flow-pipe{width:30px}
+}
 </style>
 </head>
 <body>
@@ -1729,72 +1837,221 @@ const totalFreeboxSteps = 7;
 function renderFreeboxStep() {
   const el = document.getElementById('freeboxContent');
   const s = freeboxStep;
+  fbxVpnOn = false;
   let html = '';
   if (s === 0) {
+    // Step 1: Client vs Server split diagram
     html = `<div class="step-card"><div class="step-header"><div class="step-num">1</div><div class="step-title">${t('fb1title')}</div></div>
       <div class="step-content"><p>${t('fb1text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb1feat1')}</div>
-        <div class="card" style="padding:14px;border-left:3px solid var(--accent)">${t('fb1client')}</div>
-        <div class="card" style="padding:14px;border-left:3px solid var(--accent2)">${t('fb1server')}</div>
-        <div class="card" style="padding:14px;background:var(--bg3);border-left:3px solid var(--yellow)">${t('fb1vs')}</div>
+      <div class="fbx-diagram">
+        <div class="fbx-router">📦</div>
+        <div class="fbx-router-label">${t('fb1feat1')}</div>
+        <div class="fbx-vs-lanes">
+          <div class="fbx-lane fbx-lane-client" onclick="this.classList.toggle('active')">
+            <div class="fbx-lane-hdr" style="color:var(--accent)">🔒 VPN Client</div>
+            <div class="fbx-lane-flow">
+              <div class="fbx-node">🏠</div>
+              <div class="fbx-pipe fbx-pipe-out">
+                <div class="fbx-packet" style="background:var(--accent)"></div>
+                <div class="fbx-packet" style="background:var(--accent);animation-delay:.6s"></div>
+              </div>
+              <div class="fbx-node">☁️🔒</div>
+            </div>
+            <div class="fbx-lane-lbl">Traffic goes OUT →</div>
+            <div class="fbx-lane-detail">${t('fb1client')}</div>
+          </div>
+          <div class="fbx-lane fbx-lane-server" onclick="this.classList.toggle('active')">
+            <div class="fbx-lane-hdr" style="color:var(--accent2)">🌍 VPN Server</div>
+            <div class="fbx-lane-flow">
+              <div class="fbx-node">📱</div>
+              <div class="fbx-pipe fbx-pipe-in">
+                <div class="fbx-packet" style="background:var(--accent2)"></div>
+                <div class="fbx-packet" style="background:var(--accent2);animation-delay:.6s"></div>
+              </div>
+              <div class="fbx-node">🏠</div>
+            </div>
+            <div class="fbx-lane-lbl">← YOU connect IN</div>
+            <div class="fbx-lane-detail">${t('fb1server')}</div>
+          </div>
+        </div>
+        <div class="card" style="padding:12px;margin-top:12px;border-left:3px solid var(--yellow)">${t('fb1vs')}</div>
       </div>
-      <p style="margin-top:12px;color:var(--accent2);font-weight:700">${t('fb1note')}</p></div></div>`;
+      <p style="margin-top:10px;color:var(--accent2);font-weight:700;font-size:.85rem">${t('fb1note')}</p>
+      <p style="margin-top:6px;color:var(--text3);font-size:.75rem">👆 Click each lane to see details</p></div></div>`;
+
   } else if (s === 1) {
+    // Step 2: Browser mockup + connection path
     html = `<div class="step-card"><div class="step-header"><div class="step-num">2</div><div class="step-title">${t('fb2title')}</div></div>
       <div class="step-content"><p>${t('fb2text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb2step1')}</div>
-        <div class="card" style="padding:12px">${t('fb2step2')}</div>
-        <div class="card" style="padding:12px">${t('fb2step3')}</div>
-        <div class="card" style="padding:12px">${t('fb2step4')}</div>
+      <div class="fbx-diagram">
+        <div class="fbx-browser">
+          <div class="fbx-bbar">
+            <span class="fbx-bdots"><span style="background:var(--red)"></span><span style="background:var(--yellow)"></span><span style="background:var(--accent)"></span></span>
+            <div class="fbx-url">🔒 mafreebox.freebox.fr</div>
+          </div>
+          <div class="fbx-bbody">
+            <div style="font-size:1.8rem;margin-bottom:4px">📦</div>
+            <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700">Freebox OS</div>
+            <div style="font-size:.68rem;color:var(--text3)">Settings &gt; VPN</div>
+            <div class="fbx-os-menu">
+              <span class="fbx-os-item">📶 WiFi</span>
+              <span class="fbx-os-item fbx-os-active">🔒 VPN</span>
+              <span class="fbx-os-item">📁 Files</span>
+              <span class="fbx-os-item">⚙️ System</span>
+            </div>
+          </div>
+        </div>
+        <div class="fbx-path">
+          <div class="fbx-path-step">📶<span>Connect WiFi</span></div>
+          <div class="fbx-path-arrow">→</div>
+          <div class="fbx-path-step">🌐<span>Open browser</span></div>
+          <div class="fbx-path-arrow">→</div>
+          <div class="fbx-path-step">🔑<span>Log in</span></div>
+          <div class="fbx-path-arrow">→</div>
+          <div class="fbx-path-step" style="border-color:var(--accent)">⚙️<span>VPN Settings</span></div>
+        </div>
       </div>
-      <p style="margin-top:12px;color:var(--yellow);font-weight:700">${t('fb2warn')}</p></div></div>`;
+      <p style="margin-top:8px;color:var(--yellow);font-weight:700">${t('fb2warn')}</p></div></div>`;
+
   } else if (s === 2) {
+    // Step 3: Config import flow diagram + protocol picker
     html = `<div class="step-card"><div class="step-header"><div class="step-num">3</div><div class="step-title">${t('fb3title')}</div></div>
       <div class="step-content"><p>${t('fb3text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb3step1')}</div>
-        <div class="card" style="padding:12px">${t('fb3step2')}</div>
-        <div class="card" style="padding:12px">${t('fb3step3')}</div>
-        <div class="card" style="padding:12px">${t('fb3step4')}</div>
+      <div class="fbx-diagram">
+        <div class="fbx-flow">
+          <div class="fbx-flow-node"><div style="font-size:2rem">☁️</div><div class="fbx-flow-label">VPN Provider</div><div style="font-size:.6rem;color:var(--text3)">NordVPN, ProtonVPN...</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">📄</div></div>
+          <div class="fbx-flow-node"><div style="font-size:2rem">📦</div><div class="fbx-flow-label">Your Freebox</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">✅</div></div>
+          <div class="fbx-flow-node"><div style="font-size:2rem">🔒</div><div class="fbx-flow-label">Protected!</div></div>
+        </div>
+        <div class="fbx-proto-pick">
+          <span class="fbx-proto active" onclick="this.parentElement.querySelectorAll('.fbx-proto').forEach(e=>e.classList.remove('active'));this.classList.add('active')">⚡ WireGuard (.conf)</span>
+          <span class="fbx-proto" onclick="this.parentElement.querySelectorAll('.fbx-proto').forEach(e=>e.classList.remove('active'));this.classList.add('active')">🔐 OpenVPN (.ovpn)</span>
+        </div>
       </div>
-      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb3tip')}</p></div></div>`;
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step1')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step2')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step3')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step4')}</div>
+      </div>
+      <p style="margin-top:10px;color:var(--accent);font-weight:700;font-size:.85rem">${t('fb3tip')}</p></div></div>`;
+
   } else if (s === 3) {
+    // Step 4: Interactive VPN dashboard demo
     html = `<div class="step-card"><div class="step-header"><div class="step-num">4</div><div class="step-title">${t('fb4title')}</div></div>
       <div class="step-content"><p>${t('fb4text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb4step1')}</div>
-        <div class="card" style="padding:12px">${t('fb4step2')}</div>
-        <div class="card" style="padding:12px">${t('fb4step3')}</div>
-        <div class="card" style="padding:12px">${t('fb4step4')}</div>
-      </div>
-      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb4note')}</p></div></div>`;
+      <div class="fbx-diagram">
+        <div class="fbx-dash">
+          <div class="fbx-dash-row">
+            <span style="font-weight:700;font-size:.85rem">🔒 VPN Client</span>
+            <div class="toggle" id="fbxToggle" onclick="fbxToggleVpn()"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="fbx-mini-orb" id="fbxOrb">
+            <div class="fbx-morb-ring"></div>
+            <div class="fbx-morb-ring"></div>
+            <div class="fbx-morb-center" id="fbxOrbIcon">🔴</div>
+          </div>
+          <div class="fbx-dash-status" id="fbxStatus" style="color:var(--red)">Disconnected</div>
+          <div class="fbx-verify">
+            <div class="card" style="padding:10px;flex:1;text-align:center">
+              <div>🌐</div>
+              <div style="font-size:.68rem;font-weight:700">whatismyip.com</div>
+              <div id="fbxIp" style="font-size:.73rem;color:var(--red);font-family:monospace">203.0.113.42</div>
+            </div>
+            <div class="card" style="padding:10px;flex:1;text-align:center">
+              <div>🛡️</div>
+              <div style="font-size:.68rem;font-weight:700">dnsleaktest.com</div>
+              <div id="fbxDns" style="font-size:.73rem;color:var(--red)">⚠️ Leaking!</div>
+            </div>
+          </div>
+        </div>
+        <div class="fbx-devices" id="fbxDevices">
+          <span title="Phone">📱</span><span title="Laptop">💻</span><span title="Tablet">📱</span><span title="Smart TV">📺</span>
+        </div>
+        <div style="font-size:.7rem;color:var(--text3);margin-top:6px">👆 Try the toggle!</div>
+      </div></div></div>`;
+
   } else if (s === 4) {
+    // Step 5: Vertical timeline for server setup
     html = `<div class="step-card"><div class="step-header"><div class="step-num">5</div><div class="step-title">${t('fb5title')}</div></div>
       <div class="step-content"><p>${t('fb5text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb5step1')}</div>
-        <div class="card" style="padding:12px">${t('fb5step2')}</div>
-        <div class="card" style="padding:12px">${t('fb5step3')}</div>
-        <div class="card" style="padding:12px">${t('fb5step4')}</div>
+      <div class="fbx-diagram">
+        <div style="font-size:2.5rem;animation:float 3s ease-in-out infinite">🛰️</div>
+        <div style="font-family:var(--font-display);font-size:.88rem;font-weight:700;margin:4px 0">Your Home Station</div>
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:16px">Powering up VPN Server...</div>
+        <div class="fbx-timeline">
+          <div class="fbx-tl-item"><div class="fbx-tl-dot" style="background:var(--accent)">1</div><div class="fbx-tl-text">⚙️ Open VPN Server settings</div></div>
+          <div class="fbx-tl-item"><div class="fbx-tl-dot" style="background:var(--accent2)">2</div><div class="fbx-tl-text">⚡ Choose WireGuard or OpenVPN</div></div>
+          <div class="fbx-tl-item"><div class="fbx-tl-dot" style="background:var(--accent3)">3</div><div class="fbx-tl-text">🔌 Enable server &amp; set port</div></div>
+          <div class="fbx-tl-item"><div class="fbx-tl-dot" style="background:var(--orange)">4</div><div class="fbx-tl-text">👤 Create a VPN user</div></div>
+        </div>
+        <div class="fbx-config-eject">
+          <div class="fbx-config-file">📄 config.conf</div>
+          <div style="font-size:.7rem;color:var(--accent);margin-top:4px">⬇️ Ready to download!</div>
+        </div>
       </div>
-      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb5tip')}</p></div></div>`;
+      <p style="margin-top:10px;color:var(--accent);font-weight:700;font-size:.85rem">${t('fb5tip')}</p></div></div>`;
+
   } else if (s === 5) {
+    // Step 6: Journey diagram - remote connection
     html = `<div class="step-card"><div class="step-header"><div class="step-num">6</div><div class="step-title">${t('fb6title')}</div></div>
       <div class="step-content"><p>${t('fb6text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('fb6step1')}</div>
-        <div class="card" style="padding:12px">${t('fb6step2')}</div>
-        <div class="card" style="padding:12px">${t('fb6step3')}</div>
-        <div class="card" style="padding:12px">${t('fb6step4')}</div>
+      <div class="fbx-diagram">
+        <div class="fbx-journey">
+          <div class="fbx-j-zone">
+            <div style="font-size:1.8rem">📱</div>
+            <div class="fbx-flow-label">You (away)</div>
+            <div style="font-size:.6rem;color:var(--text3)">School / Café</div>
+          </div>
+          <div class="fbx-j-tunnel">
+            <div class="fbx-j-tpipe">
+              <div class="fbx-packet" style="background:var(--accent2);animation:packetFlowRev 1.2s linear infinite"></div>
+              <div class="fbx-packet" style="background:var(--accent2);animation:packetFlowRev 1.2s linear infinite;animation-delay:.5s"></div>
+              <div class="fbx-packet" style="background:var(--accent2);animation:packetFlowRev 1.2s linear infinite;animation-delay:1s"></div>
+            </div>
+            <div class="fbx-j-tlabel">🔒 Encrypted Tunnel</div>
+            <div class="fbx-j-threats">
+              <span class="fbx-threat">👁️</span>
+              <span class="fbx-threat" style="animation-delay:.3s">🏴‍☠️</span>
+              <span class="fbx-threat" style="animation-delay:.6s">🐛</span>
+            </div>
+            <div style="font-size:.55rem;color:var(--red);margin-top:2px">Blocked!</div>
+          </div>
+          <div class="fbx-j-zone" style="border-color:var(--accent)">
+            <div style="font-size:1.8rem">🏠</div>
+            <div class="fbx-flow-label">Your Home</div>
+            <div style="font-size:.6rem;color:var(--text3)">📁 🖨️ 📷</div>
+          </div>
+        </div>
       </div>
-      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb6note')}</p></div></div>`;
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step1')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step4')}</div>
+      </div>
+      <p style="margin-top:10px;color:var(--accent);font-weight:700;font-size:.85rem">${t('fb6note')}</p></div></div>`;
+
   } else if (s === 6) {
+    // Step 7: Progress ring + checklist
+    const done = freeboxChecks.filter(c=>c).length;
+    const pct = done / 5 * 100;
+    const emojis = ['📦','🔒','🌍','🛡️','⚡'];
     html = `<div class="step-card"><div class="step-header"><div class="step-num">7</div><div class="step-title">${t('fb7title')}</div></div>
-      <div class="step-content"><p>${t('fb7text')}</p>
+      <div class="step-content">
+      <div class="fbx-diagram">
+        <div class="fbx-ring" style="background:conic-gradient(var(--accent) ${pct}%, var(--bg3) ${pct}%)">
+          <div class="fbx-ring-inner"><span>${done}</span>/5</div>
+        </div>
+        <div class="fbx-ring-icons">
+          ${emojis.map((e,i) => `<span class="${freeboxChecks[i]?'lit':''}">${e}</span>`).join('')}
+        </div>
+      </div>
+      <p style="margin-bottom:10px">${t('fb7text')}</p>
       ${[0,1,2,3,4].map(i => `<div class="check-item ${freeboxChecks[i]?'checked':''}" onclick="toggleFreeboxCheck(${i})"><div class="check-box">${freeboxChecks[i]?'✓':''}</div><span>${t('fb7check'+(i+1))}</span></div>`).join('')}
-      <p style="margin-top:16px;color:var(--yellow);font-size:0.9rem">${t('fb7trouble')}</p>
+      <p style="margin-top:16px;color:var(--yellow);font-size:.85rem">${t('fb7trouble')}</p>
       </div></div>`;
   }
   el.innerHTML = html;
@@ -1819,6 +2076,39 @@ function toggleFreeboxCheck(i) {
   freeboxChecks[i] = !freeboxChecks[i];
   renderFreeboxStep();
   if (freeboxChecks.every(c => c)) fireConfetti();
+}
+
+let fbxVpnOn = false;
+function fbxToggleVpn() {
+  const orb = document.getElementById('fbxOrb');
+  const icon = document.getElementById('fbxOrbIcon');
+  const status = document.getElementById('fbxStatus');
+  const ip = document.getElementById('fbxIp');
+  const dns = document.getElementById('fbxDns');
+  const toggle = document.getElementById('fbxToggle');
+  const devs = document.getElementById('fbxDevices');
+  if (fbxVpnOn) {
+    fbxVpnOn = false;
+    toggle.classList.remove('on');
+    orb.classList.remove('connected','connecting');
+    icon.textContent = '🔴'; status.textContent = 'Disconnected'; status.style.color = 'var(--red)';
+    ip.textContent = '203.0.113.42'; ip.style.color = 'var(--red)';
+    dns.textContent = '⚠️ Leaking!'; dns.style.color = 'var(--red)';
+    devs.classList.remove('on');
+  } else {
+    fbxVpnOn = true;
+    toggle.classList.add('on');
+    orb.classList.add('connecting');
+    icon.textContent = '🟡'; status.textContent = 'Connecting...'; status.style.color = 'var(--yellow)';
+    setTimeout(() => {
+      if (!fbxVpnOn) return;
+      orb.classList.remove('connecting'); orb.classList.add('connected');
+      icon.textContent = '🟢'; status.textContent = 'Connected!'; status.style.color = 'var(--accent)';
+      ip.textContent = '10.8.0.1 🔒'; ip.style.color = 'var(--accent)';
+      dns.textContent = '✅ No leaks!'; dns.style.color = 'var(--accent)';
+      devs.classList.add('on');
+    }, 1500);
+  }
 }
 
 // ═══════════════════════════════════════════
