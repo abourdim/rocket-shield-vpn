@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Encryption Playground</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+.app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:0 16px 80px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px);margin:0 -16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow);font-size:24px}
+.logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:700}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;font-family:var(--font-body);background:var(--bg3);color:var(--text);border:1px solid var(--border);cursor:pointer;font-weight:600}
+.back-link{font-size:.8rem;padding:5px 14px;border-radius:var(--radius-pill);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.page-title{text-align:center;padding:28px 0 8px}
+.page-title h1{font-family:var(--font-display);font-size:1.8rem;font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+.page-title p{color:var(--text2);font-size:.9rem;margin-top:4px}
+.tabs{display:flex;gap:4px;margin:20px 0;background:var(--bg2);border-radius:var(--radius);padding:5px;border:1px solid var(--border)}
+.tab{flex:1;padding:12px 8px;border-radius:12px;border:none;font-family:var(--font-display);font-size:.85rem;font-weight:600;background:transparent;color:var(--text2);cursor:pointer;transition:all .25s;text-align:center}
+.tab:hover:not(.active){background:var(--bg3);color:var(--text)}
+.tab.active{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.panel{display:none;animation:fadeUp .4s ease}.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;box-shadow:var(--shadow)}
+.card h3{font-family:var(--font-display);font-size:1rem;margin-bottom:10px;color:var(--accent)}
+textarea,.text-input{width:100%;padding:12px;border-radius:var(--radius-sm);font-family:'Fira Code',monospace;font-size:.85rem;background:var(--bg2);color:var(--text);border:1px solid var(--border);resize:vertical;transition:border-color .2s}
+textarea:focus,.text-input:focus{outline:none;border-color:var(--accent)}
+.output-box{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius);padding:16px;font-family:'Fira Code',monospace;font-size:.9rem;word-break:break-all;min-height:56px;line-height:1.6;transition:border-color .3s;margin:12px 0}
+.output-box.green{border-color:var(--accent);color:var(--accent)}
+.output-box.red{border-color:var(--red);color:var(--orange)}
+.ctrl-row{display:flex;align-items:center;gap:12px;margin:10px 0;flex-wrap:wrap}
+.ctrl-label{font-size:.85rem;font-weight:700;min-width:70px;color:var(--text2)}
+input[type=range]{flex:1;accent-color:var(--accent);min-width:120px}
+.ctrl-val{font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent);font-weight:700;min-width:32px;text-align:center}
+.btn-row{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap;justify-content:center}
+.btn{padding:10px 22px;border-radius:var(--radius-pill);border:none;font-family:var(--font-display);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.hint-text{font-size:.78rem;color:var(--text2);margin:6px 0;font-style:italic}
+.bit-grid{display:flex;flex-wrap:wrap;gap:2px;margin:8px 0;font-family:'Fira Code',monospace;font-size:.7rem}
+.bit{padding:2px 4px;border-radius:4px;background:var(--bg3);color:var(--accent2);display:inline-block}
+.bit.key{color:var(--orange)}
+.bit.result{color:var(--pink)}
+.crack-results{max-height:260px;overflow-y:auto;margin:10px 0}
+.crack-row{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);margin:3px 0;font-family:'Fira Code',monospace;font-size:.75rem;display:flex;gap:10px;align-items:center;transition:all .2s}
+.crack-row:hover{border-color:var(--accent);background:var(--accent-soft)}
+.crack-row .shift{color:var(--accent2);min-width:60px;font-weight:700}
+.progress-bar{height:12px;border-radius:6px;background:var(--bg3);overflow:hidden;margin:10px 0}
+.progress-fill{height:100%;border-radius:6px;background:var(--gradient-btn);transition:width 2s;width:0}
+.edu-section{margin-top:24px}
+.edu-section h3{font-family:var(--font-display);font-size:1rem;margin-bottom:10px;color:var(--accent)}
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.edu-card{padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--accent-soft);font-size:.82rem}
+.edu-card h4{font-family:var(--font-display);font-size:.88rem;color:var(--accent2);margin-bottom:6px}
+.edu-card ul{list-style:none;padding:0}.edu-card li{padding:2px 0}
+.edu-card li::before{content:">";margin-right:6px;color:var(--accent3)}
+.fun-fact{text-align:center;font-size:.85rem;color:var(--accent2);margin:10px 0;padding:10px;border:1px dashed var(--border);border-radius:var(--radius-sm);background:var(--accent-soft)}
+.key-blocks{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0}
+.key-block{width:18px;height:18px;border-radius:4px;font-size:.5rem;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fira Code',monospace}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--gradient-btn);color:var(--bg);padding:10px 28px;border-radius:var(--radius-pill);font-family:var(--font-display);font-weight:700;font-size:.9rem;opacity:0;transition:all .3s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes charScramble{0%{opacity:.3;transform:scale(1.3) rotate(8deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.char-anim{display:inline-block;animation:charScramble .25s ease}
+@media(max-width:600px){.edu-grid{grid-template-columns:1fr}.tabs{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="stars-container" id="stars"></div>
+<div class="app">
+  <header class="header">
+    <div class="logo"><div class="logo-icon">🔐</div><div><div class="logo-text"><span>Encryption Playground</span></div><div class="logo-sub">Rocket Shield VPN</div></div></div>
+    <div class="header-right">
+      <select class="hdr-select" id="theme" onchange="document.documentElement.dataset.theme=this.value;localStorage.setItem('rsv-theme',this.value)">
+        <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option><option value="synthwave">🌆 Synthwave</option><option value="paper">📄 Paper</option>
+      </select>
+      <a href="index.html" class="back-link">← Home</a>
+      <a href="docs.html" class="back-link">📘 Docs</a>
+    </div>
+  </header>
+  <div class="page-title"><h1>Encryption Playground</h1><p>Type a secret message and watch encryption transform it before your eyes</p></div>
+
+  <div class="card">
+    <h3>Your Secret Message</h3>
+    <textarea id="msgInput" rows="2" placeholder="Type your secret message here...">Hello, Rocket Shield!</textarea>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">🏛️ Caesar</button>
+    <button class="tab" onclick="switchTab(1)">⊕ XOR</button>
+    <button class="tab" onclick="switchTab(2)">🔒 AES-256</button>
+  </div>
+
+  <!-- Caesar Cipher -->
+  <div class="panel active" id="p0">
+    <div class="card">
+      <p class="hint-text">This is what ancient Romans used! Shift each letter by a fixed number.</p>
+      <div class="ctrl-row"><span class="ctrl-label">Shift</span><input type="range" min="1" max="25" value="3" id="caesarShift" oninput="document.getElementById('shiftV').textContent=this.value"><span class="ctrl-val" id="shiftV">3</span></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="doCaesar('enc')">🔒 Encrypt</button>
+        <button class="btn btn-secondary" onclick="doCaesar('dec')">🔓 Decrypt</button>
+        <button class="btn btn-secondary" onclick="crackCaesar()">🕵️ Try to Crack</button>
+      </div>
+      <div class="output-box" id="caesarOut"></div>
+      <div id="caesarCrack"></div>
+    </div>
+  </div>
+
+  <!-- XOR Cipher -->
+  <div class="panel" id="p1">
+    <div class="card">
+      <p class="hint-text">Simple but weak if the key is short. Each byte gets XORed with the key.</p>
+      <div class="ctrl-row"><span class="ctrl-label">Key</span><input class="text-input" id="xorKey" value="KEY" maxlength="32" style="flex:1"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="doXor('enc')">🔒 Encrypt</button>
+        <button class="btn btn-secondary" onclick="doXor('dec')">🔓 Decrypt</button>
+        <button class="btn btn-secondary" onclick="crackXor()">🕵️ Try to Crack</button>
+      </div>
+      <div class="output-box" id="xorOut"></div>
+      <div id="xorBits"></div>
+      <div id="xorCrack"></div>
+    </div>
+  </div>
+
+  <!-- AES-256 -->
+  <div class="panel" id="p2">
+    <div class="card">
+      <p class="hint-text">This is what WireGuard and banks use! Real AES-256-GCM via Web Crypto API.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="doAes('enc')">🔒 Encrypt</button>
+        <button class="btn btn-secondary" onclick="doAes('dec')">🔓 Decrypt</button>
+        <button class="btn btn-secondary" onclick="crackAes()">🕵️ Try to Crack</button>
+      </div>
+      <div class="output-box" id="aesOut"></div>
+      <div id="aesKeyVis"></div>
+      <div id="aesCrack"></div>
+    </div>
+  </div>
+
+  <!-- Education Section -->
+  <div class="card edu-section">
+    <h3>How Encryption Protects You</h3>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <h4>Symmetric Encryption</h4>
+        <ul><li>Same key encrypts and decrypts</li><li>Super fast for bulk data</li><li>Used inside VPN tunnels</li><li>Examples: AES-256, ChaCha20</li></ul>
+      </div>
+      <div class="edu-card">
+        <h4>Asymmetric Encryption</h4>
+        <ul><li>Public key + private key pair</li><li>Slower, used for key exchange</li><li>Lets strangers communicate safely</li><li>Examples: RSA, Curve25519</li></ul>
+      </div>
+      <div class="edu-card">
+        <h4>What VPNs Use</h4>
+        <ul><li>WireGuard: ChaCha20-Poly1305</li><li>OpenVPN: AES-256-GCM</li><li>Key exchange: Curve25519</li><li>Both are military-grade!</li></ul>
+      </div>
+      <div class="edu-card">
+        <h4>Why It Matters</h4>
+        <ul><li>Without it, WiFi is an open book</li><li>Anyone on the network can read you</li><li>Encryption = sealed envelope</li><li>No encryption = postcard</li></ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+/* --- Stars --- */
+(()=>{const c=document.getElementById('stars');for(let i=0;i<90;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;Object.assign(s.style,{width:sz+'px',height:sz+'px',left:Math.random()*100+'%',top:Math.random()*100+'%',animation:`twinkle ${2+Math.random()*4}s ${Math.random()*4}s infinite`});c.appendChild(s)}})();
+
+/* --- Theme --- */
+const saved=localStorage.getItem('rsv-theme');
+if(saved){document.documentElement.dataset.theme=saved;document.getElementById('theme').value=saved}
+
+/* --- Tabs --- */
+function switchTab(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i))}
+
+/* --- Animated output --- */
+function animateText(el,text,cls){
+  el.className='output-box '+(cls||'');el.innerHTML='';
+  const chars=text.split('');
+  chars.forEach((ch,i)=>{setTimeout(()=>{const sp=document.createElement('span');sp.className='char-anim';sp.textContent=ch;el.appendChild(sp)},i*30)})
+}
+
+/* --- Caesar --- */
+function caesarShift(str,shift,dec){
+  const s=dec?(26-shift)%26:shift;
+  return str.split('').map(c=>{
+    if(c>='A'&&c<='Z')return String.fromCharCode((c.charCodeAt(0)-65+s)%26+65);
+    if(c>='a'&&c<='z')return String.fromCharCode((c.charCodeAt(0)-97+s)%26+97);
+    return c}).join('')
+}
+function doCaesar(mode){
+  const msg=document.getElementById('msgInput').value;
+  const shift=+document.getElementById('caesarShift').value;
+  const out=caesarShift(msg,shift,mode==='dec');
+  animateText(document.getElementById('caesarOut'),out,mode==='enc'?'red':'green');
+  document.getElementById('caesarCrack').innerHTML=''
+}
+function crackCaesar(){
+  const msg=document.getElementById('msgInput').value;
+  const shift=+document.getElementById('caesarShift').value;
+  const enc=caesarShift(msg,shift,false);
+  let html='<h3 style="margin:14px 0 8px;font-family:var(--font-display);color:var(--accent)">Brute Force: All 25 Shifts</h3><div class="crack-results">';
+  for(let s=1;s<=25;s++){
+    const dec=caesarShift(enc,s,true);
+    const match=s===shift?' style="border-color:var(--accent);background:var(--accent-soft)"':'';
+    html+=`<div class="crack-row"${match}><span class="shift">shift ${s}</span><span>${esc(dec)}${s===shift?' ✅':''}  </span></div>`
+  }
+  html+='</div><div class="fun-fact">Only 25 possible keys! A computer cracks this instantly.</div>';
+  document.getElementById('caesarCrack').innerHTML=html
+}
+
+/* --- XOR --- */
+function xorEncrypt(msg,key){
+  return msg.split('').map((c,i)=>c.charCodeAt(0)^key.charCodeAt(i%key.length))
+}
+function doXor(mode){
+  const key=document.getElementById('xorKey').value||'K';
+  let msg,result;
+  if(mode==='enc'){
+    msg=document.getElementById('msgInput').value;
+    const bytes=xorEncrypt(msg,key);
+    result=bytes.map(b=>b.toString(16).padStart(2,'0')).join(' ');
+    showXorBits(msg,key);
+  }else{
+    const hex=document.getElementById('xorOut').textContent.trim();
+    if(!hex)return;
+    const bytes=hex.split(' ').map(h=>parseInt(h,16));
+    result=bytes.map((b,i)=>String.fromCharCode(b^key.charCodeAt(i%key.length))).join('');
+    document.getElementById('xorBits').innerHTML=''
+  }
+  animateText(document.getElementById('xorOut'),result,mode==='enc'?'red':'green')
+}
+function showXorBits(msg,key){
+  const max=Math.min(msg.length,12);
+  let html='<div style="margin:10px 0"><strong style="font-size:.8rem;color:var(--text2)">Binary XOR (first '+max+' chars):</strong>';
+  for(let i=0;i<max;i++){
+    const mb=msg.charCodeAt(i).toString(2).padStart(8,'0');
+    const kb=key.charCodeAt(i%key.length).toString(2).padStart(8,'0');
+    const rb=(msg.charCodeAt(i)^key.charCodeAt(i%key.length)).toString(2).padStart(8,'0');
+    html+=`<div class="bit-grid"><span class="bit">${esc(msg[i])} ${mb}</span><span style="color:var(--text2)"> XOR </span><span class="bit key">${esc(key[i%key.length])} ${kb}</span><span style="color:var(--text2)"> = </span><span class="bit result">${rb}</span></div>`
+  }
+  html+='</div>';
+  document.getElementById('xorBits').innerHTML=html
+}
+function crackXor(){
+  const key=document.getElementById('xorKey').value||'K';
+  const msg=document.getElementById('msgInput').value;
+  const enc=xorEncrypt(msg,key);
+  let html='<h3 style="margin:14px 0 8px;font-family:var(--font-display);color:var(--accent)">Why Short Keys Are Weak</h3>';
+  html+=`<div class="fun-fact">Your key "${esc(key)}" is only ${key.length} character${key.length>1?'s':''}. It repeats every ${key.length} byte${key.length>1?'s':''}!</div>`;
+  html+='<div style="font-size:.8rem;margin:8px 0;color:var(--text2)">Key repeating pattern over your message:</div><div class="bit-grid">';
+  for(let i=0;i<msg.length;i++){
+    const c=key[i%key.length];
+    const hue=(i%key.length)*(360/key.length);
+    html+=`<span class="bit" style="background:hsl(${hue},60%,30%);color:hsl(${hue},80%,75%)">${esc(c)}</span>`
+  }
+  html+='</div><div class="fun-fact">Attackers spot the repeating pattern and crack XOR easily. Real encryption never reuses key bytes!</div>';
+  document.getElementById('xorCrack').innerHTML=html
+}
+
+/* --- AES-256-GCM --- */
+let aesKey=null,aesIv=null,aesCiphertext=null;
+async function doAes(mode){
+  const el=document.getElementById('aesOut');
+  if(mode==='enc'){
+    const msg=document.getElementById('msgInput').value;
+    const enc=new TextEncoder();
+    aesKey=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']);
+    aesIv=crypto.getRandomValues(new Uint8Array(12));
+    aesCiphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv:aesIv},aesKey,enc.encode(msg));
+    const hex=Array.from(new Uint8Array(aesCiphertext)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    animateText(el,hex,'red');
+    showAesKey()
+  }else{
+    if(!aesKey||!aesCiphertext){el.textContent='Encrypt something first!';return}
+    const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv:aesIv},aesKey,aesCiphertext);
+    animateText(el,new TextDecoder().decode(dec),'green')
+  }
+  document.getElementById('aesCrack').innerHTML=''
+}
+async function showAesKey(){
+  const raw=await crypto.subtle.exportKey('raw',aesKey);
+  const bytes=new Uint8Array(raw);
+  let html='<div style="margin:8px 0"><strong style="font-size:.8rem;color:var(--text2)">256-bit key (32 bytes):</strong><div class="key-blocks">';
+  bytes.forEach(b=>{html+=`<div class="key-block" style="background:hsl(${b},65%,40%)">${b.toString(16).padStart(2,'0')}</div>`});
+  html+=`</div><div class="hint-text">Key size: 256 bits = 2<sup>256</sup> possible combinations</div></div>`;
+  document.getElementById('aesKeyVis').innerHTML=html
+}
+function crackAes(){
+  if(!aesCiphertext){document.getElementById('aesCrack').innerHTML='<div class="fun-fact">Encrypt a message first!</div>';return}
+  let html='<h3 style="margin:14px 0 8px;font-family:var(--font-display);color:var(--accent)">Can You Crack AES-256?</h3>';
+  html+='<div class="progress-bar"><div class="progress-fill" id="aesProg"></div></div>';
+  html+='<div id="aesProgText" style="text-align:center;font-family:\'Fira Code\',monospace;font-size:.8rem;color:var(--orange)">Starting brute force...</div>';
+  html+='<div class="fun-fact" id="aesFact" style="display:none"></div>';
+  document.getElementById('aesCrack').innerHTML=html;
+  const prog=document.getElementById('aesProg');
+  const txt=document.getElementById('aesProgText');
+  const fact=document.getElementById('aesFact');
+  let step=0;
+  const steps=['Trying key 1 of 2^256...','Tried 1 trillion keys...','Progress: 0.000000000000000000000000000000000000000000000000000000000000001%','Still going...'];
+  const iv=setInterval(()=>{
+    if(step<steps.length){txt.textContent=steps[step];prog.style.width=Math.min(0.5,step*0.15)+'%';step++}
+    else{clearInterval(iv);prog.style.width='0.0000001%';
+      txt.innerHTML='At 1 trillion keys/second, this would take<br><strong style="font-size:1.1rem;color:var(--red)">3.31 x 10^51 years</strong>';
+      fact.style.display='block';fact.innerHTML='The universe is only 13.8 billion (1.38 x 10^10) years old!<br>AES-256 is uncrackable by brute force. Period.'}
+  },800)
+}
+
+/* --- Helpers --- */
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+</script>
+</body>
+</html>

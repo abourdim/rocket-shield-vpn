@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Phishing Detector</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+.app{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 16px 80px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px);margin:0 -16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow);font-size:24px}
+.logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:700;letter-spacing:.04em}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;font-family:var(--font-body);background:var(--bg3);color:var(--text);border:1px solid var(--border);cursor:pointer;font-weight:600}
+.back-link{font-size:.8rem;padding:5px 14px;border-radius:var(--radius-pill);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.page-title{text-align:center;padding:28px 0 8px}
+.page-title h1{font-family:var(--font-display);font-size:1.8rem;font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+.page-title p{color:var(--text2);font-size:.9rem;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;box-shadow:var(--shadow)}
+.btn{padding:10px 22px;border-radius:var(--radius-pill);border:none;font-family:var(--font-display);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:linear-gradient(135deg,#ff5c6a,#ff3d4f);color:#fff;box-shadow:0 4px 16px rgba(255,92,106,.3)}
+.btn-safe{background:linear-gradient(135deg,#44e5a0,#36d98c);color:var(--bg);box-shadow:0 4px 16px rgba(68,229,160,.3)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none!important}
+/* Email card */
+.email-card{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius);padding:0;overflow:hidden;margin:16px 0;animation:fadeUp .4s}
+.email-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.email-from{font-size:.85rem;color:var(--text2)}.email-from b{color:var(--text)}
+.email-subject{font-family:var(--font-display);font-size:1.05rem;font-weight:600}
+.email-body{padding:16px 18px;font-size:.88rem;line-height:1.6;color:var(--text)}
+.email-link{display:inline-block;margin-top:8px;padding:6px 16px;border-radius:var(--radius-pill);background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);font-size:.8rem;font-weight:700;cursor:default;position:relative}
+.email-link .real-url{display:none;position:absolute;bottom:110%;left:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:.72rem;color:var(--red);white-space:nowrap;box-shadow:var(--shadow);z-index:10;font-family:'Fira Code',monospace}
+.email-link:hover .real-url{display:block}
+.progress-bar{width:100%;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;background:var(--gradient-btn);transition:width .4s;border-radius:4px}
+.answer-btns{display:flex;gap:12px;justify-content:center;margin:16px 0}
+.result-card{padding:14px 18px;border-radius:var(--radius-sm);margin:12px 0;animation:fadeUp .3s;font-size:.88rem;line-height:1.5}
+.result-card.correct-result{background:rgba(68,229,160,.12);border-left:4px solid #44e5a0}
+.result-card.wrong-result{background:rgba(255,92,106,.1);border-left:4px solid #ff5c6a}
+.result-card .verdict{font-family:var(--font-display);font-weight:700;font-size:.95rem;margin-bottom:4px}
+.red-flag{display:inline-block;background:rgba(255,92,106,.12);color:var(--red);padding:2px 8px;border-radius:var(--radius-pill);font-size:.75rem;font-weight:700;margin:2px 3px}
+.stats-row{display:flex;justify-content:space-between;font-size:.82rem;color:var(--text2);margin:8px 0;flex-wrap:wrap;gap:6px}
+.stats-row span{font-weight:700}
+.end-screen{text-align:center;animation:fadeUp .5s}
+.score-big{font-size:3rem;font-family:var(--font-display);font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+.grade{font-size:1.3rem;font-family:var(--font-display);font-weight:700;margin:6px 0}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:16px 0}
+.stat-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.stat-item .val{font-size:1.4rem;font-weight:700;font-family:var(--font-display);color:var(--accent)}
+.stat-item .lbl{font-size:.72rem;color:var(--text2);margin-top:2px}
+.checklist{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:16px 0}
+.checklist h3{font-family:var(--font-display);font-size:1rem;margin-bottom:10px;color:var(--accent)}
+.checklist ul{list-style:none;padding:0}
+.checklist li{padding:6px 0;font-size:.85rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+.checklist li:last-child{border:none}
+.checklist li::before{content:'🚩';flex-shrink:0}
+.tips{margin-top:12px;padding:14px;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.85rem}
+.tips h4{font-family:var(--font-display);margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="stars-container" id="stars"></div>
+<div class="app">
+  <header class="header">
+    <div class="logo"><div class="logo-icon">🎣</div><div><div class="logo-text"><span>Phishing Detector</span></div><div class="logo-sub">Rocket Shield VPN</div></div></div>
+    <div class="header-right">
+      <select class="hdr-select" id="theme" onchange="document.documentElement.dataset.theme=this.value;localStorage.setItem('rsv-theme',this.value)">
+        <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option><option value="synthwave">🌆 Synthwave</option><option value="paper">📄 Paper</option>
+      </select>
+      <a href="index.html" class="back-link">← Home</a>
+      <a href="docs.html" class="back-link">📘 Docs</a>
+    </div>
+  </header>
+  <div class="page-title"><h1>Phishing Detector</h1><p>Can you spot the fake emails? Train your eye for scams!</p></div>
+
+  <!-- Start -->
+  <div id="startScreen">
+    <div class="card" style="text-align:center">
+      <h2 style="font-family:var(--font-display);margin-bottom:8px">🎣 Spot the Phish!</h2>
+      <p style="color:var(--text2);font-size:.88rem;margin-bottom:16px">You'll see 15 simulated emails. Decide if each one is <b style="color:#44e5a0">Legit</b> or <b style="color:#ff5c6a">Phishing</b>. Hover over links to check the real URL!</p>
+      <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem;padding:14px 40px">Start Training</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="gameScreen" class="hidden">
+    <div class="card">
+      <div class="stats-row">
+        <div>Email <span id="qNum">1</span> of <span>15</span></div>
+        <div>Score: <span id="score">0</span>/15</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+    <div id="emailArea"></div>
+    <div id="answerBtns" class="answer-btns">
+      <button class="btn btn-safe" onclick="answer(true)" style="min-width:120px">✅ Legit</button>
+      <button class="btn btn-danger" onclick="answer(false)" style="min-width:120px">🚨 Phishing</button>
+    </div>
+    <div id="resultArea"></div>
+    <div id="nextWrap" class="hidden" style="text-align:center;margin:12px 0">
+      <button class="btn btn-primary" onclick="nextScenario()">Next Email →</button>
+    </div>
+  </div>
+
+  <!-- End -->
+  <div id="endScreen" class="hidden">
+    <div class="card end-screen">
+      <h2>Training Complete!</h2>
+      <div class="score-big" id="finalScore">0/15</div>
+      <div class="grade" id="gradeText"></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="val" id="eCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="stat-item"><div class="val" id="ePhishCaught">0</div><div class="lbl">Phish Caught</div></div>
+        <div class="stat-item"><div class="val" id="eLegitOk">0</div><div class="lbl">Legit Identified</div></div>
+        <div class="stat-item"><div class="val" id="eFalsePos">0</div><div class="lbl">False Alarms</div></div>
+      </div>
+      <div id="tipsArea" class="tips"></div>
+      <div style="margin:16px 0">
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+      </div>
+    </div>
+    <div class="checklist">
+      <h3>🚩 Red Flags Checklist</h3>
+      <ul>
+        <li>Misspelled or look-alike domains (paypa1.com, amaz0n.com)</li>
+        <li>Urgent language: "Act now!", "Your account will be suspended!"</li>
+        <li>Generic greetings: "Dear Customer" instead of your name</li>
+        <li>Suspicious links that don't match the claimed sender</li>
+        <li>Requests for passwords, credit cards, or personal info</li>
+        <li>Too-good-to-be-true offers or unexpected prizes</li>
+        <li>Attachments you didn't expect (invoices, documents)</li>
+        <li>Mismatched "From" address and display name</li>
+        <li>Poor grammar or unusual formatting</li>
+        <li>Pressure to act immediately or face consequences</li>
+        <li>Links with unusual TLDs or extra subdomains</li>
+        <li>Emails claiming to be from IT asking for credentials</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Stars */
+(()=>{const c=document.getElementById('stars');for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;Object.assign(s.style,{width:sz+'px',height:sz+'px',left:Math.random()*100+'%',top:Math.random()*100+'%',animation:`twinkle ${2+Math.random()*4}s ${Math.random()*4}s infinite`});c.appendChild(s)}})();
+const saved=localStorage.getItem('rsv-theme');if(saved){document.documentElement.dataset.theme=saved;document.getElementById('theme').value=saved}
+
+const scenarios=[
+{from:"security@bankofamerica-alerts.com",fromLabel:"Bank of America Security",subject:"URGENT: Verify Your Account Immediately",body:"Dear Customer,\n\nWe have detected suspicious activity on your account. Your account will be locked within 24 hours unless you verify your identity immediately.\n\nClick below to verify your account now.",link:"Verify My Account",realUrl:"http://bankofamerica-alerts.com.ru/verify",legit:false,flags:["Fake domain (bankofamerica-alerts.com is not official)","Urgent language pressuring immediate action","Generic greeting 'Dear Customer'","Suspicious link to a .ru domain"]},
+{from:"noreply@rocketshieldvpn.com",fromLabel:"Rocket Shield VPN",subject:"Your VPN subscription has expired - Renew now!",body:"Dear valued user,\n\nYour Rocket Shield VPN subscription expired yesterday. Without renewal, your internet traffic is unprotected!\n\nRenew now for a special 70% discount - offer expires in 2 hours!",link:"Renew Subscription",realUrl:"http://rocketshi3ld-vpn.net/renew?id=3847",legit:false,flags:["Typosquatted domain in link (rocketshi3ld with a '3')","Extreme urgency and artificial time pressure","Too-good-to-be-true discount (70%)","Plays on fear of being unprotected"]},
+{from:"newsletter@medium.com",fromLabel:"Medium Daily Digest",subject:"Today's top stories picked for you",body:"Hi there,\n\nHere are today's recommended reads based on your interests:\n\n- \"10 Security Tips Every Developer Should Know\"\n- \"The Future of Remote Work in 2026\"\n- \"Understanding Zero-Trust Architecture\"",link:"Read on Medium",realUrl:"https://medium.com/digest/daily",legit:true,flags:[]},
+{from:"delivery-notification@fedx-shipping.com",fromLabel:"FedEx Delivery",subject:"Your package could not be delivered - Action Required",body:"Dear Customer,\n\nWe attempted to deliver your package (Tracking #8847291) but no one was available. Your package will be returned to the sender in 48 hours.\n\nClick below to reschedule delivery.",link:"Reschedule Delivery",realUrl:"http://fedx-shipping.com.cn/reschedule",legit:false,flags:["Misspelled domain (fedx instead of fedex)","Generic greeting","Fake tracking number","Link goes to a .cn domain, not fedex.com"]},
+{from:"notifications@facebook.com",fromLabel:"Facebook",subject:"Someone tried to log into your account",body:"Hi,\n\nWe noticed a login attempt from a new device in Moscow, Russia. If this wasn't you, secure your account immediately by clicking below.\n\nIf this was you, you can ignore this message.",link:"Secure My Account",realUrl:"http://faceb00k-security.com/login",legit:false,flags:["Link domain is faceb00k-security.com (zeros instead of o's)","Fear-inducing location mention","Legitimate Facebook uses facebook.com links only"]},
+{from:"it-helpdesk@yourcompany.com",fromLabel:"IT Department",subject:"Mandatory Password Reset - Complete by EOD",body:"All employees,\n\nDue to a recent security audit, all passwords must be reset today. Please click the link below and enter your current password followed by your new password.\n\nFailure to comply will result in account lockout.",link:"Reset Password Now",realUrl:"http://yourcompany-it.xyz/reset",legit:false,flags:["IT departments rarely ask for current passwords via email","Threatening consequence (account lockout)","Link goes to .xyz domain, not company domain","Legitimate resets direct to internal portals"]},
+{from:"team@github.com",fromLabel:"GitHub",subject:"[GitHub] A new security advisory affects your repository",body:"Hi developer,\n\nA new security vulnerability (CVE-2026-1234) has been reported that may affect dependencies in your repository 'my-project'.\n\nYou can review the advisory and suggested fixes in your repository's Security tab.",link:"View Advisory",realUrl:"https://github.com/my-project/security/advisories",legit:true,flags:[]},
+{from:"winner-notification@sweepstakes-global.com",fromLabel:"International Prize Committee",subject:"Congratulations! You've Won $5,000,000!",body:"DEAR LUCKY WINNER,\n\nYour email was randomly selected in our annual global sweepstakes. You have won FIVE MILLION DOLLARS ($5,000,000.00)!\n\nTo claim your prize, please provide your full name, address, and bank details.",link:"Claim Your Prize",realUrl:"http://sweepstakes-global.com/claim-prize",legit:false,flags:["Too-good-to-be-true prize","Requests bank details","ALL CAPS and excessive formatting","You never entered any sweepstakes","Generic sender address"]},
+{from:"billing@quickbooks-invoices.net",fromLabel:"QuickBooks",subject:"Invoice #INV-29471 - Payment Due",body:"Dear Accounts Payable,\n\nPlease find attached Invoice #INV-29471 for $3,247.00 due by end of week.\n\nIMPORTANT: Open the attached document to review charges. The invoice requires macro-enabled view.",link:"Download Invoice.docm",realUrl:"http://quickbooks-invoices.net/download/invoice.docm",legit:false,flags:["Attachment requires macros (common malware vector)","Domain is quickbooks-invoices.net, not quickbooks.intuit.com","Unexpected invoice you didn't request","'.docm' files can contain malicious macros"]},
+{from:"no-reply@goggle.com",fromLabel:"Google Account",subject:"Unusual sign-in activity on your Google Account",body:"Someone just signed into your Google Account from a new Windows device. If this was you, no action needed.\n\nIf you don't recognize this activity, click below to secure your account.",link:"Review Activity",realUrl:"http://goggle.com/security/review",legit:false,flags:["Typosquatting: 'goggle.com' instead of 'google.com'","Designed to look exactly like a real Google alert","Always check the actual domain carefully"]},
+{from:"noreply@github.com",fromLabel:"GitHub",subject:"[GitHub] You have a new pull request review",body:"Hey @developer,\n\nYour pull request #42 'Fix memory leak in connection pool' has been reviewed by @teammate.\n\nChanges requested: 2 comments",link:"View Pull Request",realUrl:"https://github.com/org/repo/pull/42",legit:true,flags:[]},
+{from:"apple-id-support@apple-verify.com",fromLabel:"Apple ID Support",subject:"Your Apple ID Has Been Locked for Security Reasons",body:"Dear Apple Customer,\n\nYour Apple ID has been temporarily locked due to too many failed login attempts. Verify your identity within 24 hours or your account will be permanently disabled.\n\nPlease confirm your Apple ID, password, and payment method.",link:"Unlock Apple ID",realUrl:"http://apple-verify.com/unlock?session=x8f72",legit:false,flags:["Fake domain apple-verify.com (not apple.com)","Asks for password AND payment method","Permanent account deletion threat","Generic 'Dear Apple Customer' greeting"]},
+{from:"free-wifi@airport-lounge.net",fromLabel:"Airport Free WiFi",subject:"Complete your WiFi registration",body:"Welcome to Airport Premium WiFi!\n\nTo continue using free internet, please sign in with your email and create a password. For premium speed, enter your credit card for verification (you will NOT be charged).",link:"Complete Registration",realUrl:"http://airport-lounge.net/register",legit:false,flags:["Legitimate airport WiFi uses captive portals, not emails","Asks for credit card 'for verification'","'You will NOT be charged' is a classic scam reassurance","No legitimate service emails you to complete WiFi login"]},
+{from:"support@microsoft-security-team.com",fromLabel:"Microsoft Tech Support",subject:"VIRUS DETECTED on your computer!",body:"WARNING: Our system has detected 13 viruses on your computer!\n\nYour personal files, passwords, and banking information are at risk. Call our toll-free number immediately: 1-888-555-0199 or click below for emergency removal.",link:"Remove Viruses Now",realUrl:"http://microsoft-security-team.com/cleanup",legit:false,flags:["Microsoft doesn't send virus alerts via email","Fake tech support with phone number","Extreme urgency and fear tactics","Domain is not microsoft.com","Exaggerated threat claims"]},
+{from:"principal@westfield-elementary.edu",fromLabel:"Westfield Elementary School",subject:"Reminder: Parent-Teacher Conference Thursday",body:"Dear Parents,\n\nThis is a reminder that parent-teacher conferences are scheduled for this Thursday from 3-7 PM. Please use the link below to sign up for a time slot.\n\nWe look forward to seeing you!",link:"Sign Up for Time Slot",realUrl:"https://westfield-elementary.edu/conferences/signup",legit:true,flags:[]},
+];
+
+let idx=0,correct=0,answered=false,phishCaught=0,legitOk=0,falsePos=0;
+
+function startGame(){
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  shuffle(scenarios);
+  showScenario();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+
+function showScenario(){
+  answered=false;
+  const s=scenarios[idx];
+  document.getElementById('qNum').textContent=idx+1;
+  document.getElementById('score').textContent=correct;
+  document.getElementById('progFill').style.width=(idx/15*100)+'%';
+  document.getElementById('answerBtns').classList.remove('hidden');
+  document.getElementById('nextWrap').classList.add('hidden');
+  document.getElementById('resultArea').innerHTML='';
+  const bodyHtml=s.body.replace(/\n/g,'<br>');
+  document.getElementById('emailArea').innerHTML=`
+    <div class="email-card">
+      <div class="email-header">
+        <div class="email-from"><b>${s.fromLabel}</b> &lt;${s.from}&gt;</div>
+        <div class="email-subject">${s.subject}</div>
+      </div>
+      <div class="email-body">
+        ${bodyHtml}
+        <br><span class="email-link">${s.link}<span class="real-url">${s.realUrl}</span></span>
+      </div>
+    </div>`;
+}
+
+function answer(userSaysLegit){
+  if(answered)return;
+  answered=true;
+  const s=scenarios[idx];
+  const isCorrect=(userSaysLegit===s.legit);
+  if(isCorrect)correct++;
+  if(isCorrect&&!s.legit)phishCaught++;
+  if(isCorrect&&s.legit)legitOk++;
+  if(!isCorrect&&!userSaysLegit&&s.legit)falsePos++;
+  document.getElementById('score').textContent=correct;
+  document.getElementById('answerBtns').classList.add('hidden');
+  document.getElementById('nextWrap').classList.remove('hidden');
+  let html='<div class="result-card '+(isCorrect?'correct-result':'wrong-result')+'">';
+  html+='<div class="verdict">'+(isCorrect?'✅ Correct!':'❌ Wrong!')+'</div>';
+  html+='<div>This email is <b>'+(s.legit?'Legitimate':'Phishing')+'</b>.</div>';
+  if(s.flags.length){
+    html+='<div style="margin-top:8px"><b>Red flags:</b><br>';
+    s.flags.forEach(f=>{html+='<span class="red-flag">'+f+'</span> '});
+    html+='</div>';
+  }else{
+    html+='<div style="margin-top:6px;color:var(--text2)">This is a genuine email with a legitimate sender and link.</div>';
+  }
+  html+='</div>';
+  document.getElementById('resultArea').innerHTML=html;
+}
+
+function nextScenario(){
+  idx++;
+  if(idx>=15){endGame();return}
+  showScenario();
+}
+
+function endGame(){
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.remove('hidden');
+  document.getElementById('finalScore').textContent=correct+'/15';
+  document.getElementById('eCorrect').textContent=correct;
+  document.getElementById('ePhishCaught').textContent=phishCaught;
+  document.getElementById('eLegitOk').textContent=legitOk;
+  document.getElementById('eFalsePos').textContent=falsePos;
+  const pct=Math.round(correct/15*100);
+  let grade,color,tip;
+  if(pct>=93){grade='A+ Phishing Expert';color='#44e5a0';tip='Excellent work! You have a sharp eye for scams. Keep staying vigilant.'}
+  else if(pct>=80){grade='B+ Good Detector';color='#4dc9f6';tip='Great job! Review the red flags checklist below to catch the ones you missed.'}
+  else if(pct>=60){grade='C Needs Practice';color='#ffe156';tip='You caught some phish but missed others. Study the red flags checklist and try again!'}
+  else{grade='D Keep Training';color='#ff5c6a';tip='Phishing emails fooled you several times. Review every red flag below, then retake the quiz.'}
+  document.getElementById('gradeText').textContent=grade;
+  document.getElementById('gradeText').style.color=color;
+  document.getElementById('tipsArea').innerHTML='<h4>Personalized Tips</h4>'+tip;
+}
+</script>
+</body>
+</html>

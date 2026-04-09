@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — DNS Explorer</title>
+<meta name="description" content="Interactive DNS resolution visualization for kids — watch how your browser finds websites!">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);box-shadow:0 4px 16px var(--accent-glow);font-size:1.4rem;transition:transform .3s}
+.logo-icon:hover{transform:rotate(-5deg) scale(1.08)}
+.logo-text{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;background:var(--bg3);color:var(--text);border:1px solid var(--border);font-family:var(--font-body);cursor:pointer;outline:none}
+.hdr-select:hover{border-color:var(--accent)}
+.nav-link{font-size:.78rem;padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-family:var(--font-body);white-space:nowrap;transition:border-color .2s}
+.nav-link:hover{border-color:var(--accent);text-decoration:none}
+
+.app{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:24px 16px 80px}
+.page-title{text-align:center;margin:24px 0 8px;font-family:var(--font-display);font-size:2rem;font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+.page-sub{text-align:center;color:var(--text2);font-size:.95rem;margin-bottom:28px}
+
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:20px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.domain-input{flex:1 1 200px;max-width:300px;padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--font-body);font-size:.95rem;outline:none;transition:border-color .2s}
+.domain-input:focus{border-color:var(--accent)}
+.domain-input::placeholder{color:var(--text3)}
+.btn{padding:10px 20px;border-radius:var(--radius-sm);border:none;font-family:var(--font-display);font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-go{background:var(--gradient-btn);color:#fff;box-shadow:0 4px 16px var(--accent-glow)}
+.btn-go:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn:disabled{opacity:.4;pointer-events:none}
+.suggestions{display:flex;gap:6px;flex-wrap:wrap}
+.sug{padding:4px 12px;border-radius:var(--radius-pill);background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:.72rem;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.sug:hover{border-color:var(--accent);color:var(--text)}
+.toggles{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.toggle-label{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text2);cursor:pointer}
+.toggle-label input{accent-color:var(--accent)}
+.rec-select{padding:4px 8px;border-radius:var(--radius-pill);font-size:.72rem;background:var(--bg3);color:var(--text);border:1px solid var(--border);font-family:var(--font-body);cursor:pointer;outline:none}
+
+/* Progress bar */
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--gradient-hero);background-size:300% 300%;animation:gradShift 3s ease infinite;border-radius:2px;transition:width .4s}
+
+/* Journey */
+.journey{position:relative;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 16px;margin-bottom:20px;min-height:200px;overflow-x:auto}
+.nodes{display:flex;align-items:flex-start;gap:0;justify-content:center;min-width:700px;position:relative}
+.node{display:flex;flex-direction:column;align-items:center;gap:6px;width:120px;flex-shrink:0;position:relative;z-index:2;opacity:.3;transition:opacity .4s,transform .4s}
+.node.active{opacity:1;transform:scale(1.05)}
+.node.done{opacity:.7}
+.node-icon{font-size:2.4rem;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.node-name{font-family:var(--font-display);font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;text-align:center}
+.node-detail{font-size:.65rem;color:var(--text3);text-align:center;max-width:110px}
+
+/* Connector pipes */
+.pipe{flex:1;min-width:20px;height:3px;background:var(--border);position:relative;align-self:center;margin-top:22px;z-index:1}
+.pipe.lit{background:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+
+/* Speech bubble */
+.bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:8px 12px;font-size:.72rem;color:var(--accent);font-family:var(--font-body);white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:10}
+.bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--accent)}
+.node.active .bubble{opacity:1}
+
+/* Packet */
+.packet{position:absolute;top:50%;transform:translate(-50%,-50%);background:var(--accent);color:var(--bg);font-family:'Courier New',monospace;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:var(--radius-pill);z-index:20;box-shadow:0 0 16px var(--accent-glow);white-space:nowrap;transition:left .6s ease-in-out;display:none}
+
+/* Result */
+.result{text-align:center;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;display:none}
+.result.show{display:block;animation:popIn .5s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.result-ip{font-family:'Courier New',monospace;font-size:1.6rem;font-weight:700;color:var(--accent);margin:8px 0}
+.result-time{color:var(--text2);font-size:.85rem}
+.result-type{color:var(--text3);font-size:.75rem;margin-top:4px}
+
+/* Root server dots */
+.root-dots{display:flex;gap:3px;justify-content:center;margin-top:4px}
+.root-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);opacity:.4}
+.root-dot.lit{opacity:1;box-shadow:0 0 6px var(--accent2)}
+
+/* Education */
+.edu{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
+.edu-toggle{width:100%;padding:14px 20px;background:none;border:none;color:var(--text);font-family:var(--font-display);font-size:.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.edu-toggle:hover{color:var(--accent)}
+.edu-toggle .arrow{transition:transform .3s;font-size:.8rem}
+.edu.open .arrow{transform:rotate(180deg)}
+.edu-body{display:none;padding:0 20px 16px;font-size:.82rem;color:var(--text2);line-height:1.7}
+.edu.open .edu-body{display:block}
+.edu-body h4{color:var(--accent);font-family:var(--font-display);margin:12px 0 4px;font-size:.85rem}
+.edu-body p{margin:4px 0 8px}
+.edu-body .warn{color:var(--orange);font-weight:600}
+
+@media(max-width:600px){.page-title{font-size:1.5rem}.nodes{min-width:500px}.node{width:80px}.node-icon{font-size:1.8rem}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<header class="header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">🛡️</div>
+    <div><div class="logo-text"><span>Rocket Shield</span></div><div class="logo-sub">DNS Explorer</div></div>
+  </a>
+  <div class="hdr-right">
+    <select class="hdr-select" id="themeSelect"><option value="space">Space</option><option value="desert">Desert</option><option value="synthwave">Synthwave</option><option value="paper">Paper</option></select>
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="packet-journey.html" class="nav-link">Packet Journey</a>
+  </div>
+</header>
+
+<main class="app">
+  <h1 class="page-title">DNS Explorer</h1>
+  <p class="page-sub">Type a domain and watch how your browser finds it on the internet!</p>
+
+  <div class="controls">
+    <input class="domain-input" id="domainInput" type="text" placeholder="e.g. google.com" value="google.com" spellcheck="false">
+    <button class="btn btn-go" id="goBtn" onclick="startResolve()">Explore</button>
+    <div class="suggestions">
+      <span class="sug" onclick="pickDomain('google.com')">google.com</span>
+      <span class="sug" onclick="pickDomain('youtube.com')">youtube.com</span>
+      <span class="sug" onclick="pickDomain('wikipedia.org')">wikipedia.org</span>
+      <span class="sug" onclick="pickDomain('mafreebox.freebox.fr')">mafreebox.freebox.fr</span>
+    </div>
+  </div>
+  <div class="controls" style="padding:10px 16px">
+    <div class="toggles">
+      <label class="toggle-label"><input type="checkbox" id="vpnToggle"> Show with VPN</label>
+      <label class="toggle-label"><input type="checkbox" id="cacheToggle"> Simulate Cache Hit</label>
+      <select class="rec-select" id="recType"><option value="A">A (IPv4)</option><option value="AAAA">AAAA (IPv6)</option><option value="MX">MX (Mail)</option><option value="CNAME">CNAME (Alias)</option><option value="TXT">TXT (Text)</option></select>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="journey" id="journey">
+    <div class="nodes" id="nodes">
+      <div class="node" id="n0"><div class="bubble" id="b0"></div><div class="node-icon">💻</div><div class="node-name">Your Device</div><div class="node-detail" id="d0"></div></div>
+      <div class="pipe" id="p0"></div>
+      <div class="node" id="n1"><div class="bubble" id="b1"></div><div class="node-icon">📦</div><div class="node-name">DNS Cache</div><div class="node-detail" id="d1"></div></div>
+      <div class="pipe" id="p1"></div>
+      <div class="node" id="n2"><div class="bubble" id="b2"></div><div class="node-icon" id="resolverIcon">🏢</div><div class="node-name" id="resolverName">ISP DNS</div><div class="node-detail" id="d2"></div></div>
+      <div class="pipe" id="p2"></div>
+      <div class="node" id="n3"><div class="bubble" id="b3"></div><div class="node-icon">🌍</div><div class="node-name">Root Server</div><div class="node-detail" id="d3"></div><div class="root-dots" id="rootDots"></div></div>
+      <div class="pipe" id="p3"></div>
+      <div class="node" id="n4"><div class="bubble" id="b4"></div><div class="node-icon">🏷️</div><div class="node-name">TLD Server</div><div class="node-detail" id="d4"></div></div>
+      <div class="pipe" id="p4"></div>
+      <div class="node" id="n5"><div class="bubble" id="b5"></div><div class="node-icon">🎯</div><div class="node-name">Authoritative</div><div class="node-detail" id="d5"></div></div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div style="font-size:2rem">🎉</div>
+    <div style="font-family:var(--font-display);font-weight:700;margin-top:4px">Resolved!</div>
+    <div class="result-ip" id="resultIp"></div>
+    <div class="result-time" id="resultTime"></div>
+    <div class="result-type" id="resultType"></div>
+  </div>
+
+  <div class="edu" id="eduWhat">
+    <button class="edu-toggle" onclick="toggleEdu('eduWhat')">🤔 What is DNS? <span class="arrow">▼</span></button>
+    <div class="edu-body">
+      <p>DNS stands for <strong>Domain Name System</strong>. It is like a phone book for the internet. Instead of remembering numbers like <code>142.250.80.46</code>, you just type <code>google.com</code> and DNS finds the right number for you!</p>
+      <h4>The 4 Types of DNS Servers</h4>
+      <p><strong>DNS Resolver</strong> — Your helper that does all the asking (usually your ISP).<br>
+      <strong>Root Server</strong> — Knows who manages .com, .org, .fr, etc. (only 13 in the world!).<br>
+      <strong>TLD Server</strong> — Manages one extension like .com or .org.<br>
+      <strong>Authoritative Server</strong> — The final answer! Knows the exact IP address.</p>
+      <h4>DNS Record Types</h4>
+      <p><strong>A</strong> — IPv4 address (e.g., 142.250.80.46)<br>
+      <strong>AAAA</strong> — IPv6 address (e.g., 2607:f8b0:4004::200e)<br>
+      <strong>MX</strong> — Mail server (where emails go)<br>
+      <strong>CNAME</strong> — Alias pointing to another domain<br>
+      <strong>TXT</strong> — Text info (used for verification)</p>
+    </div>
+  </div>
+  <div class="edu" id="eduPrivacy">
+    <button class="edu-toggle" onclick="toggleEdu('eduPrivacy')">🔒 DNS &amp; Privacy <span class="arrow">▼</span></button>
+    <div class="edu-body">
+      <h4>Why DNS matters for privacy</h4>
+      <p class="warn">Without protection, your ISP sees every single domain you visit!</p>
+      <p>Every time you type a website address, your device asks a DNS server to translate it. By default, that server belongs to your Internet Service Provider (ISP). This means they can log every website you visit.</p>
+      <h4>How VPN DNS Protection Works</h4>
+      <p>A VPN routes your DNS queries through an encrypted tunnel to a private DNS server (like Cloudflare 1.1.1.1 or Google 8.8.8.8). Your ISP only sees encrypted traffic — they cannot see which domains you are looking up.</p>
+      <h4>What is a DNS Leak?</h4>
+      <p>A DNS leak happens when your device accidentally sends DNS queries outside the VPN tunnel, directly to your ISP. This defeats the purpose of the VPN because the ISP can still see which websites you visit. Good VPN apps prevent this!</p>
+    </div>
+  </div>
+</main>
+
+<script>
+// Stars
+const sc=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${2+Math.random()*4}s ${Math.random()*4}s infinite`;sc.appendChild(s)}
+
+// Theme
+const ts=document.getElementById('themeSelect');
+ts.value=localStorage.getItem('rs-theme')||'space';
+document.documentElement.setAttribute('data-theme',ts.value);
+ts.onchange=()=>{document.documentElement.setAttribute('data-theme',ts.value);localStorage.setItem('rs-theme',ts.value)};
+
+// Root dots
+const rd=document.getElementById('rootDots');
+for(let i=0;i<13;i++){const d=document.createElement('div');d.className='root-dot';d.title='Root server '+(String.fromCharCode(97+i))+'.root-servers.net';rd.appendChild(d)}
+
+// Fake DNS data
+const fakeDB={
+  'google.com':{A:'142.250.80.46',AAAA:'2607:f8b0:4004:800::200e',MX:'alt1.gmail-smtp-in.l.google.com',CNAME:'—',TXT:'v=spf1 include:_spf.google.com ~all',ns:'216.239.32.10'},
+  'youtube.com':{A:'142.250.191.46',AAAA:'2607:f8b0:4004:803::200e',MX:'alt1.gmail-smtp-in.l.google.com',CNAME:'youtube-ui.l.google.com',TXT:'v=spf1 include:google.com ~all',ns:'216.239.32.10'},
+  'wikipedia.org':{A:'208.80.154.224',AAAA:'2620:0:862:ed1a::1',MX:'mx1001.wikimedia.org',CNAME:'—',TXT:'v=spf1 include:wikimedia.org ~all',ns:'208.80.154.238'},
+  'mafreebox.freebox.fr':{A:'212.27.38.253',AAAA:'2a01:e0c:1::1',MX:'mx.free.fr',CNAME:'—',TXT:'—',ns:'212.27.40.240'},
+};
+function fakeRecord(domain,type){
+  const d=fakeDB[domain];
+  if(d)return d[type]||d.A;
+  // Generate deterministic fake IP from domain
+  let h=0;for(let i=0;i<domain.length;i++)h=(h*31+domain.charCodeAt(i))&0xffffffff;
+  const o=[((h>>24)&127)+64,(h>>16)&255,(h>>8)&255,h&255];
+  const m={A:o.join('.'),AAAA:`2001:db8:${o[0].toString(16)}:${o[1].toString(16)}::${o[2].toString(16)}`,MX:`mail.${domain}`,CNAME:`www.${domain}`,TXT:`v=spf1 a mx ~all`};
+  return m[type]||m.A;
+}
+function getTLD(domain){const p=domain.split('.');return '.'+p[p.length-1]}
+function getNS(domain){return fakeDB[domain]?fakeDB[domain].ns:((Math.floor(Math.random()*200)+10)+'.'+(Math.floor(Math.random()*200)+10)+'.'+Math.floor(Math.random()*200)+'.'+Math.floor(Math.random()*200))}
+
+function pickDomain(d){document.getElementById('domainInput').value=d}
+function toggleEdu(id){document.getElementById(id).classList.toggle('open')}
+
+let running=false;
+async function startResolve(){
+  if(running)return;
+  running=true;
+  const domain=document.getElementById('domainInput').value.trim().replace(/^https?:\/\//,'').replace(/\/.*/,'');
+  if(!domain){running=false;return}
+  const vpn=document.getElementById('vpnToggle').checked;
+  const cached=document.getElementById('cacheToggle').checked;
+  const recType=document.getElementById('recType').value;
+  const ip=fakeRecord(domain,recType);
+  const tld=getTLD(domain);
+  const ns=getNS(domain);
+
+  // Reset UI
+  document.getElementById('goBtn').disabled=true;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('progressFill').style.width='0%';
+  for(let i=0;i<6;i++){const n=document.getElementById('n'+i);n.classList.remove('active','done');document.getElementById('b'+i).textContent=''}
+  for(let i=0;i<5;i++)document.getElementById('p'+i).classList.remove('lit');
+  document.querySelectorAll('.root-dot').forEach(d=>d.classList.remove('lit'));
+  for(let i=0;i<6;i++)document.getElementById('d'+i).textContent='';
+
+  // Resolver label
+  document.getElementById('resolverName').textContent=vpn?'VPN DNS':'ISP DNS';
+  document.getElementById('resolverIcon').textContent=vpn?'🔒':'🏢';
+  document.getElementById('d2').textContent=vpn?'1.1.1.1 (Cloudflare)':'Your ISP resolver';
+
+  const steps=[];
+  // Step 0: Device
+  steps.push({node:0,bubble:`I need to find ${domain}!`,detail:'Asking DNS...',progress:10});
+  // Step 1: Cache
+  if(cached){
+    steps.push({node:1,bubble:`Yes! I know ${domain}!`,detail:`Cached: ${ip}`,progress:90,pipe:0});
+  }else{
+    steps.push({node:1,bubble:'Not in cache... asking resolver',detail:'Cache miss',progress:20,pipe:0});
+    // Step 2: Resolver
+    steps.push({node:2,bubble:vpn?'Encrypted query received!':'Looking up '+domain+'...',detail:vpn?'Via encrypted tunnel':'Unencrypted query',progress:35,pipe:1});
+    // Step 3: Root
+    steps.push({node:3,bubble:`Try the ${tld} server`,detail:'13 root servers worldwide',progress:50,pipe:2,rootLight:true});
+    // Step 4: TLD
+    steps.push({node:4,bubble:`${domain}? Ask ${ns}`,detail:`Manages ${tld} domains`,progress:70,pipe:3});
+    // Step 5: Authoritative
+    steps.push({node:5,bubble:`${domain} = ${ip}`,detail:'Authoritative answer!',progress:90,pipe:4});
+  }
+
+  for(const step of steps){
+    if(step.pipe!==undefined)document.getElementById('p'+step.pipe).classList.add('lit');
+    const node=document.getElementById('n'+step.node);
+    // Deactivate previous
+    document.querySelectorAll('.node.active').forEach(n=>n.classList.replace('active','done'));
+    node.classList.add('active');
+    document.getElementById('b'+step.node).textContent=step.bubble;
+    document.getElementById('d'+step.node).textContent=step.detail;
+    document.getElementById('progressFill').style.width=step.progress+'%';
+    if(step.rootLight)document.querySelectorAll('.root-dot').forEach((d,i)=>setTimeout(()=>d.classList.add('lit'),i*60));
+    await sleep(900);
+  }
+
+  // Show result
+  document.getElementById('progressFill').style.width='100%';
+  const ms=cached?2:Math.floor(Math.random()*40)+25;
+  document.getElementById('resultIp').textContent=ip;
+  document.getElementById('resultTime').textContent=`Resolved in ~${ms}ms`;
+  const typeLabels={A:'IPv4 Address',AAAA:'IPv6 Address',MX:'Mail Exchange',CNAME:'Canonical Name',TXT:'Text Record'};
+  document.getElementById('resultType').textContent=`Record type: ${recType} (${typeLabels[recType]})`;
+  document.getElementById('result').classList.add('show');
+  document.querySelectorAll('.node.active').forEach(n=>n.classList.replace('active','done'));
+  document.getElementById('goBtn').disabled=false;
+  running=false;
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+// Enter key
+document.getElementById('domainInput').addEventListener('keydown',e=>{if(e.key==='Enter')startResolve()});
+</script>
+</body>
+</html>

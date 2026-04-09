@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Cybersecurity Quiz</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+.app{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 16px 80px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px);margin:0 -16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow);font-size:24px}
+.logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:700;letter-spacing:.04em}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;font-family:var(--font-body);background:var(--bg3);color:var(--text);border:1px solid var(--border);cursor:pointer;font-weight:600}
+.back-link{font-size:.8rem;padding:5px 14px;border-radius:var(--radius-pill);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.page-title{text-align:center;padding:28px 0 8px}
+.page-title h1{font-family:var(--font-display);font-size:1.8rem;font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+.page-title p{color:var(--text2);font-size:.9rem;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;box-shadow:var(--shadow)}
+.btn{padding:10px 22px;border-radius:var(--radius-pill);border:none;font-family:var(--font-display);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* Quiz-specific */
+.mode-select{display:flex;gap:8px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+.mode-btn{padding:14px 24px;border-radius:var(--radius);border:2px solid var(--border);background:var(--card);color:var(--text);font-family:var(--font-display);font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;text-align:center;min-width:140px}
+.mode-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mode-btn.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 20px var(--accent-glow)}
+.mode-btn small{display:block;font-size:.72rem;color:var(--text2);font-weight:400;margin-top:4px;font-family:var(--font-body)}
+.progress-bar{width:100%;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;background:var(--gradient-btn);transition:width .4s;border-radius:4px}
+.timer-bar{width:100%;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:8px 0}
+.timer-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .1s linear}
+.timer-fill.warning{background:var(--orange)}
+.timer-fill.danger{background:var(--red)}
+.stats-row{display:flex;justify-content:space-between;font-size:.82rem;color:var(--text2);margin:8px 0;flex-wrap:wrap;gap:6px}
+.stats-row span{font-weight:700}
+.question-text{font-family:var(--font-display);font-size:1.15rem;font-weight:600;margin:16px 0 12px;line-height:1.5}
+.options{display:grid;gap:10px;margin:12px 0}
+.option{padding:14px 18px;border-radius:var(--radius-sm);border:2px solid var(--border);background:var(--bg2);color:var(--text);font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s;text-align:left}
+.option:hover:not(.disabled){border-color:var(--accent);background:var(--accent-soft)}
+.option.correct{border-color:#44e5a0;background:rgba(68,229,160,.18);color:#44e5a0}
+.option.wrong{border-color:#ff5c6a;background:rgba(255,92,106,.15);color:#ff5c6a}
+.option.disabled{cursor:default;opacity:.7}
+.option.reveal{border-color:#44e5a0;background:rgba(68,229,160,.1)}
+.explanation{margin:12px 0;padding:12px 16px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:.85rem;color:var(--text);animation:fadeUp .3s}
+.end-screen{text-align:center;animation:fadeUp .5s}
+.end-screen h2{font-family:var(--font-display);font-size:1.6rem;margin:10px 0}
+.score-big{font-size:3rem;font-family:var(--font-display);font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 6s ease infinite}
+.stars-display{font-size:2.5rem;margin:10px 0}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.badge{padding:6px 14px;border-radius:var(--radius-pill);background:var(--accent-soft);border:1px solid var(--accent);font-size:.78rem;font-weight:700;color:var(--accent)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:16px 0}
+.stat-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.stat-item .val{font-size:1.4rem;font-weight:700;font-family:var(--font-display);color:var(--accent)}
+.stat-item .lbl{font-size:.72rem;color:var(--text2);margin-top:2px}
+.lb-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.lb-table th,.lb-table td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.lb-table th{color:var(--text2);font-weight:600}
+.lb-table tr:first-child td{color:var(--accent);font-weight:700}
+.name-input{padding:8px 14px;border-radius:var(--radius-sm);border:2px solid var(--border);background:var(--bg2);color:var(--text);font-family:var(--font-body);font-size:.9rem;width:200px;margin:8px}
+.name-input:focus{outline:none;border-color:var(--accent)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="stars-container" id="stars"></div>
+<div class="app">
+  <header class="header">
+    <div class="logo"><div class="logo-icon">🧠</div><div><div class="logo-text"><span>Crypto Quiz</span></div><div class="logo-sub">Rocket Shield VPN</div></div></div>
+    <div class="header-right">
+      <select class="hdr-select" id="theme" onchange="document.documentElement.dataset.theme=this.value;localStorage.setItem('rsv-theme',this.value)">
+        <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option><option value="synthwave">🌆 Synthwave</option><option value="paper">📄 Paper</option>
+      </select>
+      <a href="index.html" class="back-link">← Home</a>
+      <a href="docs.html" class="back-link">📘 Docs</a>
+    </div>
+  </header>
+  <div class="page-title"><h1>Cybersecurity Quiz</h1><p>Test your knowledge of VPNs, encryption, and online security</p></div>
+
+  <!-- Start Screen -->
+  <div id="startScreen">
+    <div class="card" style="text-align:center">
+      <h2 style="font-family:var(--font-display);margin-bottom:12px">Choose Your Difficulty</h2>
+      <p style="color:var(--text2);font-size:.88rem;margin-bottom:16px">Each question has a 30-second timer. Answer fast for bonus points!</p>
+      <div class="mode-select">
+        <button class="mode-btn active" onclick="selectMode(0)" id="m0">🚀 Cadet<small>20 questions (Easy)</small></button>
+        <button class="mode-btn" onclick="selectMode(1)" id="m1">🛸 Pilot<small>35 questions (Medium)</small></button>
+        <button class="mode-btn" onclick="selectMode(2)" id="m2">👨‍🚀 Commander<small>50 questions (All)</small></button>
+      </div>
+      <button class="btn btn-primary" onclick="startGame()" style="margin-top:16px;font-size:1.1rem;padding:14px 40px">Start Quiz</button>
+    </div>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quizScreen" class="hidden">
+    <div class="card">
+      <div class="stats-row">
+        <div>Question <span id="qNum">1</span> of <span id="qTotal">20</span></div>
+        <div>Score: <span id="score">0</span></div>
+        <div>Streak: <span id="streak">0</span> 🔥</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      <div style="text-align:right;font-size:.75rem;color:var(--text2)"><span id="timerText">30s</span></div>
+      <div class="question-text" id="qText"></div>
+      <div class="options" id="opts"></div>
+      <div id="explanation" class="hidden"></div>
+      <div id="nextWrap" class="hidden" style="text-align:center;margin-top:12px">
+        <button class="btn btn-primary" onclick="nextQuestion()">Next Question →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Screen -->
+  <div id="endScreen" class="hidden">
+    <div class="card end-screen">
+      <h2>Quiz Complete!</h2>
+      <div class="score-big" id="finalScore">0</div>
+      <div style="color:var(--text2);font-size:.9rem" id="finalSub">points</div>
+      <div class="stars-display" id="starsDisp"></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="val" id="eCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="stat-item"><div class="val" id="eTotal">0</div><div class="lbl">Questions</div></div>
+        <div class="stat-item"><div class="val" id="eAccuracy">0%</div><div class="lbl">Accuracy</div></div>
+        <div class="stat-item"><div class="val" id="eTime">0s</div><div class="lbl">Total Time</div></div>
+      </div>
+      <div class="badges" id="badges"></div>
+      <div style="margin:16px 0">
+        <input class="name-input" id="nameInput" placeholder="Enter your name" maxlength="20">
+        <button class="btn btn-primary btn-sm" onclick="saveScore()">Save to Leaderboard</button>
+      </div>
+      <div style="margin:16px 0">
+        <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+        <button class="btn btn-secondary" onclick="showLeaderboard()">Leaderboard</button>
+      </div>
+    </div>
+    <div id="lbCard" class="card hidden">
+      <h3 style="font-family:var(--font-display);margin-bottom:8px">🏆 Leaderboard (Top 10)</h3>
+      <table class="lb-table"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Accuracy</th><th>Mode</th></tr></thead><tbody id="lbBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Stars */
+(()=>{const c=document.getElementById('stars');for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;Object.assign(s.style,{width:sz+'px',height:sz+'px',left:Math.random()*100+'%',top:Math.random()*100+'%',animation:`twinkle ${2+Math.random()*4}s ${Math.random()*4}s infinite`});c.appendChild(s)}})();
+const saved=localStorage.getItem('rsv-theme');if(saved){document.documentElement.dataset.theme=saved;document.getElementById('theme').value=saved}
+
+/* Questions bank */
+const allQuestions=[
+{q:"What does VPN stand for?",o:["Virtual Private Network","Very Protected Node","Virtual Proxy Network","Verified Private Node"],a:0,e:"VPN stands for Virtual Private Network, creating an encrypted tunnel for your internet traffic."},
+{q:"Which VPN protocol is known for being the fastest and most modern?",o:["WireGuard","PPTP","L2TP","SSTP"],a:0,e:"WireGuard uses state-of-the-art cryptography and has a minimal codebase for top performance."},
+{q:"What encryption standard does AES-256 refer to?",o:["256-bit Advanced Encryption Standard","256-byte Asymmetric Encryption","256-bit Automatic Encryption System","256-key Alternative Encryption Standard"],a:0,e:"AES-256 uses 256-bit keys and is considered military-grade encryption."},
+{q:"What port does HTTPS typically use?",o:["443","80","8080","22"],a:0,e:"HTTPS uses port 443 by default for encrypted web traffic."},
+{q:"What is a VPN kill switch?",o:["Cuts internet if VPN disconnects","Turns off the VPN server","Deletes browsing history","Blocks all incoming traffic"],a:0,e:"A kill switch prevents data leaks by blocking internet access if the VPN connection drops."},
+{q:"Which protocol does WireGuard use for transport?",o:["UDP","TCP","ICMP","SCTP"],a:0,e:"WireGuard exclusively uses UDP for fast, lightweight encrypted tunneling."},
+{q:"What default port does WireGuard listen on?",o:["51820","1194","443","8080"],a:0,e:"WireGuard's default listening port is 51820/UDP."},
+{q:"What is DNS used for?",o:["Translating domain names to IP addresses","Encrypting data","Blocking malware","Managing VPN connections"],a:0,e:"DNS resolves human-readable domain names into numerical IP addresses."},
+{q:"What does 2FA stand for?",o:["Two-Factor Authentication","Two-File Access","Two-Firewall Arrangement","Two-Function Algorithm"],a:0,e:"2FA adds a second verification step beyond just a password for enhanced security."},
+{q:"What is phishing?",o:["Fraudulent attempts to steal sensitive information","A type of firewall","An encryption method","A VPN protocol"],a:0,e:"Phishing uses deceptive emails or websites to trick users into revealing personal data."},
+{q:"Which encryption type uses the same key for encryption and decryption?",o:["Symmetric","Asymmetric","Hashing","Quantum"],a:0,e:"Symmetric encryption uses a single shared key for both encrypting and decrypting data."},
+{q:"What does a firewall do?",o:["Monitors and filters network traffic","Encrypts files on disk","Speeds up internet connection","Creates VPN tunnels"],a:0,e:"A firewall acts as a barrier that monitors and controls incoming and outgoing network traffic."},
+{q:"What is the default port for SSH?",o:["22","80","443","3389"],a:0,e:"SSH (Secure Shell) uses port 22 by default for encrypted remote access."},
+{q:"What is an IP address?",o:["A unique numerical identifier for a device on a network","An encryption key","A type of firewall","A VPN protocol name"],a:0,e:"An IP address uniquely identifies each device connected to a network."},
+{q:"What does OpenVPN's default port use?",o:["1194","443","51820","8080"],a:0,e:"OpenVPN typically uses port 1194, though it can be configured to use other ports."},
+{q:"What is a man-in-the-middle attack?",o:["Intercepting communication between two parties","Brute-forcing a password","Overloading a server","Guessing encryption keys"],a:0,e:"A MITM attack secretly intercepts and potentially alters communication between two parties."},
+{q:"What is end-to-end encryption?",o:["Data is encrypted from sender to recipient only","Data is encrypted on the server only","Data is encrypted during storage","Data is encrypted by the ISP"],a:0,e:"End-to-end encryption ensures only the communicating users can read the messages."},
+{q:"What type of attack floods a server with traffic?",o:["DDoS","Phishing","SQL Injection","Keylogging"],a:0,e:"A DDoS (Distributed Denial of Service) attack overwhelms a server with massive traffic."},
+{q:"What is a cookie in web browsing?",o:["A small file storing user data on the browser","An encryption algorithm","A firewall rule","A type of malware"],a:0,e:"Cookies are small text files websites store on your browser to remember preferences and sessions."},
+{q:"What does TLS stand for?",o:["Transport Layer Security","Transfer Link System","Tunnel Layer Socket","Total Lock Security"],a:0,e:"TLS provides encryption for data in transit, securing communications like HTTPS."},
+{q:"Which key exchange does WireGuard use?",o:["Curve25519","RSA-2048","Diffie-Hellman","ElGamal"],a:0,e:"WireGuard uses the Curve25519 elliptic curve for fast and secure key exchange."},
+{q:"What is a zero-day vulnerability?",o:["An unknown flaw exploited before a patch exists","A server with zero uptime","An expired SSL certificate","A disabled firewall"],a:0,e:"A zero-day is a software vulnerability unknown to the vendor, exploited before any fix is available."},
+{q:"What protocol secures email communication?",o:["TLS/SSL","FTP","HTTP","DNS"],a:0,e:"TLS/SSL encrypts email in transit between mail servers and clients."},
+{q:"What is the purpose of a VPN tunnel?",o:["Creating an encrypted path for data between devices","Increasing download speed","Blocking advertisements","Compressing data for faster transfer"],a:0,e:"A VPN tunnel encapsulates and encrypts data traveling between your device and the VPN server."},
+{q:"What is ransomware?",o:["Malware that encrypts files and demands payment","A type of firewall","A VPN protocol","A password manager"],a:0,e:"Ransomware locks or encrypts a victim's files and demands a ransom for the decryption key."},
+{q:"What does NAT stand for in networking?",o:["Network Address Translation","Network Access Terminal","Node Authentication Token","Net Allocation Table"],a:0,e:"NAT translates private IP addresses to a public IP, allowing multiple devices to share one address."},
+{q:"Which hash function is considered secure today?",o:["SHA-256","MD5","SHA-1","CRC32"],a:0,e:"SHA-256 is a cryptographic hash function considered secure, while MD5 and SHA-1 are broken."},
+{q:"What is split tunneling in a VPN?",o:["Routing some traffic through VPN and some directly","Using two VPN servers simultaneously","Splitting encryption keys","Dividing bandwidth equally"],a:0,e:"Split tunneling lets you choose which traffic goes through the VPN and which uses your direct connection."},
+{q:"What is a brute-force attack?",o:["Trying every possible password combination","Intercepting network traffic","Sending phishing emails","Exploiting software bugs"],a:0,e:"A brute-force attack systematically tries every possible combination until the correct one is found."},
+{q:"What does HMAC stand for?",o:["Hash-based Message Authentication Code","High-Memory Access Control","Hybrid Multi-Algorithm Cipher","Host Machine Access Certificate"],a:0,e:"HMAC verifies both data integrity and authenticity using a cryptographic hash function with a key."},
+{q:"What is the main advantage of asymmetric encryption?",o:["No need to share a secret key","Faster than symmetric encryption","Uses less memory","Doesn't require a computer"],a:0,e:"Asymmetric encryption uses public/private key pairs, eliminating the need to securely share a secret key."},
+{q:"What is DNS-over-HTTPS (DoH)?",o:["Encrypts DNS queries using HTTPS","A new DNS server type","A firewall bypass technique","A VPN protocol variant"],a:0,e:"DoH encrypts DNS queries within HTTPS traffic, preventing ISPs from seeing your DNS lookups."},
+{q:"What is a public key in cryptography?",o:["A key shared openly for encrypting messages","The master password","A firewall configuration","A server's IP address"],a:0,e:"A public key can be freely shared and is used to encrypt data that only the matching private key can decrypt."},
+{q:"What does ICMP stand for?",o:["Internet Control Message Protocol","Internet Cryptographic Management Protocol","Internal Communication Management Process","Internet Connection Monitoring Protocol"],a:0,e:"ICMP is used for network diagnostics like ping and traceroute."},
+{q:"What is a VPN's no-log policy?",o:["The provider doesn't store user activity data","The VPN doesn't create connection logs","Users can't see their own history","The server deletes itself after use"],a:0,e:"A no-log policy means the VPN provider does not record or store any user browsing activity."},
+{q:"What is social engineering?",o:["Manipulating people into revealing confidential information","Building social media apps","Engineering network infrastructure","Creating social VPN networks"],a:0,e:"Social engineering exploits human psychology rather than technical vulnerabilities to gain access."},
+{q:"What port does DNS typically use?",o:["53","80","443","25"],a:0,e:"DNS uses port 53 for both TCP and UDP queries by default."},
+{q:"What is a certificate authority (CA)?",o:["An organization that issues digital certificates","A VPN server type","A firewall manufacturer","An encryption algorithm"],a:0,e:"A CA is a trusted entity that issues digital certificates to verify the ownership of public keys."},
+{q:"What is the difference between TCP and UDP?",o:["TCP ensures delivery, UDP is faster but unreliable","TCP is encrypted, UDP is not","UDP is newer than TCP","TCP is wireless, UDP is wired"],a:0,e:"TCP guarantees ordered delivery with error checking, while UDP sacrifices reliability for speed."},
+{q:"What is a keylogger?",o:["Software that records keystrokes","A key management tool","A type of encryption","A password generator"],a:0,e:"A keylogger secretly records everything typed on a keyboard, potentially capturing passwords and data."},
+{q:"What is multi-hop VPN?",o:["Routing traffic through multiple VPN servers","Using multiple passwords","Connecting to multiple Wi-Fi networks","Running multiple firewalls"],a:0,e:"Multi-hop (or double VPN) chains your connection through two or more servers for extra privacy."},
+{q:"What is the purpose of a DMZ in networking?",o:["A buffer zone between internal network and internet","A type of encryption","A VPN configuration","A firewall brand"],a:0,e:"A DMZ (Demilitarized Zone) hosts public-facing services while protecting the internal network."},
+{q:"What is Perfect Forward Secrecy (PFS)?",o:["Each session uses unique keys so past sessions can't be decrypted","A flawless encryption algorithm","A firewall that never fails","A VPN with zero downtime"],a:0,e:"PFS ensures that compromising one session key doesn't compromise past or future sessions."},
+{q:"What is a CAPTCHA used for?",o:["Distinguishing humans from bots","Encrypting passwords","Blocking VPN connections","Speeding up DNS queries"],a:0,e:"CAPTCHAs present challenges easy for humans but hard for bots to prevent automated abuse."},
+{q:"What is an SSL certificate?",o:["A digital certificate that authenticates a website's identity","A type of VPN","A firewall rule","An encryption key for emails"],a:0,e:"SSL/TLS certificates verify a website's identity and enable encrypted HTTPS connections."},
+{q:"What is a honeypot in cybersecurity?",o:["A decoy system designed to attract attackers","A type of malware","An encryption tool","A VPN server location"],a:0,e:"A honeypot is a deliberately vulnerable system used to detect, deflect, or study hacking attempts."},
+{q:"What does the 'S' in HTTPS stand for?",o:["Secure","Server","System","Socket"],a:0,e:"HTTPS means HTTP Secure, adding TLS encryption to standard HTTP web traffic."},
+{q:"What is obfuscation in VPN context?",o:["Disguising VPN traffic to look like regular traffic","Making passwords harder to read","Hiding server locations","Encrypting DNS queries"],a:0,e:"VPN obfuscation disguises VPN traffic to bypass deep packet inspection and censorship."},
+{q:"What is a subnet mask?",o:["Defines which portion of an IP identifies the network vs host","A tool to hide your IP","A type of VPN mask","An encryption layer"],a:0,e:"A subnet mask separates the network portion from the host portion of an IP address."},
+{q:"What is the ChaCha20 cipher used in WireGuard?",o:["A symmetric stream cipher for encryption","An asymmetric key exchange","A hashing algorithm","A firewall protocol"],a:0,e:"ChaCha20 is a fast symmetric stream cipher used by WireGuard, especially efficient on mobile devices."},
+];
+
+/* State */
+let mode=0, modeNames=['Cadet','Pilot','Commander'], modeCounts=[20,35,50];
+let questions=[], qIdx=0, score=0, correct=0, streak=0, maxStreak=0, totalTime=0;
+let timer=null, timeLeft=30, gameStart=0, answered=false;
+
+function selectMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',i===m));
+}
+
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
+function startGame(){
+  questions=shuffle([...allQuestions]).slice(0,modeCounts[mode]);
+  qIdx=0;score=0;correct=0;streak=0;maxStreak=0;totalTime=0;gameStart=Date.now();
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  document.getElementById('qTotal').textContent=questions.length;
+  showQuestion();
+}
+
+function showQuestion(){
+  answered=false;
+  const q=questions[qIdx];
+  document.getElementById('qNum').textContent=qIdx+1;
+  document.getElementById('score').textContent=score;
+  document.getElementById('streak').textContent=streak;
+  document.getElementById('progFill').style.width=((qIdx)/questions.length*100)+'%';
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('explanation').classList.add('hidden');
+  document.getElementById('nextWrap').classList.add('hidden');
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option';
+    btn.textContent=opt;
+    btn.onclick=()=>answer(i);
+    opts.appendChild(btn);
+  });
+  timeLeft=30;
+  document.getElementById('timerText').textContent='30s';
+  const tf=document.getElementById('timerFill');
+  tf.style.width='100%';tf.className='timer-fill';
+  clearInterval(timer);
+  timer=setInterval(tick,100);
+}
+
+function tick(){
+  timeLeft-=0.1;
+  if(timeLeft<=0){timeLeft=0;clearInterval(timer);autoFail()}
+  const pct=(timeLeft/30)*100;
+  const tf=document.getElementById('timerFill');
+  tf.style.width=pct+'%';
+  tf.className='timer-fill'+(timeLeft<10?' danger':timeLeft<20?' warning':'');
+  document.getElementById('timerText').textContent=Math.ceil(timeLeft)+'s';
+}
+
+function autoFail(){
+  if(answered)return;
+  answered=true;
+  const q=questions[qIdx];
+  const btns=document.querySelectorAll('.option');
+  btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.a)b.classList.add('reveal')});
+  streak=0;
+  document.getElementById('streak').textContent=streak;
+  showExplanation(q.e,"Time's up! ");
+}
+
+function answer(idx){
+  if(answered)return;
+  answered=true;
+  clearInterval(timer);
+  const q=questions[qIdx];
+  const btns=document.querySelectorAll('.option');
+  const timeUsed=30-timeLeft;
+  totalTime+=timeUsed;
+  btns.forEach((b,i)=>{
+    b.classList.add('disabled');
+    if(i===q.a)b.classList.add('correct');
+    if(i===idx&&idx!==q.a)b.classList.add('wrong');
+  });
+  if(idx===q.a){
+    correct++;
+    streak++;
+    if(streak>maxStreak)maxStreak=streak;
+    const timeBonus=Math.round(Math.max(0,timeLeft)*2);
+    const pts=10+timeBonus;
+    score+=pts;
+    showExplanation(q.e,"Correct! +"+pts+" points ");
+  }else{
+    streak=0;
+    showExplanation(q.e,"Wrong! ");
+  }
+  document.getElementById('score').textContent=score;
+  document.getElementById('streak').textContent=streak;
+}
+
+function showExplanation(text,prefix){
+  const el=document.getElementById('explanation');
+  el.innerHTML='<div class="explanation">'+prefix+text+'</div>';
+  el.classList.remove('hidden');
+  document.getElementById('nextWrap').classList.remove('hidden');
+}
+
+function nextQuestion(){
+  qIdx++;
+  if(qIdx>=questions.length){endGame();return}
+  showQuestion();
+}
+
+function endGame(){
+  clearInterval(timer);
+  const elapsed=Math.round((Date.now()-gameStart)/1000);
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.remove('hidden');
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('eCorrect').textContent=correct;
+  document.getElementById('eTotal').textContent=questions.length;
+  const acc=Math.round((correct/questions.length)*100);
+  document.getElementById('eAccuracy').textContent=acc+'%';
+  document.getElementById('eTime').textContent=elapsed+'s';
+  document.getElementById('progFill').style.width='100%';
+  /* Stars */
+  let stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  document.getElementById('starsDisp').textContent=
+    (stars>=1?'⭐':'☆')+(stars>=2?'⭐':'☆')+(stars>=3?'⭐':'☆');
+  /* Badges */
+  const badges=[];
+  if(acc===100)badges.push('🏆 Perfect Score');
+  if(maxStreak>=10)badges.push('🔥 Hot Streak (10+)');
+  if(maxStreak>=5&&maxStreak<10)badges.push('🔥 On Fire (5+)');
+  if(elapsed<questions.length*10)badges.push('⚡ Speed Demon');
+  if(mode===2)badges.push('👨‍🚀 Commander');
+  if(correct>0&&acc>=80)badges.push('🛡️ Security Expert');
+  document.getElementById('badges').innerHTML=badges.map(b=>'<span class="badge">'+b+'</span>').join('');
+}
+
+function saveScore(){
+  const name=document.getElementById('nameInput').value.trim()||'Anonymous';
+  const acc=Math.round((correct/questions.length)*100);
+  let lb=JSON.parse(localStorage.getItem('rsv-quiz-lb')||'[]');
+  lb.push({name,score,accuracy:acc,mode:modeNames[mode],date:Date.now()});
+  lb.sort((a,b)=>b.score-a.score);
+  lb=lb.slice(0,10);
+  localStorage.setItem('rsv-quiz-lb',JSON.stringify(lb));
+  showLeaderboard();
+}
+
+function showLeaderboard(){
+  const card=document.getElementById('lbCard');
+  card.classList.remove('hidden');
+  const lb=JSON.parse(localStorage.getItem('rsv-quiz-lb')||'[]');
+  const body=document.getElementById('lbBody');
+  if(!lb.length){body.innerHTML='<tr><td colspan="5" style="color:var(--text2);text-align:center">No scores yet</td></tr>';return}
+  body.innerHTML=lb.map((e,i)=>`<tr><td>${i+1}</td><td>${e.name}</td><td>${e.score}</td><td>${e.accuracy}%</td><td>${e.mode}</td></tr>`).join('');
+}
+</script>
+</body>
+</html>
