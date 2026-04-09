@@ -29,6 +29,7 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 |----------|-------------|
 | [RASPBERRY-PI.md](RASPBERRY-PI.md) | Raspberry Pi deployment with security hardening |
 | [DOCKER.md](DOCKER.md) | Docker and Docker Compose deployment |
+| [VPS-VPN-SETUP.md](VPS-VPN-SETUP.md) | Set up WireGuard on a VPS — get any country's IP (Saudi, UAE, Japan...) |
 | [LAUNCH-SCRIPT.md](LAUNCH-SCRIPT.md) | Launch script reference (rocket-shield.sh / .ps1) |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Technical architecture and codebase reference |
 
