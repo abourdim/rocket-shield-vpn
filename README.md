@@ -201,15 +201,79 @@ Want to share it with friends or students? Here are some free options:
 
 ---
 
+## 🚀 Quick Start — Launch Script
+
+The project includes a **Mission Control** launch script with an interactive menu for serving the app and setting up real VPN infrastructure.
+
+### Linux / macOS / Raspberry Pi
+
+```bash
+# Make executable and run
+chmod +x rocket-shield.sh
+bash rocket-shield.sh
+```
+
+### Windows (PowerShell)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File rocket-shield.ps1
+```
+
+### Docker
+
+```bash
+# Web app only
+docker-compose up -d
+
+# Web app + WireGuard VPN server (edit docker-compose.yml to uncomment wireguard)
+docker-compose up -d
+```
+
+### Menu Options
+
+| Option | Description |
+|--------|-------------|
+| 🌐 Launch Web App | Serve `index.html` locally with auto-browser open + QR code for mobile |
+| 🔒 VPN Client Setup | Install & configure WireGuard or OpenVPN client |
+| 🌍 VPN Server Setup | Host your own WireGuard VPN server (with client QR codes!) |
+| 📊 Status & Diagnostics | Check public IP, DNS leaks, VPN status, system info |
+| 🛑 Stop All Services | Stop web server and VPN connections |
+
+### 🍓 Raspberry Pi Deployment
+
+The script auto-detects Raspberry Pi and optimizes accordingly:
+
+```bash
+# On your Raspberry Pi
+git clone https://github.com/abourdim/rocket-shield-vpn.git
+cd rocket-shield-vpn
+bash rocket-shield.sh
+# Select option 3 → WireGuard Server
+# It will install WireGuard, generate keys, create client configs with QR codes!
+```
+
+**Tips for Pi deployment:**
+- Use a static IP or Dynamic DNS
+- Forward port 51820/UDP on your Freebox/router
+- WireGuard is very lightweight — perfect for Pi Zero/3/4/5
+- The web app serves fine on Pi's built-in Python
+
+---
+
 ## 📁 Project Structure
 
 ```
 rocket-shield-vpn/
-├── rocket-shield-vpn.html    ← The entire app (single file!)
-└── README.md                 ← You're reading this
+├── index.html              ← The entire web app (single file!)
+├── icon-512.png            ← App icon
+├── rocket-shield.sh        ← Launch script (Linux/macOS/Pi)
+├── rocket-shield.ps1       ← Launch script (Windows)
+├── Dockerfile              ← Docker container for web app
+├── docker-compose.yml      ← Docker Compose (web + optional VPN server)
+└── README.md               ← You're reading this
 ```
 
-Yes, the **entire app is one single HTML file**. Everything — HTML, CSS, JavaScript, translations, logo, animations — is all embedded inside. No dependencies. No build step. No package manager. Just pure web.
+The **web app is one single HTML file** — HTML, CSS, JavaScript, translations, logo, animations — all embedded. The launch scripts add real VPN infrastructure on top.
 
 ---
 

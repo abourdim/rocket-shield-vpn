@@ -1,0 +1,58 @@
+# ═══════════════════════════════════════════════════════════════
+# 🚀 Rocket Shield VPN — Docker Compose
+# ═══════════════════════════════════════════════════════════════
+# Usage:
+#   docker-compose up -d          # Start everything
+#   docker-compose down           # Stop everything
+#   docker-compose logs -f        # View logs
+#
+# Services:
+#   - webapp:    Educational web app (port 8080)
+#   - wireguard: WireGuard VPN server (port 51820/udp)
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  # ─── Web App ─────────────────────────────────────────────
+  webapp:
+    build: .
+    container_name: rocket-shield-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # ─── WireGuard VPN Server ───────────────────────────────
+  # Uncomment the section below to enable the VPN server.
+  # Make sure to set your timezone and allowed subnet.
+  #
+  # wireguard:
+  #   image: lscr.io/linuxserver/wireguard:latest
+  #   container_name: rocket-shield-vpn
+  #   cap_add:
+  #     - NET_ADMIN
+  #     - SYS_MODULE
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Paris
+  #     # Server settings
+  #     - SERVERURL=auto
+  #     - SERVERPORT=51820
+  #     - PEERS=3                    # Number of client configs to generate
+  #     - PEERDNS=1.1.1.1,8.8.8.8
+  #     - INTERNAL_SUBNET=10.66.66.0/24
+  #     - ALLOWEDIPS=0.0.0.0/0
+  #     # Raspberry Pi: uncomment for ARM
+  #     # - LOG_CONFS=true
+  #   volumes:
+  #     - ./vpn-configs:/config
+  #     - /lib/modules:/lib/modules:ro
+  #   ports:
+  #     - "51820:51820/udp"
+  #   sysctls:
+  #     - net.ipv4.conf.all.src_valid_mark=1
+  #   restart: unless-stopped
