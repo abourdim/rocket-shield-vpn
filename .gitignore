@@ -1,0 +1,8 @@
+# VPN config files (contain private keys!)
+config_wireguard_*.conf
+config_wireguard_*.png
+*.ovpn
+vpn-configs/
+
+# Claude Code local config
+.claude/
