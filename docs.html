@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Documentation</title>
+<meta name="description" content="Rocket Shield VPN Documentation — Complete guides for VPN setup, WireGuard, OpenVPN, Freebox, Raspberry Pi, and Docker deployment.">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ Themes (same as main app) ═══ */
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;--sidebar-w:280px}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;--gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);--gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;--gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);--gradient-btn:linear-gradient(135deg,#f472b6,#e044a0)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;--gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);--gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);--shadow:0 4px 20px rgba(0,0,0,.08)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;display:flex;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ═══ Header ═══ */
+.header{position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100;gap:12px}
+.header-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.header-sub{font-size:.75rem;color:var(--text2);white-space:nowrap}
+.header-spacer{flex:1}
+.header select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:4px 8px}
+.back-link{font-size:.85rem;padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font-body);text-decoration:none}
+.back-link:hover{border-color:var(--accent);text-decoration:none}
+
+/* ═══ Sidebar ═══ */
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;z-index:90;transition:transform .3s}
+.sidebar-section{margin-bottom:8px}
+.sidebar-title{font-family:var(--font-display);font-size:.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 20px 4px}
+.sidebar-link{display:block;padding:7px 20px 7px 28px;font-size:.85rem;color:var(--text2);transition:all .2s;cursor:pointer;border-left:3px solid transparent}
+.sidebar-link:hover{color:var(--text);background:var(--bg3);text-decoration:none}
+.sidebar-link.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:700}
+
+/* ═══ Search ═══ */
+.search-box{padding:8px 16px;margin-bottom:8px}
+.search-input{width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.82rem;font-family:var(--font-body);outline:none}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+
+/* ═══ Main Content ═══ */
+.main{margin-left:var(--sidebar-w);margin-top:56px;flex:1;padding:32px 40px;max-width:900px}
+
+/* ═══ Doc Sections ═══ */
+.doc-section{display:none;animation:fadeIn .3s ease}
+.doc-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.doc-section h1{font-family:var(--font-display);font-size:1.8rem;font-weight:700;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.doc-section h2{font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin:28px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
+.doc-section h3{font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin:20px 0 8px;color:var(--accent)}
+.doc-section p{margin:8px 0;color:var(--text);font-size:.92rem}
+.doc-section ul,.doc-section ol{margin:8px 0 8px 24px;font-size:.9rem}
+.doc-section li{margin:4px 0}
+.doc-section strong{color:var(--text)}
+
+/* ═══ Code blocks ═══ */
+.doc-section code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.82rem;font-family:'Fira Code',monospace;color:var(--accent)}
+.doc-section pre{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;overflow-x:auto;margin:12px 0;font-size:.8rem;line-height:1.6}
+.doc-section pre code{background:none;padding:0;color:var(--text)}
+
+/* ═══ Tables ═══ */
+.doc-section table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85rem}
+.doc-section th{background:var(--bg3);padding:10px 14px;text-align:left;font-family:var(--font-display);font-weight:600;border:1px solid var(--border);color:var(--accent)}
+.doc-section td{padding:8px 14px;border:1px solid var(--border);vertical-align:top}
+.doc-section tr:hover td{background:var(--accent-soft)}
+
+/* ═══ Cards ═══ */
+.doc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:12px 0;transition:all .2s}
+.doc-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.doc-card h4{font-family:var(--font-display);font-size:.95rem;margin-bottom:6px;color:var(--accent)}
+.doc-card p{font-size:.85rem;color:var(--text2)}
+
+/* ═══ Tip/Warning/Note boxes ═══ */
+.doc-tip,.doc-warn,.doc-note{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid}
+.doc-tip{background:rgba(68,229,160,.08);border-left-color:var(--accent);color:var(--accent)}
+.doc-warn{background:rgba(255,225,86,.08);border-left-color:var(--yellow);color:var(--yellow)}
+.doc-note{background:rgba(77,201,246,.08);border-left-color:var(--accent2);color:var(--accent2)}
+
+/* ═══ Home cards grid ═══ */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:20px 0}
+
+/* ═══ Print ═══ */
+@media print{.sidebar,.header,.hamburger{display:none!important}.main{margin:0;padding:20px}.doc-section{display:block!important;page-break-before:always}}
+
+/* ═══ Mobile ═══ */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:20px 16px}
+  .hamburger{display:block}
+  .header-sub{display:none}
+  .doc-section h1{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+  <span class="header-logo">🚀 ROCKET SHIELD</span>
+  <span class="header-sub">Documentation</span>
+  <span class="header-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option>
+    <option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option>
+    <option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="back-link">← App</a>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="search-box">
+    <input type="text" class="search-input" placeholder="🔍 Search docs..." oninput="searchDocs(this.value)">
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">Getting Started</div>
+    <a class="sidebar-link active" onclick="showSection('home')">🏠 Home</a>
+    <a class="sidebar-link" onclick="showSection('faq')">❓ FAQ</a>
+    <a class="sidebar-link" onclick="showSection('step-by-step')">📋 Step-by-Step Guide</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">VPN Protocols</div>
+    <a class="sidebar-link" onclick="showSection('wireguard')">⚡ WireGuard</a>
+    <a class="sidebar-link" onclick="showSection('openvpn')">🔐 OpenVPN</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">Deployment</div>
+    <a class="sidebar-link" onclick="showSection('freebox')">📦 Freebox</a>
+    <a class="sidebar-link" onclick="showSection('raspberry-pi')">🍓 Raspberry Pi</a>
+    <a class="sidebar-link" onclick="showSection('docker')">🐳 Docker</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">Reference</div>
+    <a class="sidebar-link" onclick="showSection('launch-script')">🚀 Launch Script</a>
+    <a class="sidebar-link" onclick="showSection('architecture')">🏗️ Architecture</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- HOME -->
+  <div class="doc-section active" id="sec-home">
+    <h1>🚀 Rocket Shield VPN — Documentation</h1>
+    <p>Welcome to the complete documentation for Rocket Shield VPN. Whether you're a student, teacher, parent, or developer — find everything you need here.</p>
+
+    <h2>📚 Quick Links</h2>
+    <div class="home-grid">
+      <div class="doc-card" onclick="showSection('step-by-step')" style="cursor:pointer">
+        <h4>📋 Step-by-Step Guide</h4>
+        <p>From zero to running VPN in minutes. Covers web app, client, and server setup.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('faq')" style="cursor:pointer">
+        <h4>❓ FAQ</h4>
+        <p>30+ answers to the most common questions about the app and VPN setup.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('wireguard')" style="cursor:pointer">
+        <h4>⚡ WireGuard Reference</h4>
+        <p>Complete config parameter reference, examples, and troubleshooting.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('openvpn')" style="cursor:pointer">
+        <h4>🔐 OpenVPN Reference</h4>
+        <p>Full server/client config reference, certificates, and troubleshooting.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('freebox')" style="cursor:pointer">
+        <h4>📦 Freebox Guide</h4>
+        <p>Configure VPN client and server on your Freebox router.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('raspberry-pi')" style="cursor:pointer">
+        <h4>🍓 Raspberry Pi</h4>
+        <p>Deploy a VPN server on your Pi with full setup and security guide.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('docker')" style="cursor:pointer">
+        <h4>🐳 Docker</h4>
+        <p>Containerized deployment with Docker Compose. One command to run.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('launch-script')" style="cursor:pointer">
+        <h4>🚀 Launch Script</h4>
+        <p>Interactive menu script for Linux, macOS, Windows, and Raspberry Pi.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('architecture')" style="cursor:pointer">
+        <h4>🏗️ Architecture</h4>
+        <p>How the app works: HTML structure, CSS theming, JS modules, i18n.</p>
+      </div>
+    </div>
+
+    <h2>🔗 External Resources</h2>
+    <ul>
+      <li><a href="https://www.wireguard.com/" target="_blank">WireGuard Official Website</a></li>
+      <li><a href="https://openvpn.net/" target="_blank">OpenVPN Official Website</a></li>
+      <li><a href="https://www.raspberrypi.com/" target="_blank">Raspberry Pi Foundation</a></li>
+      <li><a href="https://docs.docker.com/" target="_blank">Docker Documentation</a></li>
+    </ul>
+
+    <div class="doc-tip">💡 Use the sidebar to navigate between sections, or click the cards above for quick access.</div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="doc-section" id="sec-faq">
+    <h1>❓ Frequently Asked Questions</h1>
+
+    <h2>General</h2>
+    <h3>What is Rocket Shield VPN?</h3>
+    <p>An educational web app that teaches kids (ages 6-15) about VPNs and cybersecurity through a space-themed interactive experience. It includes a VPN simulator, learning cards, quizzes, and real VPN setup guides.</p>
+
+    <h3>Is this a real VPN?</h3>
+    <p>The web app itself is a <strong>simulator</strong> — it teaches how VPNs work but doesn't create real VPN connections. However, the project includes <strong>launch scripts</strong> that can set up real WireGuard/OpenVPN client and server configurations.</p>
+
+    <h3>Who is it for?</h3>
+    <p>Students aged 6-15, teachers, parents, coding clubs, and anyone curious about VPN technology. The launch scripts are for more advanced users who want to deploy real VPN infrastructure.</p>
+
+    <h3>Is it free?</h3>
+    <p>Yes! It's 100% free and open source under the MIT License.</p>
+
+    <h3>What languages are supported?</h3>
+    <p>English, French, and Arabic (with full RTL support). The language can be switched instantly from the header dropdown.</p>
+
+    <h3>Does it work offline?</h3>
+    <p>Yes! Once the page loads, everything works offline. The only external dependency is Google Fonts, which falls back to system fonts if unavailable.</p>
+
+    <h2>Web App</h2>
+    <h3>How do I run the app?</h3>
+    <p>Three ways: (1) Double-click <code>index.html</code>, (2) Run <code>bash rocket-shield.sh</code> and select option 1, (3) <code>docker-compose up -d</code>.</p>
+
+    <h3>How do I change the theme?</h3>
+    <p>Use the theme dropdown in the top-right corner. Choose from Space (dark navy), Desert (warm orange), Synthwave (neon purple), or Paper (light mode).</p>
+
+    <h3>Are there easter eggs?</h3>
+    <p>Yes! Click ByteBot 5 times for a secret dance. Enter the Konami Code (↑↑↓↓←→←→BA) for rainbow mode. Complete all checklist items for confetti!</p>
+
+    <h3>Does it work on mobile?</h3>
+    <p>Yes, it's fully responsive. Works on phones, tablets, and any screen size.</p>
+
+    <h2>VPN Client</h2>
+    <h3>Which VPN providers work?</h3>
+    <p>Any provider that offers WireGuard (.conf) or OpenVPN (.ovpn) config files: NordVPN, ProtonVPN, Mullvad, Surfshark, Private Internet Access, and many others.</p>
+
+    <h3>WireGuard vs OpenVPN — which is better?</h3>
+    <table>
+      <tr><th>Feature</th><th>WireGuard</th><th>OpenVPN</th></tr>
+      <tr><td>Speed</td><td>Faster</td><td>Slower</td></tr>
+      <tr><td>Code size</td><td>~4,000 lines</td><td>~100,000 lines</td></tr>
+      <tr><td>Battery</td><td>Better</td><td>Higher drain</td></tr>
+      <tr><td>Maturity</td><td>Newer (2018)</td><td>Battle-tested (2001)</td></tr>
+      <tr><td>Firewall bypass</td><td>UDP only</td><td>TCP option</td></tr>
+      <tr><td>Config complexity</td><td>Simple</td><td>Complex</td></tr>
+    </table>
+    <div class="doc-tip">💡 We recommend WireGuard for most users. Use OpenVPN if you need TCP mode for restrictive networks.</div>
+
+    <h3>Does a VPN slow my internet?</h3>
+    <p>Slightly, due to encryption overhead. WireGuard typically reduces speed by only 5-10%. OpenVPN can be 15-30% slower. Choose a server close to your location for best speeds.</p>
+
+    <h2>VPN Server</h2>
+    <h3>Can I host a VPN on Raspberry Pi?</h3>
+    <p>Yes! WireGuard runs excellently on Pi 3B+, Pi 4, and Pi 5. The launch script auto-detects Pi hardware and optimizes settings. See the <a href="#" onclick="showSection('raspberry-pi')">Raspberry Pi Guide</a>.</p>
+
+    <h3>What port do I need to forward?</h3>
+    <p>WireGuard: <code>51820/UDP</code> (default). OpenVPN: <code>1194/UDP</code> or <code>443/TCP</code>. Forward these on your router/Freebox to your server's local IP.</p>
+
+    <h3>How many clients can connect?</h3>
+    <p>WireGuard: theoretically unlimited, practically 50-100+ on a Pi 4. Each client needs its own key pair and config file.</p>
+
+    <h2>Freebox</h2>
+    <h3>Which Freebox models support VPN?</h3>
+    <p>Freebox Revolution, Mini 4K, One, Delta, Pop, and Ultra all support VPN. Newer models (Delta, Pop, Ultra) have WireGuard support. All support OpenVPN.</p>
+
+    <h3>How do I access Freebox OS?</h3>
+    <p>Open a browser and go to <code>mafreebox.freebox.fr</code> while connected to your Freebox network. You'll need the admin password (set it up on first access).</p>
+
+    <h2>Docker</h2>
+    <h3>How do I deploy with Docker?</h3>
+    <pre><code>git clone https://github.com/abourdim/rocket-shield-vpn.git
+cd rocket-shield-vpn
+docker-compose up -d</code></pre>
+    <p>The web app will be available at <code>http://localhost:8080</code>.</p>
+
+    <h3>Does Docker work on Raspberry Pi?</h3>
+    <p>Yes! Both the web app (nginx:alpine) and WireGuard (linuxserver/wireguard) images support ARM64 architecture.</p>
+
+    <h2>Troubleshooting</h2>
+    <h3>VPN won't connect</h3>
+    <ul>
+      <li>Check your config file is correct (no typos in keys)</li>
+      <li>Verify the server endpoint and port are reachable</li>
+      <li>Check firewall rules on both sides</li>
+      <li>Try restarting the VPN service</li>
+    </ul>
+
+    <h3>DNS leaks detected</h3>
+    <ul>
+      <li>Add <code>DNS = 1.1.1.1, 8.8.8.8</code> to your WireGuard [Interface] section</li>
+      <li>For OpenVPN, ensure <code>push "dhcp-option DNS 1.1.1.1"</code> is in server config</li>
+      <li>Disable WebRTC in your browser</li>
+    </ul>
+
+    <h3>Slow VPN speed</h3>
+    <ul>
+      <li>Switch to WireGuard (faster than OpenVPN)</li>
+      <li>Choose a server closer to your location</li>
+      <li>Check MTU settings (try <code>MTU = 1380</code>)</li>
+      <li>On Pi: ensure you're not CPU-bound (check with <code>htop</code>)</li>
+    </ul>
+
+    <h3>How to check if VPN is working</h3>
+    <ol>
+      <li>Visit <a href="https://whatismyip.com" target="_blank">whatismyip.com</a> — should show VPN server IP</li>
+      <li>Visit <a href="https://dnsleaktest.com" target="_blank">dnsleaktest.com</a> — run extended test</li>
+      <li>Run <code>wg show</code> to see active WireGuard connections</li>
+      <li>Use the launch script option 4 (Status & Diagnostics)</li>
+    </ol>
+  </div>
+
+  <!-- WIREGUARD -->
+  <div class="doc-section" id="sec-wireguard">
+    <h1>⚡ WireGuard Reference</h1>
+
+    <h2>Overview</h2>
+    <p>WireGuard is a modern, fast, and simple VPN protocol. With only ~4,000 lines of code (vs OpenVPN's ~100,000), it's easier to audit, faster to connect, and uses state-of-the-art cryptography.</p>
+
+    <table>
+      <tr><th>Feature</th><th>Details</th></tr>
+      <tr><td>Encryption</td><td>ChaCha20-Poly1305</td></tr>
+      <tr><td>Key Exchange</td><td>Curve25519 (ECDH)</td></tr>
+      <tr><td>Hashing</td><td>BLAKE2s</td></tr>
+      <tr><td>Transport</td><td>UDP only</td></tr>
+      <tr><td>Handshake</td><td>Noise Protocol Framework (1-RTT)</td></tr>
+    </table>
+
+    <h2>How It Works</h2>
+    <p>WireGuard uses <strong>Cryptokey Routing</strong>: each peer has a public key and a list of allowed IP addresses. When a packet arrives, WireGuard checks which peer's allowed IPs match the destination, encrypts it with that peer's public key, and sends it to that peer's endpoint.</p>
+
+    <h2>[Interface] Configuration Parameters</h2>
+    <table>
+      <tr><th>Parameter</th><th>Required</th><th>Description</th><th>Example</th></tr>
+      <tr><td><code>Address</code></td><td>Yes</td><td>IP address(es) for this interface (CIDR)</td><td><code>10.66.66.1/24</code></td></tr>
+      <tr><td><code>ListenPort</code></td><td>Server</td><td>UDP port to listen on</td><td><code>51820</code></td></tr>
+      <tr><td><code>PrivateKey</code></td><td>Yes</td><td>Base64-encoded private key</td><td><code>wg genkey</code> output</td></tr>
+      <tr><td><code>DNS</code></td><td>Client</td><td>DNS server(s) to use when VPN is active</td><td><code>1.1.1.1, 8.8.8.8</code></td></tr>
+      <tr><td><code>MTU</code></td><td>No</td><td>Maximum Transmission Unit (default: 1420)</td><td><code>1380</code></td></tr>
+      <tr><td><code>Table</code></td><td>No</td><td>Routing table to use (default: auto)</td><td><code>auto</code> or <code>off</code></td></tr>
+      <tr><td><code>PreUp</code></td><td>No</td><td>Command run before interface comes up</td><td>Script path</td></tr>
+      <tr><td><code>PostUp</code></td><td>No</td><td>Command run after interface comes up</td><td>iptables rules</td></tr>
+      <tr><td><code>PreDown</code></td><td>No</td><td>Command run before interface goes down</td><td>Script path</td></tr>
+      <tr><td><code>PostDown</code></td><td>No</td><td>Command run after interface goes down</td><td>iptables cleanup</td></tr>
+      <tr><td><code>SaveConfig</code></td><td>No</td><td>Auto-save runtime changes on shutdown</td><td><code>true</code></td></tr>
+      <tr><td><code>FwMark</code></td><td>No</td><td>Firewall mark for outgoing packets</td><td><code>0x20</code></td></tr>
+    </table>
+
+    <h2>[Peer] Configuration Parameters</h2>
+    <table>
+      <tr><th>Parameter</th><th>Required</th><th>Description</th><th>Example</th></tr>
+      <tr><td><code>PublicKey</code></td><td>Yes</td><td>Base64-encoded public key of the peer</td><td>Peer's pubkey</td></tr>
+      <tr><td><code>PresharedKey</code></td><td>No</td><td>Extra symmetric key for post-quantum security</td><td><code>wg genpsk</code> output</td></tr>
+      <tr><td><code>AllowedIPs</code></td><td>Yes</td><td>IPs allowed from/to this peer</td><td><code>0.0.0.0/0</code> (all) or <code>10.66.66.2/32</code></td></tr>
+      <tr><td><code>Endpoint</code></td><td>Client</td><td>Server address and port</td><td><code>vpn.example.com:51820</code></td></tr>
+      <tr><td><code>PersistentKeepalive</code></td><td>No</td><td>Send keepalive every N seconds (NAT traversal)</td><td><code>25</code></td></tr>
+    </table>
+
+    <h2>Key Generation</h2>
+    <pre><code># Generate private key
+wg genkey > privatekey
+
+# Derive public key from private key
+cat privatekey | wg pubkey > publickey
+
+# Generate preshared key (optional, post-quantum security)
+wg genpsk > presharedkey
+
+# One-liner: generate key pair
+wg genkey | tee privatekey | wg pubkey > publickey</code></pre>
+
+    <h2>Example: Server Config</h2>
+    <pre><code># /etc/wireguard/wg0.conf — Server
+[Interface]
+Address = 10.66.66.1/24           # Server's VPN IP
+ListenPort = 51820                # UDP port
+PrivateKey = SERVER_PRIVATE_KEY   # From wg genkey
+
+# NAT and forwarding rules
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# Client 1: Phone
+[Peer]
+PublicKey = CLIENT1_PUBLIC_KEY
+AllowedIPs = 10.66.66.2/32
+
+# Client 2: Laptop
+[Peer]
+PublicKey = CLIENT2_PUBLIC_KEY
+AllowedIPs = 10.66.66.3/32</code></pre>
+
+    <h2>Example: Client Config</h2>
+    <pre><code># client.conf — Phone/Laptop
+[Interface]
+Address = 10.66.66.2/24
+PrivateKey = CLIENT_PRIVATE_KEY
+DNS = 1.1.1.1, 8.8.8.8
+
+[Peer]
+PublicKey = SERVER_PUBLIC_KEY
+Endpoint = your-server-ip:51820
+AllowedIPs = 0.0.0.0/0           # Route ALL traffic through VPN
+PersistentKeepalive = 25         # Keep connection alive behind NAT</code></pre>
+
+    <h2>Common Commands</h2>
+    <table>
+      <tr><th>Command</th><th>Description</th></tr>
+      <tr><td><code>wg-quick up wg0</code></td><td>Start the VPN interface</td></tr>
+      <tr><td><code>wg-quick down wg0</code></td><td>Stop the VPN interface</td></tr>
+      <tr><td><code>wg show</code></td><td>Show active interfaces and peers</td></tr>
+      <tr><td><code>wg show wg0</code></td><td>Show specific interface details</td></tr>
+      <tr><td><code>sudo systemctl enable wg-quick@wg0</code></td><td>Enable on boot</td></tr>
+      <tr><td><code>sudo systemctl status wg-quick@wg0</code></td><td>Check service status</td></tr>
+      <tr><td><code>wg syncconf wg0 &lt;(wg-quick strip wg0)</code></td><td>Reload config without restart</td></tr>
+    </table>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+      <tr><td>Handshake never completes</td><td>Wrong keys or endpoint</td><td>Verify public keys match, check endpoint/port</td></tr>
+      <tr><td>Connected but no internet</td><td>Missing NAT/forwarding</td><td>Enable IP forwarding + PostUp iptables rules</td></tr>
+      <tr><td>DNS not resolving</td><td>Missing DNS config</td><td>Add <code>DNS = 1.1.1.1</code> to [Interface]</td></tr>
+      <tr><td>Slow speeds</td><td>MTU too high</td><td>Try <code>MTU = 1380</code> or lower</td></tr>
+      <tr><td>Peer unreachable</td><td>Firewall blocking UDP</td><td>Allow port 51820/udp in firewall</td></tr>
+      <tr><td>Connection drops</td><td>NAT timeout</td><td>Add <code>PersistentKeepalive = 25</code></td></tr>
+      <tr><td>IP leak</td><td>Split DNS or WebRTC</td><td>Use <code>AllowedIPs = 0.0.0.0/0</code> and disable WebRTC</td></tr>
+    </table>
+  </div>
+
+  <!-- OPENVPN -->
+  <div class="doc-section" id="sec-openvpn">
+    <h1>🔐 OpenVPN Reference</h1>
+
+    <h2>Overview</h2>
+    <p>OpenVPN is a mature, battle-tested VPN solution using SSL/TLS for key exchange. It's highly configurable, supports both UDP and TCP, and works on virtually every platform.</p>
+
+    <h2>Server Configuration Parameters</h2>
+    <table>
+      <tr><th>Parameter</th><th>Description</th><th>Example</th></tr>
+      <tr><td><code>port</code></td><td>Listening port</td><td><code>1194</code></td></tr>
+      <tr><td><code>proto</code></td><td>Protocol (udp or tcp)</td><td><code>udp</code></td></tr>
+      <tr><td><code>dev</code></td><td>Virtual device type</td><td><code>tun</code> (L3) or <code>tap</code> (L2)</td></tr>
+      <tr><td><code>ca</code></td><td>CA certificate path</td><td><code>ca.crt</code></td></tr>
+      <tr><td><code>cert</code></td><td>Server certificate</td><td><code>server.crt</code></td></tr>
+      <tr><td><code>key</code></td><td>Server private key</td><td><code>server.key</code></td></tr>
+      <tr><td><code>dh</code></td><td>Diffie-Hellman parameters</td><td><code>dh2048.pem</code></td></tr>
+      <tr><td><code>server</code></td><td>VPN subnet and mask</td><td><code>10.8.0.0 255.255.255.0</code></td></tr>
+      <tr><td><code>push</code></td><td>Push settings to clients</td><td><code>"redirect-gateway def1"</code></td></tr>
+      <tr><td><code>keepalive</code></td><td>Ping interval and timeout</td><td><code>10 120</code></td></tr>
+      <tr><td><code>data-ciphers</code></td><td>Allowed ciphers</td><td><code>AES-256-GCM:AES-128-GCM</code></td></tr>
+      <tr><td><code>auth</code></td><td>HMAC authentication</td><td><code>SHA256</code></td></tr>
+      <tr><td><code>tls-crypt</code></td><td>TLS encryption key</td><td><code>ta.key</code></td></tr>
+      <tr><td><code>persist-key</code></td><td>Keep keys in memory on restart</td><td>(no value)</td></tr>
+      <tr><td><code>persist-tun</code></td><td>Keep tun device open on restart</td><td>(no value)</td></tr>
+      <tr><td><code>user/group</code></td><td>Drop privileges after init</td><td><code>nobody</code> / <code>nogroup</code></td></tr>
+      <tr><td><code>status</code></td><td>Status log file</td><td><code>/var/log/openvpn-status.log</code></td></tr>
+      <tr><td><code>verb</code></td><td>Verbosity level (0-11)</td><td><code>3</code></td></tr>
+    </table>
+
+    <h2>Client Configuration Parameters</h2>
+    <table>
+      <tr><th>Parameter</th><th>Description</th><th>Example</th></tr>
+      <tr><td><code>client</code></td><td>Declare this is a client</td><td>(no value)</td></tr>
+      <tr><td><code>dev</code></td><td>Must match server</td><td><code>tun</code></td></tr>
+      <tr><td><code>proto</code></td><td>Must match server</td><td><code>udp</code></td></tr>
+      <tr><td><code>remote</code></td><td>Server address and port</td><td><code>vpn.example.com 1194</code></td></tr>
+      <tr><td><code>resolv-retry</code></td><td>Retry DNS resolution</td><td><code>infinite</code></td></tr>
+      <tr><td><code>nobind</code></td><td>Don't bind to local port</td><td>(no value)</td></tr>
+      <tr><td><code>ca</code></td><td>CA certificate</td><td><code>ca.crt</code></td></tr>
+      <tr><td><code>cert</code></td><td>Client certificate</td><td><code>client.crt</code></td></tr>
+      <tr><td><code>key</code></td><td>Client private key</td><td><code>client.key</code></td></tr>
+      <tr><td><code>auth-user-pass</code></td><td>Username/password auth</td><td><code>credentials.txt</code></td></tr>
+      <tr><td><code>redirect-gateway</code></td><td>Route all traffic through VPN</td><td><code>def1</code></td></tr>
+    </table>
+
+    <h2>UDP vs TCP</h2>
+    <table>
+      <tr><th>Feature</th><th>UDP</th><th>TCP</th></tr>
+      <tr><td>Speed</td><td>Faster (no overhead)</td><td>Slower (TCP-over-TCP)</td></tr>
+      <tr><td>Reliability</td><td>Best-effort</td><td>Guaranteed delivery</td></tr>
+      <tr><td>Firewall bypass</td><td>Often blocked</td><td>Port 443 looks like HTTPS</td></tr>
+      <tr><td>Recommended</td><td>Default choice</td><td>Only for restrictive networks</td></tr>
+    </table>
+
+    <h2>Certificate Generation (Easy-RSA)</h2>
+    <pre><code># Install easy-rsa
+sudo apt install easy-rsa
+
+# Initialize PKI
+make-cadir ~/openvpn-ca && cd ~/openvpn-ca
+./easyrsa init-pki
+./easyrsa build-ca nopass
+
+# Generate server cert
+./easyrsa gen-req server nopass
+./easyrsa sign-req server server
+
+# Generate client cert
+./easyrsa gen-req client1 nopass
+./easyrsa sign-req client client1
+
+# Generate DH parameters
+./easyrsa gen-dh
+
+# Generate TLS auth key
+openvpn --genkey secret ta.key</code></pre>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+      <tr><td>TLS handshake failed</td><td>Certificate mismatch</td><td>Verify ca.crt matches on both sides</td></tr>
+      <tr><td>AUTH_FAILED</td><td>Wrong credentials</td><td>Check username/password or certificate</td></tr>
+      <tr><td>No internet after connect</td><td>Missing routes</td><td>Add <code>push "redirect-gateway def1"</code> to server</td></tr>
+      <tr><td>DNS not working</td><td>DNS not pushed</td><td>Add <code>push "dhcp-option DNS 1.1.1.1"</code></td></tr>
+      <tr><td>Connection timeout</td><td>Firewall/port issue</td><td>Allow port 1194/udp, check NAT</td></tr>
+      <tr><td>Cipher mismatch</td><td>Client/server cipher differs</td><td>Use <code>data-ciphers</code> with matching list</td></tr>
+    </table>
+  </div>
+
+  <!-- STEP-BY-STEP -->
+  <div class="doc-section" id="sec-step-by-step">
+    <h1>📋 Step-by-Step Guide</h1>
+
+    <h2>Prerequisites</h2>
+    <ul>
+      <li><strong>OS:</strong> Ubuntu 20.04+, Debian 11+, Raspberry Pi OS, macOS 12+, or Windows 10+</li>
+      <li><strong>Hardware:</strong> Any PC, Mac, or Raspberry Pi 3B+/4/5</li>
+      <li><strong>Network:</strong> Internet connection, router access for port forwarding (server only)</li>
+    </ul>
+
+    <h2>Part 1: Run the Educational Web App</h2>
+    <h3>Method A: Just open it</h3>
+    <p>Double-click <code>index.html</code> in your file browser. Done!</p>
+
+    <h3>Method B: Launch script</h3>
+    <pre><code>chmod +x rocket-shield.sh
+bash rocket-shield.sh
+# Select option 1 → Launch Web App</code></pre>
+
+    <h3>Method C: Docker</h3>
+    <pre><code>docker-compose up -d
+# Open http://localhost:8080</code></pre>
+
+    <h2>Part 2: VPN Client — WireGuard</h2>
+    <ol>
+      <li><strong>Install:</strong> <code>sudo apt install wireguard</code> (Ubuntu) or <code>brew install wireguard-tools</code> (macOS)</li>
+      <li><strong>Get config:</strong> Download a <code>.conf</code> file from your VPN provider</li>
+      <li><strong>Import:</strong> <code>sudo cp provider.conf /etc/wireguard/wg0.conf</code></li>
+      <li><strong>Connect:</strong> <code>sudo wg-quick up wg0</code></li>
+      <li><strong>Verify:</strong> <code>curl ifconfig.me</code> — should show VPN server IP</li>
+      <li><strong>Auto-start:</strong> <code>sudo systemctl enable wg-quick@wg0</code></li>
+    </ol>
+
+    <h2>Part 3: VPN Client — OpenVPN</h2>
+    <ol>
+      <li><strong>Install:</strong> <code>sudo apt install openvpn</code></li>
+      <li><strong>Get config:</strong> Download a <code>.ovpn</code> file from your provider</li>
+      <li><strong>Connect:</strong> <code>sudo openvpn --config provider.ovpn</code></li>
+      <li><strong>Verify:</strong> <code>curl ifconfig.me</code></li>
+    </ol>
+
+    <h2>Part 4: VPN Server — WireGuard on Linux/Pi</h2>
+    <ol>
+      <li><strong>Install:</strong> <code>sudo apt install wireguard</code></li>
+      <li><strong>Generate keys:</strong> <code>wg genkey | tee server_private | wg pubkey > server_public</code></li>
+      <li><strong>Create config:</strong> Write <code>/etc/wireguard/wg0.conf</code> with server settings</li>
+      <li><strong>Enable forwarding:</strong> <code>sudo sysctl -w net.ipv4.ip_forward=1</code></li>
+      <li><strong>Open firewall:</strong> <code>sudo ufw allow 51820/udp</code></li>
+      <li><strong>Start:</strong> <code>sudo wg-quick up wg0</code></li>
+      <li><strong>Create client configs</strong> with the launch script (option 3 → Add Client)</li>
+    </ol>
+    <div class="doc-tip">💡 Or just run <code>bash rocket-shield.sh</code> and select option 3 — it does all of this automatically!</div>
+
+    <h2>Part 5: VPN Server on Freebox</h2>
+    <ol>
+      <li>Open <code>mafreebox.freebox.fr</code> in your browser</li>
+      <li>Go to <strong>Settings → VPN → VPN Server</strong></li>
+      <li>Enable WireGuard or OpenVPN server</li>
+      <li>Create a user and download the config file</li>
+    </ol>
+    <p>See the full <a href="#" onclick="showSection('freebox')">Freebox Guide</a> for details.</p>
+
+    <h2>Part 6: Connect Remotely</h2>
+    <ol>
+      <li>Install WireGuard app on your phone (<a href="https://apps.apple.com/app/wireguard/id1441195209" target="_blank">iOS</a> / <a href="https://play.google.com/store/apps/details?id=com.wireguard.android" target="_blank">Android</a>)</li>
+      <li>Import the client config file (or scan QR code from launch script)</li>
+      <li>Toggle the connection ON when away from home</li>
+      <li>You now have encrypted access to your home network!</li>
+    </ol>
+
+    <h2>Part 7: Verify & Test</h2>
+    <table>
+      <tr><th>Test</th><th>How</th><th>Expected Result</th></tr>
+      <tr><td>IP Check</td><td><a href="https://whatismyip.com" target="_blank">whatismyip.com</a></td><td>Shows VPN server IP, not your real IP</td></tr>
+      <tr><td>DNS Leak</td><td><a href="https://dnsleaktest.com" target="_blank">dnsleaktest.com</a></td><td>No leaks detected</td></tr>
+      <tr><td>Speed</td><td><a href="https://fast.com" target="_blank">fast.com</a></td><td>Acceptable speed (5-10% drop normal)</td></tr>
+      <tr><td>Server Status</td><td><code>wg show</code></td><td>Shows connected peers with recent handshake</td></tr>
+    </table>
+  </div>
+
+  <!-- FREEBOX -->
+  <div class="doc-section" id="sec-freebox">
+    <h1>📦 Freebox VPN Guide</h1>
+
+    <h2>Supported Models</h2>
+    <table>
+      <tr><th>Model</th><th>OpenVPN</th><th>WireGuard</th><th>VPN Client</th><th>VPN Server</th></tr>
+      <tr><td>Revolution</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Mini 4K</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>One</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Delta</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Pop</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Ultra</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+    </table>
+
+    <h2>Accessing Freebox OS</h2>
+    <ol>
+      <li>Connect to your Freebox (WiFi or Ethernet)</li>
+      <li>Open browser: <code>mafreebox.freebox.fr</code></li>
+      <li>Log in with admin password</li>
+      <li>Navigate to <strong>Settings → VPN</strong></li>
+    </ol>
+    <div class="doc-warn">⚠️ First-time access requires physical confirmation on the Freebox LCD screen.</div>
+
+    <h2>VPN Client Mode</h2>
+    <p>Routes ALL home traffic through an external VPN provider.</p>
+    <ol>
+      <li>Go to <strong>VPN → VPN Client → Add Connection</strong></li>
+      <li>Select protocol (OpenVPN or WireGuard)</li>
+      <li>Upload your provider's config file (.ovpn or .conf)</li>
+      <li>Enter credentials if required</li>
+      <li>Save and toggle ON</li>
+    </ol>
+
+    <h2>VPN Server Mode</h2>
+    <p>Host your own VPN to access home network remotely.</p>
+    <ol>
+      <li>Go to <strong>VPN → VPN Server</strong></li>
+      <li>Choose protocol and enable</li>
+      <li>Create a VPN user with strong password</li>
+      <li>Download the generated client config file</li>
+      <li>Import config on your phone/laptop</li>
+    </ol>
+    <div class="doc-note">Port forwarding is automatic on Freebox — no manual setup needed for the VPN server port.</div>
+
+    <h2>Client vs Server — When to Use Which?</h2>
+    <table>
+      <tr><th></th><th>VPN Client</th><th>VPN Server</th></tr>
+      <tr><td><strong>Direction</strong></td><td>Outgoing (you → provider)</td><td>Incoming (you → home)</td></tr>
+      <tr><td><strong>Use case</strong></td><td>Hide your traffic from ISP</td><td>Access home from outside</td></tr>
+      <tr><td><strong>Requires</strong></td><td>VPN provider subscription</td><td>Nothing (Freebox is the server)</td></tr>
+      <tr><td><strong>Protects</strong></td><td>All home devices</td><td>Your connection when away</td></tr>
+    </table>
+  </div>
+
+  <!-- RASPBERRY PI -->
+  <div class="doc-section" id="sec-raspberry-pi">
+    <h1>🍓 Raspberry Pi Deployment</h1>
+
+    <h2>Recommended Hardware</h2>
+    <table>
+      <tr><th>Model</th><th>RAM</th><th>WireGuard Throughput</th><th>Verdict</th></tr>
+      <tr><td>Pi 3B+</td><td>1 GB</td><td>~90 Mbps</td><td>Good for light use</td></tr>
+      <tr><td>Pi 4 (2GB)</td><td>2 GB</td><td>~300 Mbps</td><td>Recommended</td></tr>
+      <tr><td>Pi 4 (4GB)</td><td>4 GB</td><td>~300 Mbps</td><td>Great</td></tr>
+      <tr><td>Pi 5</td><td>4-8 GB</td><td>~500 Mbps</td><td>Overkill but awesome</td></tr>
+      <tr><td>Pi Zero 2 W</td><td>512 MB</td><td>~50 Mbps</td><td>Ultra compact, light use</td></tr>
+    </table>
+
+    <h2>Quick Start</h2>
+    <pre><code># On your Raspberry Pi
+sudo apt update && sudo apt upgrade -y
+git clone https://github.com/abourdim/rocket-shield-vpn.git
+cd rocket-shield-vpn
+bash rocket-shield.sh
+# Option 1: Serve web app
+# Option 3: Set up WireGuard server</code></pre>
+
+    <h2>Network Setup</h2>
+    <h3>Static IP</h3>
+    <pre><code># Edit dhcpcd.conf
+sudo nano /etc/dhcpcd.conf
+
+# Add at bottom:
+interface eth0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=1.1.1.1 8.8.8.8</code></pre>
+
+    <h3>Port Forwarding on Freebox</h3>
+    <ol>
+      <li>Open <code>mafreebox.freebox.fr</code></li>
+      <li>Go to <strong>Settings → Ports → Port Forwarding</strong></li>
+      <li>Add rule: External port <code>51820/UDP</code> → Pi's local IP, port <code>51820</code></li>
+    </ol>
+
+    <h3>Dynamic DNS</h3>
+    <pre><code># Install Duck DNS client
+echo "url=\"https://www.duckdns.org/update?domains=YOUR_DOMAIN&token=YOUR_TOKEN&ip=\"" | sudo tee /etc/cron.d/duckdns
+# Add to crontab: */5 * * * * curl -s -o /dev/null "https://www.duckdns.org/update?..."</code></pre>
+
+    <h2>Security Hardening</h2>
+    <ul>
+      <li>Change default password: <code>passwd</code></li>
+      <li>SSH key auth: copy your public key to <code>~/.ssh/authorized_keys</code></li>
+      <li>Install fail2ban: <code>sudo apt install fail2ban</code></li>
+      <li>Enable UFW: <code>sudo ufw allow ssh && sudo ufw allow 51820/udp && sudo ufw enable</code></li>
+      <li>Auto-updates: <code>sudo apt install unattended-upgrades</code></li>
+    </ul>
+
+    <h2>Auto-Start on Boot</h2>
+    <pre><code># WireGuard
+sudo systemctl enable wg-quick@wg0
+
+# Web app (create systemd service)
+sudo tee /etc/systemd/system/rocket-shield-web.service > /dev/null &lt;&lt;EOF
+[Unit]
+Description=Rocket Shield Web App
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/rocket-shield-vpn
+ExecStart=/usr/bin/python3 -m http.server 8080
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl enable rocket-shield-web</code></pre>
+
+    <div class="doc-tip">💡 WireGuard is extremely lightweight — it barely uses any CPU on the Pi, even under load. It's the perfect protocol for single-board computers.</div>
+  </div>
+
+  <!-- DOCKER -->
+  <div class="doc-section" id="sec-docker">
+    <h1>🐳 Docker Deployment</h1>
+
+    <h2>Quick Start</h2>
+    <pre><code># Clone and start
+git clone https://github.com/abourdim/rocket-shield-vpn.git
+cd rocket-shield-vpn
+docker-compose up -d
+
+# Web app: http://localhost:8080</code></pre>
+
+    <h2>Services</h2>
+    <table>
+      <tr><th>Service</th><th>Image</th><th>Port</th><th>Description</th></tr>
+      <tr><td>webapp</td><td>nginx:alpine (custom)</td><td>8080:80</td><td>Educational web app</td></tr>
+      <tr><td>wireguard</td><td>linuxserver/wireguard</td><td>51820:51820/udp</td><td>VPN server (optional)</td></tr>
+    </table>
+
+    <h2>Enable WireGuard Server</h2>
+    <ol>
+      <li>Edit <code>docker-compose.yml</code></li>
+      <li>Uncomment the <code>wireguard</code> service section</li>
+      <li>Set <code>PEERS=3</code> (number of client configs)</li>
+      <li>Set <code>SERVERURL=auto</code> or your public IP/domain</li>
+      <li>Run <code>docker-compose up -d</code></li>
+    </ol>
+
+    <h2>Client Configs</h2>
+    <p>After starting WireGuard, client configs are auto-generated in <code>./vpn-configs/peer*/</code>:</p>
+    <pre><code>vpn-configs/
+  peer1/
+    peer1.conf    # WireGuard config file
+    peer1.png     # QR code image
+  peer2/
+    peer2.conf
+    peer2.png</code></pre>
+
+    <h2>Common Commands</h2>
+    <table>
+      <tr><th>Command</th><th>Description</th></tr>
+      <tr><td><code>docker-compose up -d</code></td><td>Start all services</td></tr>
+      <tr><td><code>docker-compose down</code></td><td>Stop all services</td></tr>
+      <tr><td><code>docker-compose ps</code></td><td>Show running containers</td></tr>
+      <tr><td><code>docker-compose logs -f</code></td><td>Follow logs</td></tr>
+      <tr><td><code>docker-compose pull && docker-compose up -d</code></td><td>Update images</td></tr>
+    </table>
+
+    <h2>ARM / Raspberry Pi</h2>
+    <p>Both images support <code>linux/arm64</code>. On Pi:</p>
+    <pre><code>sudo apt install docker.io docker-compose
+sudo usermod -aG docker $USER
+# Log out and back in
+docker-compose up -d</code></pre>
+  </div>
+
+  <!-- LAUNCH SCRIPT -->
+  <div class="doc-section" id="sec-launch-script">
+    <h1>🚀 Launch Script Reference</h1>
+
+    <h2>Files</h2>
+    <table>
+      <tr><th>File</th><th>Platform</th><th>Usage</th></tr>
+      <tr><td><code>rocket-shield.sh</code></td><td>Linux / macOS / Pi</td><td><code>bash rocket-shield.sh</code></td></tr>
+      <tr><td><code>rocket-shield.ps1</code></td><td>Windows</td><td><code>powershell -ExecutionPolicy Bypass -File rocket-shield.ps1</code></td></tr>
+    </table>
+
+    <h2>Menu Options</h2>
+    <table>
+      <tr><th>#</th><th>Option</th><th>What It Does</th><th>Needs sudo?</th></tr>
+      <tr><td>1</td><td>Launch Web App</td><td>Starts HTTP server (Python3/Node), opens browser, shows QR for mobile</td><td>No</td></tr>
+      <tr><td>2</td><td>VPN Client Setup</td><td>Install + configure WireGuard or OpenVPN client, import configs</td><td>Yes</td></tr>
+      <tr><td>3</td><td>VPN Server Setup</td><td>Install + configure WireGuard server, generate keys, create client configs with QR</td><td>Yes</td></tr>
+      <tr><td>4</td><td>Status & Diagnostics</td><td>Show system info, public IP, VPN status, DNS leak check, deps</td><td>Partial</td></tr>
+      <tr><td>5</td><td>Stop All Services</td><td>Stop web server, WireGuard, OpenVPN</td><td>Yes</td></tr>
+      <tr><td>6</td><td>Exit</td><td>Clean exit</td><td>No</td></tr>
+    </table>
+
+    <h2>Platform Detection</h2>
+    <p>The script auto-detects:</p>
+    <ul>
+      <li><strong>OS:</strong> Linux (Debian/Ubuntu/Fedora/Arch), macOS, Raspberry Pi OS</li>
+      <li><strong>Architecture:</strong> x86_64, ARM (armv7l, aarch64)</li>
+      <li><strong>Package manager:</strong> apt, dnf, pacman, brew</li>
+      <li><strong>Raspberry Pi:</strong> checks <code>/proc/cpuinfo</code> for BCM chips</li>
+    </ul>
+
+    <h2>Dependencies</h2>
+    <table>
+      <tr><th>Dependency</th><th>Required For</th><th>Auto-Install?</th></tr>
+      <tr><td>Python3 or Node.js</td><td>Web server</td><td>No</td></tr>
+      <tr><td>WireGuard</td><td>VPN client/server</td><td>Yes (with confirmation)</td></tr>
+      <tr><td>OpenVPN</td><td>VPN client</td><td>Yes (with confirmation)</td></tr>
+      <tr><td>qrencode</td><td>QR codes for mobile</td><td>No (optional)</td></tr>
+      <tr><td>curl</td><td>IP detection, DNS check</td><td>No</td></tr>
+      <tr><td>Docker</td><td>Container deployment</td><td>Yes (apt only)</td></tr>
+    </table>
+
+    <h2>Generated Files</h2>
+    <p>The script creates files in <code>vpn-configs/</code>:</p>
+    <pre><code>vpn-configs/
+  server_pubkey       # Server's WireGuard public key
+  server_ip           # Server's public IP
+  server_port         # Server's listen port
+  phone.conf          # Client config for "phone"
+  laptop.conf         # Client config for "laptop"</code></pre>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="doc-section" id="sec-architecture">
+    <h1>🏗️ Architecture</h1>
+
+    <h2>Project Structure</h2>
+    <pre><code>rocket-shield-vpn/
+├── index.html              # Main app (single file: HTML+CSS+JS+i18n)
+├── docs.html               # Documentation page (this file)
+├── icon-512.png            # App icon
+├── rocket-shield.sh        # Launch script (Bash)
+├── rocket-shield.ps1       # Launch script (PowerShell)
+├── Dockerfile              # Docker container (nginx:alpine)
+├── docker-compose.yml      # Docker Compose config
+├── README.md               # Project README
+└── docs/                   # Markdown documentation
+    ├── README.md
+    ├── FAQ.md
+    ├── WIREGUARD.md
+    ├── OPENVPN.md
+    ├── STEP-BY-STEP.md
+    ├── ARCHITECTURE.md
+    ├── FREEBOX.md
+    ├── RASPBERRY-PI.md
+    ├── DOCKER.md
+    └── LAUNCH-SCRIPT.md</code></pre>
+
+    <h2>Web App Architecture</h2>
+    <p>The entire web app is a <strong>single HTML file</strong> (~170KB) with embedded CSS, JavaScript, translations, and a base64-encoded logo. Zero external dependencies (except optional Google Fonts CDN).</p>
+
+    <h3>Page System</h3>
+    <pre><code># Navigation
+showPage('command')  → shows #page-command
+showPage('academy')  → shows #page-academy
+showPage('launchpad')→ shows #page-launchpad
+showPage('freebox')  → shows #page-freebox
+
+# Each page is a div with class="page", toggled via .active class</code></pre>
+
+    <h3>CSS Theme System</h3>
+    <p>Themes use CSS custom properties on <code>[data-theme="name"]</code> selectors. Switching themes changes the <code>data-theme</code> attribute on <code>&lt;html&gt;</code>, and all CSS vars cascade automatically.</p>
+
+    <h3>i18n System</h3>
+    <pre><code># Translation object
+const i18n = { en: {...}, fr: {...}, ar: {...} }
+
+# Helper function
+function t(key) { return i18n[lang][key] || i18n['en'][key] || key; }
+
+# HTML static elements use data-i18n attribute
+&lt;span data-i18n="navCommand"&gt;Command Center&lt;/span&gt;
+
+# Dynamic content uses t() in template literals
+html = `&lt;h1&gt;${t('fb1title')}&lt;/h1&gt;`</code></pre>
+
+    <h3>Freebox Diagram System</h3>
+    <p>All Freebox CSS classes use the <code>fbx-</code> prefix for namespacing. Key components:</p>
+    <table>
+      <tr><th>Class</th><th>Purpose</th></tr>
+      <tr><td><code>.fbx-diagram</code></td><td>Container for all diagrams</td></tr>
+      <tr><td><code>.fbx-vs-lanes</code></td><td>Client vs Server split layout</td></tr>
+      <tr><td><code>.fbx-pipe / .fbx-packet</code></td><td>Animated data flow pipes</td></tr>
+      <tr><td><code>.fbx-browser</code></td><td>Browser mockup component</td></tr>
+      <tr><td><code>.fbx-dash</code></td><td>Interactive VPN dashboard</td></tr>
+      <tr><td><code>.fbx-timeline</code></td><td>Vertical timeline component</td></tr>
+      <tr><td><code>.fbx-journey</code></td><td>Remote connection diagram</td></tr>
+      <tr><td><code>.fbx-ring</code></td><td>Progress ring (conic-gradient)</td></tr>
+    </table>
+
+    <h3>State Management</h3>
+    <p>All state is managed with simple module-level variables:</p>
+    <pre><code>let connected = false;      // VPN simulator connected state
+let lang = 'en';            // Current language
+let currentStep = 0;        // Launch Pad step
+let freeboxStep = 0;        // Freebox step
+let freeboxChecks = [...];  // Checklist state
+let completedCards = {...}; // Academy progress</code></pre>
+  </div>
+
+</main>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.doc-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const section = document.getElementById('sec-' + id);
+  if (section) section.classList.add('active');
+  const link = document.querySelector(`.sidebar-link[onclick*="'${id}'"]`);
+  if (link) link.classList.add('active');
+  document.querySelector('.sidebar').classList.remove('open');
+  window.scrollTo(0, 0);
+}
+
+function searchDocs(query) {
+  if (!query.trim()) {
+    document.querySelectorAll('.doc-section').forEach(s => {
+      s.style.display = '';
+      s.querySelectorAll('h2,h3,p,li,td').forEach(el => {
+        el.style.backgroundColor = '';
+      });
+    });
+    return;
+  }
+  const q = query.toLowerCase();
+  document.querySelectorAll('.doc-section').forEach(s => {
+    s.classList.add('active');
+    s.style.display = 'block';
+    let found = false;
+    s.querySelectorAll('h1,h2,h3,p,li,td,code').forEach(el => {
+      if (el.textContent.toLowerCase().includes(q)) {
+        found = true;
+        el.style.backgroundColor = 'var(--accent-soft)';
+      } else {
+        el.style.backgroundColor = '';
+      }
+    });
+    if (!found) s.style.display = 'none';
+  });
+}
+
+// Handle hash navigation
+if (window.location.hash) {
+  const id = window.location.hash.slice(1);
+  showSection(id);
+}
+</script>
+</body>
+</html>
