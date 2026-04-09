@@ -542,36 +542,83 @@ openvpn --genkey secret ta.key</code></pre>
       <li><strong>Network:</strong> Internet connection, router access for port forwarding (server only)</li>
     </ul>
 
-    <h2>Part 1: Run the Educational Web App</h2>
-    <h3>Method A: Just open it</h3>
-    <p>Double-click <code>index.html</code> in your file browser. Done!</p>
+    <h2>Part 1: Choose Your VPN Type</h2>
 
-    <h3>Method B: Launch script</h3>
-    <pre><code>chmod +x rocket-shield.sh
-bash rocket-shield.sh
-# Select option 1 → Launch Web App</code></pre>
+    <h3>Option A: Free VPN Apps</h3>
+    <table>
+      <tr><th>Provider</th><th>Data Limit</th><th>Servers</th><th>Notes</th></tr>
+      <tr><td><strong>ProtonVPN Free</strong></td><td>Unlimited</td><td>3 countries</td><td>No ads, Swiss privacy</td></tr>
+      <tr><td><strong>Windscribe Free</strong></td><td>10 GB/month</td><td>10 countries</td><td>Good speeds</td></tr>
+      <tr><td><strong>hide.me Free</strong></td><td>10 GB/month</td><td>5 countries</td><td>No logs</td></tr>
+    </table>
+    <div class="doc-warn">⚠️ Avoid unknown free VPNs — many sell your data! Stick to trusted names above.</div>
 
-    <h3>Method C: Docker</h3>
-    <pre><code>docker-compose up -d
-# Open http://localhost:8080</code></pre>
+    <h3>Option B: Paid VPN Apps</h3>
+    <table>
+      <tr><th>Provider</th><th>Price</th><th>Servers</th><th>Standout</th></tr>
+      <tr><td><strong>NordVPN</strong></td><td>~$3/mo</td><td>6,000+ / 60 countries</td><td>Fastest, double VPN</td></tr>
+      <tr><td><strong>ProtonVPN Plus</strong></td><td>~$5/mo</td><td>3,000+ / 70 countries</td><td>Swiss privacy, open source</td></tr>
+      <tr><td><strong>Mullvad</strong></td><td>€5/mo flat</td><td>700+ / 40 countries</td><td>No email needed</td></tr>
+      <tr><td><strong>Surfshark</strong></td><td>~$2/mo</td><td>3,200+ / 100 countries</td><td>Unlimited devices</td></tr>
+    </table>
 
-    <h2>Part 2: VPN Client — WireGuard</h2>
-    <ol>
-      <li><strong>Install:</strong> <code>sudo apt install wireguard</code> (Ubuntu) or <code>brew install wireguard-tools</code> (macOS)</li>
-      <li><strong>Get config:</strong> Download a <code>.conf</code> file from your VPN provider</li>
-      <li><strong>Import:</strong> <code>sudo cp provider.conf /etc/wireguard/wg0.conf</code></li>
-      <li><strong>Connect:</strong> <code>sudo wg-quick up wg0</code></li>
-      <li><strong>Verify:</strong> <code>curl ifconfig.me</code> — should show VPN server IP</li>
-      <li><strong>Auto-start:</strong> <code>sudo systemctl enable wg-quick@wg0</code></li>
-    </ol>
+    <h3>Option C: Built-in VPNs (No Download Needed!)</h3>
+    <div class="doc-card">
+      <h4>🔴 Opera Browser — FREE Built-in VPN</h4>
+      <p>The easiest way to start. Open Opera → <strong>Settings → Privacy → Enable VPN</strong> → Toggle ON. A blue VPN badge appears in the address bar. Choose Americas, Europe, or Asia. No account needed!</p>
+      <p><em>Limitation: Protects browser traffic only, not your whole device.</em></p>
+    </div>
+    <div class="doc-card">
+      <h4>🦁 Brave Browser — Brave VPN (~$10/mo)</h4>
+      <p>Protects the entire device. Built on WireGuard. Includes firewall. Download Brave → Settings → Brave VPN.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🦊 Mozilla VPN (~$5/mo)</h4>
+      <p>Separate app by the Firefox team. Uses WireGuard. Available on Windows, macOS, Linux, Android, iOS. Download from <a href="https://vpn.mozilla.org" target="_blank">vpn.mozilla.org</a>.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🍎 iCloud Private Relay (iCloud+ $0.99/mo)</h4>
+      <p>Built into Safari on iPhone/iPad/Mac. Not a full VPN — hides your IP and encrypts Safari traffic only. Two-hop architecture. Enable: Settings → iCloud → Private Relay → ON.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🤖 Android Built-in VPN</h4>
+      <p>Settings → Network & Internet → VPN → <strong>"+"</strong> → Enter server details (IKEv2, L2TP, PPTP) → Save → Connect. No app needed, but requires server info from a provider.</p>
+    </div>
+    <div class="doc-card">
+      <h4>📱 iOS Built-in VPN</h4>
+      <p>Settings → General → VPN & Device Management → <strong>Add VPN Configuration</strong> → Choose IKEv2/IPSec/L2TP → Enter server details → Done → Toggle ON.</p>
+    </div>
 
-    <h2>Part 3: VPN Client — OpenVPN</h2>
-    <ol>
-      <li><strong>Install:</strong> <code>sudo apt install openvpn</code></li>
-      <li><strong>Get config:</strong> Download a <code>.ovpn</code> file from your provider</li>
-      <li><strong>Connect:</strong> <code>sudo openvpn --config provider.ovpn</code></li>
-      <li><strong>Verify:</strong> <code>curl ifconfig.me</code></li>
-    </ol>
+    <h3>Comparison</h3>
+    <table>
+      <tr><th>Type</th><th>Free?</th><th>Scope</th><th>Install?</th><th>Example</th></tr>
+      <tr><td>Browser VPN</td><td>Yes</td><td>Browser only</td><td>No</td><td>Opera</td></tr>
+      <tr><td>VPN App (Free)</td><td>Yes</td><td>Full device</td><td>Yes</td><td>ProtonVPN Free</td></tr>
+      <tr><td>VPN App (Paid)</td><td>No</td><td>Full device</td><td>Yes</td><td>NordVPN</td></tr>
+      <tr><td>OS Built-in</td><td>Yes</td><td>Full device</td><td>No</td><td>Android/iOS settings</td></tr>
+      <tr><td>Private Relay</td><td>iCloud+</td><td>Safari only</td><td>No</td><td>Apple</td></tr>
+    </table>
+    <div class="doc-tip">💡 Not sure? Start with <strong>Opera VPN</strong> (free, instant) or <strong>ProtonVPN Free</strong> (full device). Upgrade to paid when you need more.</div>
+
+    <h2>Part 2: Download & Install</h2>
+    <table>
+      <tr><th>Platform</th><th>WireGuard</th><th>OpenVPN</th></tr>
+      <tr><td>📱 iPhone/iPad</td><td>App Store → "WireGuard"</td><td>App Store → "OpenVPN Connect"</td></tr>
+      <tr><td>🤖 Android</td><td>Play Store → "WireGuard"</td><td>Play Store → "OpenVPN Connect"</td></tr>
+      <tr><td>💻 Windows</td><td><a href="https://www.wireguard.com/install/" target="_blank">wireguard.com/install</a></td><td><a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></td></tr>
+      <tr><td>🍎 macOS</td><td>App Store or <code>brew install wireguard-tools</code></td><td><a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></td></tr>
+      <tr><td>🐧 Linux</td><td><code>sudo apt install wireguard</code></td><td><code>sudo apt install openvpn</code></td></tr>
+      <tr><td>🌐 Browser</td><td colspan="2">No install! Open Opera → Settings → Enable VPN</td></tr>
+    </table>
+
+    <h2>Part 3: Create Account & Connect</h2>
+    <ul>
+      <li>👨‍👩‍👧 Use a <strong>parent's email</strong> for signup</li>
+      <li>🔐 Pick a <strong>strong, unique password</strong></li>
+      <li>⏭️ Skip premium upsells (tap "Continue with Free")</li>
+      <li>🌐 Built-in VPNs (Opera, iCloud Relay): <strong>No account needed</strong> — just toggle ON!</li>
+    </ul>
+    <p>Open the VPN app → Pick a server (close = fast, far = geo-unblock) → Tap <strong>Connect</strong> → Wait 1-3 seconds → <strong>Green = connected!</strong></p>
 
     <h2>Part 4: VPN Server — WireGuard on Linux/Pi</h2>
     <ol>
@@ -636,11 +683,42 @@ bash rocket-shield.sh
     <h2>Part 7: Verify & Test</h2>
     <table>
       <tr><th>Test</th><th>How</th><th>Expected Result</th></tr>
-      <tr><td>IP Check</td><td><a href="https://whatismyip.com" target="_blank">whatismyip.com</a></td><td>Shows VPN server IP, not your real IP</td></tr>
-      <tr><td>DNS Leak</td><td><a href="https://dnsleaktest.com" target="_blank">dnsleaktest.com</a></td><td>No leaks detected</td></tr>
-      <tr><td>Speed</td><td><a href="https://fast.com" target="_blank">fast.com</a></td><td>Acceptable speed (5-10% drop normal)</td></tr>
-      <tr><td>Server Status</td><td><code>wg show</code></td><td>Shows connected peers with recent handshake</td></tr>
+      <tr><td>🕵️ IP Check</td><td><a href="https://whatismyip.com" target="_blank">whatismyip.com</a></td><td>Shows VPN server IP, not your real IP</td></tr>
+      <tr><td>📍 Location</td><td>Connect to Japan, check whatismyip.com</td><td>Shows Japan as your location</td></tr>
+      <tr><td>⚡ Speed</td><td><a href="https://fast.com" target="_blank">fast.com</a></td><td>Acceptable speed (5-10% drop normal for WireGuard)</td></tr>
+      <tr><td>🔒 DNS Leak</td><td><a href="https://dnsleaktest.com" target="_blank">dnsleaktest.com</a> → Extended Test</td><td>No leaks — all DNS servers belong to VPN, not ISP</td></tr>
+      <tr><td>🌐 Geo-block</td><td>Access content restricted to VPN server's country</td><td>Content loads successfully</td></tr>
+      <tr><td>📊 Server</td><td><code>sudo wg show</code></td><td>Shows connected peers with recent handshake</td></tr>
     </table>
+    <div class="doc-tip">💡 Use <code>bash rocket-shield.sh</code> → option 4 for a one-command diagnostics dashboard.</div>
+
+    <h2>What's Next?</h2>
+    <div class="home-grid">
+      <div class="doc-card" onclick="showSection('freebox')" style="cursor:pointer">
+        <h4>📦 Protect All Home Devices</h4>
+        <p>Set up VPN on your Freebox router.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('raspberry-pi')" style="cursor:pointer">
+        <h4>🍓 Host Your Own Server</h4>
+        <p>Deploy on Raspberry Pi.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('docker')" style="cursor:pointer">
+        <h4>🐳 Containerize Everything</h4>
+        <p>Use Docker Compose.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('wireguard')" style="cursor:pointer">
+        <h4>⚡ Deep Dive: WireGuard</h4>
+        <p>Full config reference.</p>
+      </div>
+    </div>
+
+    <h3>Quick Tips</h3>
+    <ul>
+      <li>🔋 Disconnect VPN when not needed — saves battery on phones</li>
+      <li>🛡️ VPN doesn't make you invincible — still avoid suspicious links!</li>
+      <li>🔄 Keep your VPN app updated for security fixes</li>
+      <li>📱 Use WireGuard on mobile — faster and uses less battery than OpenVPN</li>
+    </ul>
   </div>
 
   <!-- FREEBOX -->

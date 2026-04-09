@@ -1,6 +1,6 @@
-# Step-by-Step Guide -- From Zero to Running VPN
+# Step-by-Step Guide — From Zero to Running VPN
 
-This guide walks you through everything: running the educational web app, setting up a VPN client, hosting your own VPN server, and connecting remotely.
+This guide walks you through everything: choosing a VPN, running the educational web app, setting up a VPN client, hosting your own VPN server, and connecting remotely.
 
 ---
 
@@ -17,8 +17,8 @@ This guide walks you through everything: running the educational web app, settin
 
 ### Hardware
 
-- **Any PC or laptop** -- for running the web app and VPN client
-- **Raspberry Pi 3B+, 4, or 5** -- for hosting a lightweight VPN server
+- **Any PC or laptop** — for running the web app and VPN client
+- **Raspberry Pi 3B+, 4, or 5** — for hosting a lightweight VPN server
 - **Minimum RAM**: 512 MB (Pi), 2 GB (desktop)
 
 ### Network
@@ -29,171 +29,213 @@ This guide walks you through everything: running the educational web app, settin
 
 ---
 
-## Part 1: Run the Educational Web App
+## Part 1: Choose Your VPN Type
 
-The web app is a single HTML file. There are three ways to run it.
+Before downloading anything, understand the 3 types of VPN available:
 
-### Method A: Double-Click (Simplest)
+### Option A: Free VPN Apps
 
-1. Download or clone the repository.
-2. Open the project folder.
-3. Double-click `index.html`.
-4. The app opens in your default browser. Done.
+Good for trying out, with some limitations.
 
-No server, no installation, no dependencies.
+| Provider | Data Limit | Servers | Notes |
+|----------|-----------|---------|-------|
+| **ProtonVPN Free** | Unlimited | 3 countries | No ads, Swiss privacy, open source |
+| **Windscribe Free** | 10 GB/month | 10 countries | Good speeds, generous |
+| **hide.me Free** | 10 GB/month | 5 countries | No logs, reliable |
 
-### Method B: Use the Launch Script
+> ⚠️ **Warning:** Avoid unknown free VPNs — many sell your data to advertisers! Stick to trusted names above.
 
-The launch script serves the app over your local network so other devices (phones, tablets) can access it.
+### Option B: Paid VPN Apps
 
-**Linux / macOS / Raspberry Pi:**
+Full power, faster, more servers, better privacy.
 
-```bash
-chmod +x rocket-shield.sh
-bash rocket-shield.sh
+| Provider | Price | Servers | Protocols | Standout Feature |
+|----------|-------|---------|-----------|-----------------|
+| **NordVPN** | ~$3/mo | 6,000+ in 60 countries | WireGuard (NordLynx) | Fastest, double VPN |
+| **ProtonVPN Plus** | ~$5/mo | 3,000+ in 70 countries | WireGuard, OpenVPN | Swiss privacy, open source |
+| **Mullvad** | €5/mo flat | 700+ in 40 countries | WireGuard, OpenVPN | No email needed, privacy champion |
+| **Surfshark** | ~$2/mo | 3,200+ in 100 countries | WireGuard, OpenVPN | Unlimited devices |
+
+**What to look for in a paid VPN:**
+- ✅ No-log policy (independently audited)
+- ✅ WireGuard protocol support
+- ✅ Kill switch feature
+- ✅ DNS leak protection
+- ✅ Based in a privacy-friendly country
+
+### Option C: Built-in VPNs (No Download Needed!)
+
+Some browsers and operating systems have VPN features **built right in**:
+
+#### 🔴 Opera Browser — FREE Built-in VPN
+
+The easiest way to start. No account, no download, no payment.
+
+1. Download [Opera](https://www.opera.com/) if you don't have it
+2. Open Opera → **Settings** (Alt+P on Windows, ⌘+, on Mac)
+3. Go to **Privacy & Security**
+4. Toggle **"Enable VPN"** → ON
+5. A blue **VPN** badge appears in the address bar
+6. Click it to choose a region: Americas, Europe, or Asia
+
+> **Limitation:** Only protects Opera browser traffic, not your whole device.
+
+#### 🦁 Brave Browser — Brave VPN
+
+- Subscription-based (~$10/month)
+- Protects the **entire device**, not just the browser
+- Built on WireGuard protocol
+- Includes a firewall
+- Download [Brave](https://brave.com/) → Settings → Brave VPN
+
+#### 🦊 Mozilla VPN
+
+- Separate app (not built into Firefox)
+- ~$5/month, made by the Firefox team
+- Uses WireGuard protocol
+- Available on Windows, macOS, Linux, Android, iOS
+- Download from [vpn.mozilla.org](https://vpn.mozilla.org/)
+
+#### 🍎 iCloud Private Relay (Apple)
+
+- Built into Safari on iPhone, iPad, and Mac
+- Requires iCloud+ subscription ($0.99/month)
+- **Not a full VPN** — hides your IP and encrypts Safari traffic only
+- Two-hop architecture: Apple sees your IP but not your destination; the relay server sees your destination but not your IP
+- Enable: Settings → [Your Name] → iCloud → Private Relay → ON
+
+#### 🤖 Android Built-in VPN
+
+No app needed — Android has VPN support in Settings:
+
+1. Go to **Settings → Network & Internet → VPN**
+2. Tap the **"+"** button
+3. Enter: Name, Type (IKEv2, L2TP/IPSec, PPTP), Server address, Username, Password
+4. Tap **Save** → Tap the VPN name → **Connect**
+
+> You need server details from a VPN provider or your own server.
+
+#### 📱 iOS Built-in VPN
+
+iPhone and iPad also have built-in VPN support:
+
+1. Go to **Settings → General → VPN & Device Management**
+2. Tap **"Add VPN Configuration"**
+3. Choose Type: **IKEv2**, IPSec, or L2TP
+4. Enter: Description, Server, Remote ID, Username, Password
+5. Tap **Done** → Toggle the VPN **ON**
+
+#### Comparison Table
+
+| Type | Free? | Scope | Install? | Example |
+|------|-------|-------|----------|---------|
+| Browser VPN | Yes | Browser only | No | Opera |
+| VPN App (Free) | Yes | Full device | Yes | ProtonVPN Free |
+| VPN App (Paid) | No | Full device | Yes | NordVPN |
+| OS Built-in | Yes | Full device | No | Android/iOS Settings |
+| Private Relay | iCloud+ | Safari only | No | Apple iCloud |
+
+### Decision Helper
+
+Not sure which to choose? Follow this path:
+
 ```
-
-Select option **1) Launch Web App** from the menu. The script will:
-- Auto-detect Python3, Node.js, or npx
-- Ask you for a port (default: 8080)
-- Ask if you want LAN access (bind to 0.0.0.0)
-- Show a QR code for mobile access (if `qrencode` is installed)
-- Offer to open your browser automatically
-
-**Windows (PowerShell):**
-
-```powershell
-powershell -ExecutionPolicy Bypass -File rocket-shield.ps1
-```
-
-Select option **1) Launch Web App**. It uses Python or npx to serve the file.
-
-### Method C: Docker
-
-```bash
-docker-compose up -d
-```
-
-This builds an nginx container and serves the app on port **8080**. Open `http://localhost:8080` in your browser.
-
-To stop:
-
-```bash
-docker-compose down
+Want free & instant? → Opera VPN (browser only, no signup)
+Want free & full device? → ProtonVPN Free (unlimited data)
+Want maximum speed & features? → NordVPN or Mullvad (paid)
+Already have iCloud+? → Enable Private Relay (Safari only)
+Have a Freebox/Pi? → Host your own! (see Parts 4-5)
 ```
 
 ---
 
-## Part 2: Set Up a VPN Client with WireGuard
+## Part 2: Download & Install
 
-Use this to connect to a commercial VPN provider (NordVPN, ProtonVPN, Mullvad, etc.) or to your own VPN server.
+### 📱 iPhone / iPad
 
-### Step 1: Install WireGuard
+1. Open the **App Store**
+2. Search for **"WireGuard"** (by WireGuard Development Team) or your chosen VPN app (e.g., "NordVPN", "ProtonVPN")
+3. Tap **Get** → Confirm with Face ID / Touch ID
+4. Wait for download → Tap **Open**
 
-| Platform | Command |
-|----------|---------|
-| Ubuntu/Debian | `sudo apt install wireguard` |
-| Fedora | `sudo dnf install wireguard-tools` |
-| Arch | `sudo pacman -S wireguard-tools` |
-| macOS | `brew install wireguard-tools` |
-| Windows | Download from [wireguard.com/install](https://www.wireguard.com/install/) |
-| Android/iOS | Install "WireGuard" from your app store |
+### 🤖 Android
 
-Or use the launch script: run `bash rocket-shield.sh`, select option **2 > 1** (WireGuard Client). It will offer to install WireGuard for you.
+1. Open **Google Play Store**
+2. Search for **"WireGuard"** or your chosen VPN app
+3. Tap **Install** → Wait for download
+4. Tap **Open**
 
-### Step 2: Get a Config File from Your Provider
+### 💻 Windows
 
-Each VPN provider gives you a `.conf` file. Here is how to get one:
+1. Go to [wireguard.com/install](https://www.wireguard.com/install/)
+2. Click **"Download Windows Installer"**
+3. Run the `.msi` file → Click **Next → Install → Finish**
+4. WireGuard appears in your system tray
 
-- **NordVPN**: Log in to your account > Manual Setup > WireGuard > Download config
-- **ProtonVPN**: Log in > Downloads > WireGuard configuration > Generate and download
-- **Mullvad**: Log in > WireGuard configuration > Generate key and download config
+For OpenVPN: Download from [openvpn.net/client](https://openvpn.net/client/) → Run installer → Finish.
 
-The file will look something like:
+### 🍎 macOS
 
-```ini
-[Interface]
-PrivateKey = <your-private-key>
-Address = 10.x.x.x/32
-DNS = 1.1.1.1
+**App Store method:**
+1. Open **App Store** → Search **"WireGuard"**
+2. Click **Get** → Install
 
-[Peer]
-PublicKey = <server-public-key>
-Endpoint = <server-ip>:51820
-AllowedIPs = 0.0.0.0/0
+**Homebrew method (terminal):**
+```bash
+brew install wireguard-tools
 ```
 
-### Step 3: Import the Config
+For OpenVPN: Download from [openvpn.net/client](https://openvpn.net/client/) or `brew install openvpn`.
 
-**Using the launch script:**
+### 🐧 Linux (Ubuntu/Debian)
 
+```bash
+# WireGuard
+sudo apt update && sudo apt install wireguard
+
+# OpenVPN
+sudo apt install openvpn
+```
+
+Or use the launch script:
 ```bash
 bash rocket-shield.sh
-# Select 2 > 1 (WireGuard Client)
-# Enter the path to your .conf file when prompted
+# Select option 2 → WireGuard or OpenVPN Client
+# It will offer to install for you
 ```
 
-The script copies the config to `/etc/wireguard/`, sets permissions, and optionally activates it.
+### 🌐 Built-in Browser VPN (No Install!)
 
-**Manual method:**
-
-```bash
-sudo cp ~/Downloads/my-vpn.conf /etc/wireguard/my-vpn.conf
-sudo chmod 600 /etc/wireguard/my-vpn.conf
-```
-
-### Step 4: Connect and Verify
-
-```bash
-# Bring up the tunnel
-sudo wg-quick up my-vpn
-
-# Check status
-sudo wg show
-
-# Enable on boot
-sudo systemctl enable wg-quick@my-vpn
-```
-
-On Windows, open the WireGuard app, click "Import tunnel(s) from file", select your `.conf`, and click "Activate".
+No download needed! Just:
+1. Open **Opera** browser
+2. Go to **Settings → Privacy & Security**
+3. Toggle **"Enable VPN"** → ON
+4. Done in 10 seconds!
 
 ---
 
-## Part 3: Set Up a VPN Client with OpenVPN
+## Part 3: Create Account & Connect
 
-### Step 1: Install OpenVPN
+### Account Setup Tips
 
-| Platform | Command |
-|----------|---------|
-| Ubuntu/Debian | `sudo apt install openvpn` |
-| Fedora | `sudo dnf install openvpn` |
-| macOS | `brew install openvpn` |
-| Windows | Download OpenVPN Connect from [openvpn.net/client](https://openvpn.net/client/) |
+- 👨‍👩‍👧 Use a **parent's email** address for signup
+- 🔐 Pick a **strong password** (long + unique, mix of letters/numbers/symbols)
+- ⏭️ **Skip premium upsells** — for free VPNs, tap "Skip" or "Continue with Free"
+- 🌐 **Built-in VPNs** (Opera, iCloud Relay): No account needed — just toggle ON!
 
-Or use the launch script: option **2 > 2** (OpenVPN Client).
+### Connect to a Server
 
-### Step 2: Get a .ovpn File
+1. Open the VPN app
+2. You'll see a **list of servers** (countries/cities)
+3. Pick a server close to you for speed, or far away to access geo-blocked content
+4. Tap/click **Connect**
+5. Wait for the connection (usually 1-3 seconds with WireGuard)
+6. You should see a **green indicator** or **"Connected"** status
+7. A VPN icon (🔒 or key icon) appears in your status bar
 
-Download the `.ovpn` configuration file from your VPN provider's website. Most providers offer this under "Manual Setup" or "OpenVPN configuration".
+### Built-in VPN Shortcut
 
-### Step 3: Import and Connect
-
-**Using the launch script:**
-
-```bash
-bash rocket-shield.sh
-# Select 2 > 2 (OpenVPN Client)
-# Enter the path to your .ovpn file
-```
-
-**Manual method:**
-
-```bash
-sudo cp ~/Downloads/my-vpn.ovpn /etc/openvpn/client/my-vpn.conf
-sudo openvpn --config /etc/openvpn/client/my-vpn.conf --daemon
-```
-
-On Windows, open OpenVPN Connect, import the `.ovpn` file, enter your credentials, and click Connect.
+For Opera: No account, no server picking — just toggle VPN ON in settings and choose a region (Americas, Europe, Asia). That's it!
 
 ---
 
@@ -215,7 +257,7 @@ wg genkey | tee server_private.key | wg pubkey > server_public.key
 
 ### Step 3: Create Server Config
 
-The launch script handles this automatically. Run:
+The launch script handles this automatically:
 
 ```bash
 bash rocket-shield.sh
@@ -228,7 +270,7 @@ It will:
 - Ask for your port (default: 51820) and public IP
 - Create `/etc/wireguard/wg0.conf`
 
-The generated config looks like:
+The generated config:
 
 ```ini
 [Interface]
@@ -261,15 +303,13 @@ sudo systemctl enable wg-quick@wg0
 
 ### Step 7: Create Client Configs
 
-Use the launch script:
-
 ```bash
 bash rocket-shield.sh
 # Select 3 > 3 (Add Client Config)
 # Enter a name (e.g., "phone", "laptop")
 ```
 
-The script generates a `.conf` file in `./vpn-configs/` and shows a QR code for mobile devices (if `qrencode` is installed).
+The script generates a `.conf` file in `./vpn-configs/` and shows a QR code for mobile devices.
 
 ---
 
@@ -279,30 +319,32 @@ If you have a Freebox (French ISP "Free"), it has a built-in VPN server.
 
 ### Step 1: Access Freebox OS
 
-Open your browser and go to `http://mafreebox.freebox.fr`. Log in with your Freebox password.
+1. Connect to your Freebox network (WiFi or Ethernet)
+2. Open browser → go to `http://mafreebox.freebox.fr`
+3. Log in with your Freebox admin password
+4. Navigate to **Settings → VPN**
+
+> ⚠️ First-time access requires physical confirmation on the Freebox LCD screen.
 
 ### Step 2: Enable VPN Server
 
-Navigate to **Freebox OS > VPN Server** (or "Serveur VPN").
+Go to **VPN → VPN Server** and choose your protocol:
+- **OpenVPN** — available on all Freebox models with VPN support
+- **WireGuard** — available on newer models (One, Delta, Pop, Ultra)
 
-### Step 3: Choose Protocol
+### Step 3: Create a User
 
-- **OpenVPN** -- available on all Freebox models with VPN support
-- **WireGuard** -- available on newer models (Delta, Pop, Ultra)
+Click "Add a user" → Set a strong username and password.
 
-### Step 4: Create a User
+### Step 4: Download Client Config
 
-Click "Add a user" (or "Ajouter un utilisateur"). Set a username and password.
+After creating the user, click the **download icon** to get the `.ovpn` or `.conf` file.
 
-### Step 5: Download Client Config
+### Step 5: Connect from Outside
 
-After creating the user, click the download icon to get the `.ovpn` or `.conf` file.
+Import the downloaded config into your VPN client on your phone or laptop (see Part 6 below for detailed per-platform instructions).
 
-### Step 6: Connect from Outside
-
-Import the downloaded config into your VPN client (WireGuard app or OpenVPN Connect) on your phone or laptop. Connect while on mobile data or another Wi-Fi network to test.
-
-See the [FREEBOX.md](FREEBOX.md) guide for detailed instructions.
+See the [FREEBOX.md](FREEBOX.md) guide for complete details.
 
 ---
 
@@ -310,42 +352,135 @@ See the [FREEBOX.md](FREEBOX.md) guide for detailed instructions.
 
 Once your VPN server is running, connect to it from anywhere.
 
-### From Your Phone
+### Step 1: Get Your Config File
 
-1. Install the **WireGuard** app (iOS or Android).
-2. Tap the **+** button.
-3. Choose **Scan from QR Code** (the launch script shows one) or **Import from file**.
-4. Toggle the connection on.
+- **From launch script**: Config files are saved in `./vpn-configs/` (e.g., `phone.conf`)
+- **From Freebox**: Download from Freebox OS → VPN Server → Click your user → Download
 
-### From Your Laptop
+### Step 2: Install the VPN App
 
-1. Install WireGuard or OpenVPN.
-2. Import the client `.conf` or `.ovpn` file.
-3. Activate the tunnel.
+| Platform | WireGuard App | OpenVPN App |
+|----------|--------------|-------------|
+| 📱 iPhone/iPad | App Store → search **"WireGuard"** (by WireGuard Development Team) | App Store → **"OpenVPN Connect"** |
+| 🤖 Android | Play Store → search **"WireGuard"** | Play Store → **"OpenVPN Connect"** |
+| 💻 macOS | [App Store](https://apps.apple.com/app/wireguard/id1451685025) or `brew install wireguard-tools` | [openvpn.net/client](https://openvpn.net/client/) |
+| 💻 Windows | [wireguard.com/install](https://www.wireguard.com/install/) | [openvpn.net/client](https://openvpn.net/client/) |
+| 🐧 Linux | `sudo apt install wireguard` | `sudo apt install openvpn` |
 
-### QR Code Method
+### Step 3a: Import WireGuard Config (.conf)
 
-If you set up the server using `rocket-shield.sh` and have `qrencode` installed, the script displays a QR code when you add a client. Scan it with the WireGuard mobile app for instant setup -- no file transfer needed.
+**📱 Phone (iOS/Android):**
+1. Send the `.conf` file to your phone (email attachment, AirDrop, USB, cloud storage)
+2. Tap the file → **"Open in WireGuard?"** → Tap **Yes**
+3. Tap **"Allow"** to add the VPN tunnel
+4. Alternative: Open WireGuard app → **"+"** → **"Create from file or archive"** → select file
+5. QR method: WireGuard app → **"+"** → **"Create from QR code"** → scan the QR from the launch script
+
+**💻 Windows:**
+1. Open WireGuard app
+2. Click **"Import tunnel(s) from file"**
+3. Select your `.conf` file
+4. The tunnel appears in the list
+5. Click **"Activate"**
+
+**🍎 macOS:**
+1. Open WireGuard app
+2. Click **"+"** → **"Import from file"**
+3. Select your `.conf` file
+4. Click **"Activate"**
+
+**🐧 Linux:**
+```bash
+sudo cp your-config.conf /etc/wireguard/wg0.conf
+sudo chmod 600 /etc/wireguard/wg0.conf
+sudo wg-quick up wg0
+
+# Auto-start on boot:
+sudo systemctl enable wg-quick@wg0
+```
+
+### Step 3b: Import OpenVPN Config (.ovpn)
+
+**📱 iPhone/iPad:**
+1. Send the `.ovpn` file to your phone
+2. Tap the file → **"Open in OpenVPN Connect?"** → Tap **Yes**
+3. Review the profile → Tap **"Add"**
+4. Enter username/password if prompted
+5. Tap the toggle to **connect**
+
+**🤖 Android:**
+1. Open OpenVPN Connect
+2. Tap **"+"** → **"Upload File"**
+3. Browse to your `.ovpn` file → Tap **"Import"**
+4. Enter credentials if prompted
+5. Tap **"Connect"**
+6. Alternative: Tap the `.ovpn` file directly from your file manager
+
+**💻 Windows:**
+1. Open OpenVPN Connect
+2. Click **"+"** → **"Upload File"**
+3. Drag or browse to your `.ovpn` file
+4. Click **"Connect"** → Enter credentials
+5. **Note:** You may need to **Run as Administrator**
+
+**🍎 macOS:**
+1. Open OpenVPN Connect
+2. Click **"+"** → **"Import from file"**
+3. Select your `.ovpn` file
+4. Enter credentials → Click **"Connect"**
+
+**🐧 Linux:**
+```bash
+# Foreground (see output):
+sudo openvpn --config your-config.ovpn
+
+# Background (daemon):
+sudo openvpn --config your-config.ovpn --daemon
+
+# Auto-start on boot:
+sudo cp your-config.ovpn /etc/openvpn/client.conf
+sudo systemctl enable openvpn@client
+```
+
+### Step 4: Connect!
+
+Open the VPN app → Tap/click the **toggle switch** next to your tunnel name → It turns **green** = connected!
+
+When you're away from home, just toggle ON to securely access your home network.
 
 ---
 
 ## Part 7: Verify and Test
 
-After connecting, verify that your VPN is working.
+After connecting, verify that your VPN is working with these 5 checks:
 
-### Check Your IP
+### ✅ Check 1: IP Address Changed
 
 Go to [whatismyip.com](https://www.whatismyip.com/). Your IP should show the VPN server's IP, not your real one.
 
-### DNS Leak Test
+**What changes:**
+```
+Before VPN: 203.0.113.42 (your real IP, your city)
+After VPN:  10.8.0.1 (VPN server IP, server's city)
+```
 
-Go to [dnsleaktest.com](https://www.dnsleaktest.com/) and run the extended test. All DNS servers should belong to your VPN provider or your server's DNS, not your ISP.
+### ✅ Check 2: Location Changed
 
-### Speed Test
+Connect to a server in another country (e.g., Japan). Visit [whatismyip.com](https://www.whatismyip.com/) — it should show Japan as your location.
 
-Go to [fast.com](https://fast.com/) to check your connection speed through the VPN.
+### ✅ Check 3: Speed Test
 
-### Check Connected Clients (Server Side)
+Go to [fast.com](https://fast.com/) to check your speed through the VPN. A small drop (5-10% for WireGuard, 15-30% for OpenVPN) is normal.
+
+### ✅ Check 4: DNS Leak Test
+
+Go to [dnsleaktest.com](https://www.dnsleaktest.com/) → Click **"Extended Test"**. All DNS servers should belong to your VPN provider or your configured DNS (1.1.1.1, 8.8.8.8), **not** your ISP.
+
+### ✅ Check 5: Geo-blocked Content
+
+Try accessing content that's restricted to the VPN server's country. If it works, your VPN is functioning correctly!
+
+### Server-Side Check
 
 ```bash
 sudo wg show
@@ -355,7 +490,12 @@ This shows all connected peers, their last handshake time, and data transferred.
 
 ### Using the Launch Script
 
-Run `bash rocket-shield.sh` and select option **4) Status & Diagnostics**. It shows:
+```bash
+bash rocket-shield.sh
+# Select option 4) Status & Diagnostics
+```
+
+It shows:
 - System info (OS, architecture, memory, uptime)
 - Local and public IP
 - Web server status
@@ -365,15 +505,40 @@ Run `bash rocket-shield.sh` and select option **4) Status & Diagnostics**. It sh
 
 ---
 
+## What's Next?
+
+Now that you're protected, consider these next steps:
+
+| Next Step | How |
+|-----------|-----|
+| 📦 Protect all home devices | Set up VPN on your Freebox router — see [FREEBOX.md](FREEBOX.md) |
+| 🍓 Host your own server | Deploy on Raspberry Pi — see [RASPBERRY-PI.md](RASPBERRY-PI.md) |
+| 🐳 Containerize everything | Use Docker — see [DOCKER.md](DOCKER.md) |
+| 🧠 Learn more | Explore the Academy section in the web app |
+| 📚 Deep dive | Read the [WIREGUARD.md](WIREGUARD.md) and [OPENVPN.md](OPENVPN.md) references |
+
+---
+
+## Quick Tips
+
+- 🔋 **Disconnect VPN when not needed** — saves battery on phones
+- 🛡️ **VPN doesn't make you invincible** — still avoid suspicious links and phishing!
+- 🔄 **Keep your VPN app updated** for the latest security fixes
+- 📱 **Use WireGuard on mobile** — it's faster and uses less battery than OpenVPN
+- 🔑 **Rotate keys periodically** if hosting your own server
+
+---
+
 ## Quick Reference
 
 | Task | Command / Action |
 |------|-----------------|
-| Run web app | Double-click `index.html` or `bash rocket-shield.sh` > option 1 |
+| Run web app | Double-click `index.html` or `bash rocket-shield.sh` → option 1 |
 | Install WireGuard | `sudo apt install wireguard` or launch script option 2 |
 | Connect as client | `sudo wg-quick up <config-name>` |
-| Set up server | `bash rocket-shield.sh` > option 3 > sub-option 1 |
-| Add client to server | `bash rocket-shield.sh` > option 3 > sub-option 3 |
+| Set up server | `bash rocket-shield.sh` → option 3 → WireGuard Server |
+| Add client to server | `bash rocket-shield.sh` → option 3 → Add Client |
 | Check status | `sudo wg show` or launch script option 4 |
-| Stop everything | `bash rocket-shield.sh` > option 5 |
+| Stop everything | `bash rocket-shield.sh` → option 5 |
 | Docker deployment | `docker-compose up -d` |
+| Opera VPN (instant) | Open Opera → Settings → Privacy → Enable VPN |
