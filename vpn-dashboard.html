@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Connected Devices Dashboard</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;--gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;--gradient-btn:linear-gradient(135deg,#f472b6,#e044a0)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;--shadow:0 4px 20px rgba(0,0,0,.08);--gradient-btn:linear-gradient(135deg,#22966a,#1a7a55)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none}
+.hdr-link:hover{border-color:var(--accent);text-decoration:none}
+
+.main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+
+/* Mode tabs */
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:var(--radius);padding:4px;margin-bottom:20px;border:1px solid var(--border)}
+.tab{flex:1;padding:10px;text-align:center;border-radius:12px;font-family:var(--font-display);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s;background:transparent;color:var(--text2);border:none}
+.tab.active{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.tab:hover:not(.active){background:var(--bg3);color:var(--text)}
+
+/* Server status */
+.server-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.server-orb{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);transition:all .5s;flex-shrink:0}
+.server-orb.on{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow);animation:pulse-glow 2s ease infinite}
+.server-orb.off{border-color:var(--red);opacity:.6}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px var(--accent-glow)}50%{box-shadow:0 0 40px var(--accent-glow)}}
+.server-info{flex:1;min-width:200px}
+.server-info h2{font-family:var(--font-display);font-size:1.1rem;margin-bottom:4px}
+.server-info .meta{font-size:.78rem;color:var(--text2)}
+.server-stats{display:flex;gap:16px;flex-wrap:wrap}
+.stat{text-align:center;min-width:60px}
+.stat .val{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--accent)}
+.stat .lbl{font-size:.65rem;color:var(--text3);text-transform:uppercase}
+
+/* Device grid */
+.devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:16px}
+.device{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .3s;position:relative;overflow:hidden}
+.device:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.device-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.device-icon{font-size:2rem}
+.device-name{font-family:var(--font-display);font-size:1rem;font-weight:700}
+.device-ip{font-size:.75rem;color:var(--text2);font-family:'Fira Code',monospace}
+.device-status{position:absolute;top:12px;right:12px;width:10px;height:10px;border-radius:50%}
+.device-status.online{background:var(--accent);box-shadow:0 0 8px var(--accent-glow);animation:pulse-glow 2s ease infinite}
+.device-status.stale{background:var(--yellow)}
+.device-status.offline{background:var(--red);opacity:.5}
+.device-details{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.device-detail{background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px}
+.device-detail .dlbl{font-size:.6rem;color:var(--text3);text-transform:uppercase;margin-bottom:2px}
+.device-detail .dval{font-size:.82rem;font-weight:600;font-family:'Fira Code',monospace}
+.device-quality{margin-top:10px;height:4px;border-radius:2px;background:var(--bg3);overflow:hidden}
+.device-quality-bar{height:100%;border-radius:2px;transition:width .5s ease}
+
+/* Paste area */
+.paste-area{width:100%;min-height:200px;background:var(--bg3);border:2px dashed var(--border);border-radius:var(--radius);padding:16px;font-family:'Fira Code',monospace;font-size:.8rem;color:var(--text);resize:vertical;outline:none;line-height:1.6}
+.paste-area:focus{border-color:var(--accent)}
+.paste-area::placeholder{color:var(--text3)}
+.paste-btn{display:inline-block;margin-top:10px;padding:10px 24px;border-radius:var(--radius-sm);background:var(--gradient-btn);color:var(--bg);font-family:var(--font-display);font-weight:700;border:none;cursor:pointer;font-size:.9rem}
+.paste-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* Refresh bar */
+.refresh-bar{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:.8rem;color:var(--text2);flex-wrap:wrap}
+.refresh-bar select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.78rem;font-family:var(--font-body)}
+.refresh-bar button{padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font-body);font-size:.78rem}
+.refresh-bar button:hover{border-color:var(--accent)}
+.last-updated{font-size:.7rem;color:var(--text3)}
+
+/* Empty state */
+.empty{text-align:center;padding:40px;color:var(--text3)}
+.empty .icon{font-size:3rem;margin-bottom:12px;opacity:.5}
+.empty p{font-size:.9rem}
+
+/* Freebox auth */
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;max-width:400px;margin:20px auto}
+.auth-card h3{font-family:var(--font-display);margin-bottom:8px}
+.auth-card p{font-size:.85rem;color:var(--text2);margin:8px 0}
+.auth-card input{width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem;margin:8px 0;outline:none}
+.auth-card input:focus{border-color:var(--accent)}
+.auth-card button{margin-top:8px;padding:10px 24px;border-radius:var(--radius-sm);background:var(--gradient-btn);color:var(--bg);font-family:var(--font-display);font-weight:700;border:none;cursor:pointer}
+
+/* Total stats */
+.total-stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
+.total-stat{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.total-stat .val{font-family:var(--font-display);font-size:1.5rem;font-weight:700}
+.total-stat .lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase}
+
+/* Timeline */
+.timeline{margin-top:20px}
+.timeline h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:10px}
+.tl-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-left:2px solid var(--border);margin-left:8px;font-size:.8rem;color:var(--text2)}
+.tl-item .tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-left:-13px}
+.tl-item .tl-time{font-size:.7rem;color:var(--text3);min-width:70px}
+
+@media(max-width:640px){.server-card{flex-direction:column;text-align:center}.server-stats{justify-content:center}.devices{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <span class="hdr-logo">📡 VPN Dashboard</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+
+  <!-- Mode Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchMode('demo')">🎮 Demo</button>
+    <button class="tab" onclick="switchMode('paste')">📋 Paste wg show</button>
+    <button class="tab" onclick="switchMode('live')">📡 Freebox Live</button>
+  </div>
+
+  <!-- Server Status -->
+  <div class="server-card" id="serverCard">
+    <div class="server-orb on" id="serverOrb">🛰️</div>
+    <div class="server-info">
+      <h2 id="serverTitle">WireGuard Server</h2>
+      <div class="meta" id="serverMeta">Port: 62088 · MTU: 1360 · Protocol: WireGuard</div>
+    </div>
+    <div class="server-stats" id="serverStats">
+      <div class="stat"><div class="val" id="statPeers">0</div><div class="lbl">Peers</div></div>
+      <div class="stat"><div class="val" id="statRx">0 B</div><div class="lbl">Received</div></div>
+      <div class="stat"><div class="val" id="statTx">0 B</div><div class="lbl">Sent</div></div>
+    </div>
+  </div>
+
+  <!-- Refresh bar -->
+  <div class="refresh-bar" id="refreshBar">
+    <button onclick="refreshData()">🔄 Refresh</button>
+    <label>Auto-refresh:
+      <select id="autoRefresh" onchange="setAutoRefresh(this.value)">
+        <option value="0">Off</option><option value="5">5s</option>
+        <option value="10" selected>10s</option><option value="30">30s</option>
+      </select>
+    </label>
+    <span class="last-updated" id="lastUpdated"></span>
+  </div>
+
+  <!-- Total stats -->
+  <div class="total-stats" id="totalStats"></div>
+
+  <!-- Content area (changes per mode) -->
+  <div id="contentArea"></div>
+
+  <!-- Device grid -->
+  <div class="devices" id="deviceGrid"></div>
+
+  <!-- Timeline -->
+  <div class="timeline" id="timeline"></div>
+
+</main>
+
+<script>
+let mode = 'demo';
+let refreshTimer = null;
+let devices = [];
+let events = [];
+let freeboxToken = localStorage.getItem('rs-fbx-token') || '';
+
+// ═══ Demo Data ═══
+const demoDevices = [
+  {name:'gazza (Phone)',icon:'📱',ip:'192.168.27.65',pubkey:'aB3d...xY9z',endpoint:'82.64.123.45:48291',handshake:Date.now()-45000,rx:15728640,tx:52428800,allowed:'0.0.0.0/0'},
+  {name:'Laptop Work',icon:'💻',ip:'192.168.27.66',pubkey:'kL7m...pQ2r',endpoint:'176.15.67.89:39182',handshake:Date.now()-120000,rx:104857600,tx:314572800,allowed:'0.0.0.0/0'},
+  {name:'Tablet Kids',icon:'📱',ip:'192.168.27.67',pubkey:'nR4s...wU8v',endpoint:'90.42.18.203:52847',handshake:Date.now()-3600000,rx:2097152,tx:5242880,allowed:'192.168.1.0/24'},
+  {name:'Desktop Home',icon:'🖥️',ip:'192.168.27.68',pubkey:'fG6h...jK1l',endpoint:'(none)',handshake:0,rx:0,tx:0,allowed:'0.0.0.0/0'},
+];
+
+const demoEvents = [
+  {time:Date.now()-45000,type:'connect',device:'gazza (Phone)',detail:'Connected from 4G'},
+  {time:Date.now()-120000,type:'connect',device:'Laptop Work',detail:'Connected from café WiFi'},
+  {time:Date.now()-1800000,type:'disconnect',device:'Tablet Kids',detail:'Disconnected'},
+  {time:Date.now()-3600000,type:'connect',device:'Tablet Kids',detail:'Connected from home WiFi'},
+  {time:Date.now()-7200000,type:'connect',device:'Desktop Home',detail:'Added as peer'},
+];
+
+// ═══ Mode Switching ═══
+function switchMode(m) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['demo','paste','live'][i] === m);
+  });
+  renderContent();
+  refreshData();
+}
+
+function renderContent() {
+  const area = document.getElementById('contentArea');
+  if (mode === 'paste') {
+    area.innerHTML = `
+      <textarea class="paste-area" id="pasteInput" placeholder="Paste the output of 'sudo wg show' here...
+
+Example:
+interface: wg0
+  public key: aB3d...xY9z
+  listening port: 62088
+
+peer: kL7m...pQ2r
+  endpoint: 1.2.3.4:51820
+  allowed ips: 192.168.27.65/32
+  latest handshake: 1 minute, 23 seconds ago
+  transfer: 1.45 MiB received, 3.21 MiB sent"></textarea>
+      <button class="paste-btn" onclick="parsePaste()">📊 Parse & Visualize</button>
+    `;
+  } else if (mode === 'live') {
+    if (!freeboxToken) {
+      area.innerHTML = `
+        <div class="auth-card">
+          <h3>🔑 Connect to Freebox</h3>
+          <p>Enter your Freebox API URL to connect to live VPN data.</p>
+          <input type="text" id="fbxUrl" placeholder="http://mafreebox.freebox.fr" value="http://mafreebox.freebox.fr">
+          <p style="font-size:.75rem;color:var(--text3)">You must be on your Freebox local network.</p>
+          <button onclick="connectFreebox()">📡 Connect</button>
+          <p style="margin-top:12px;font-size:.75rem;color:var(--text3)">
+            First time? The Freebox will ask you to authorize this app.<br>
+            Check the Freebox LCD screen or Freebox OS notifications.
+          </p>
+        </div>
+      `;
+    } else {
+      area.innerHTML = `
+        <div style="text-align:center;padding:12px;font-size:.85rem;color:var(--accent)">
+          📡 Connected to Freebox API
+          <button onclick="disconnectFreebox()" style="margin-left:12px;padding:4px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:.75rem">Disconnect</button>
+        </div>
+      `;
+      fetchFreeboxData();
+    }
+  } else {
+    area.innerHTML = `
+      <div style="text-align:center;padding:8px;font-size:.8rem;color:var(--text3)">
+        🎮 Demo mode — showing simulated connected devices
+      </div>
+    `;
+  }
+}
+
+// ═══ Refresh ═══
+function refreshData() {
+  if (mode === 'demo') {
+    // Simulate live changes
+    demoDevices[0].handshake = Date.now() - Math.floor(Math.random()*60000);
+    demoDevices[0].rx += Math.floor(Math.random()*100000);
+    demoDevices[0].tx += Math.floor(Math.random()*300000);
+    demoDevices[1].handshake = Date.now() - Math.floor(Math.random()*180000);
+    demoDevices[1].rx += Math.floor(Math.random()*500000);
+    demoDevices[1].tx += Math.floor(Math.random()*1000000);
+    devices = demoDevices;
+    events = demoEvents;
+    renderDevices();
+  } else if (mode === 'live' && freeboxToken) {
+    fetchFreeboxData();
+  }
+  document.getElementById('lastUpdated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+}
+
+function setAutoRefresh(seconds) {
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (seconds > 0) {
+    refreshTimer = setInterval(refreshData, seconds * 1000);
+  }
+}
+
+// ═══ Parse wg show ═══
+function parsePaste() {
+  const raw = document.getElementById('pasteInput').value.trim();
+  if (!raw) return;
+
+  devices = [];
+  events = [];
+  const peers = raw.split(/\npeer:\s*/);
+
+  // Parse interface
+  const ifMatch = raw.match(/listening port:\s*(\d+)/);
+  const port = ifMatch ? ifMatch[1] : '?';
+
+  // Parse each peer
+  peers.slice(1).forEach((block, i) => {
+    const lines = block.split('\n');
+    const pubkey = lines[0].trim().substring(0, 12) + '...';
+
+    const ep = block.match(/endpoint:\s*(.+)/);
+    const hs = block.match(/latest handshake:\s*(.+)/);
+    const tf = block.match(/transfer:\s*(.+)/);
+    const ai = block.match(/allowed ips:\s*(.+)/);
+
+    let handshakeTime = 0;
+    if (hs) {
+      const hsText = hs[1].trim();
+      let totalSec = 0;
+      const days = hsText.match(/(\d+)\s*day/);
+      const hours = hsText.match(/(\d+)\s*hour/);
+      const mins = hsText.match(/(\d+)\s*minute/);
+      const secs = hsText.match(/(\d+)\s*second/);
+      if (days) totalSec += parseInt(days[1]) * 86400;
+      if (hours) totalSec += parseInt(hours[1]) * 3600;
+      if (mins) totalSec += parseInt(mins[1]) * 60;
+      if (secs) totalSec += parseInt(secs[1]);
+      handshakeTime = Date.now() - totalSec * 1000;
+    }
+
+    let rx = 0, tx = 0;
+    if (tf) {
+      const parts = tf[1].split(',');
+      rx = parseDataSize(parts[0]);
+      tx = parts[1] ? parseDataSize(parts[1]) : 0;
+    }
+
+    const ipMatch = ai ? ai[1].match(/[\d.]+/) : null;
+    const ip = ipMatch ? ipMatch[0] : '?.?.?.?';
+
+    const icons = ['📱','💻','🖥️','📱','💻'];
+    devices.push({
+      name: `Peer ${i+1}`,
+      icon: icons[i % icons.length],
+      ip: ip,
+      pubkey: pubkey,
+      endpoint: ep ? ep[1].trim() : '(none)',
+      handshake: handshakeTime,
+      rx: rx,
+      tx: tx,
+      allowed: ai ? ai[1].trim() : '?'
+    });
+  });
+
+  document.getElementById('serverMeta').textContent = `Port: ${port} · Peers parsed: ${devices.length}`;
+  renderDevices();
+}
+
+function parseDataSize(str) {
+  const m = str.match(/([\d.]+)\s*(B|KiB|MiB|GiB|TiB)/);
+  if (!m) return 0;
+  const val = parseFloat(m[1]);
+  const units = {B:1, KiB:1024, MiB:1048576, GiB:1073741824, TiB:1099511627776};
+  return Math.floor(val * (units[m[2]] || 1));
+}
+
+// ═══ Freebox API ═══
+async function connectFreebox() {
+  const url = document.getElementById('fbxUrl').value.trim().replace(/\/+$/, '');
+  try {
+    // Step 1: Request authorization
+    const authRes = await fetch(`${url}/api/v8/login/authorize/`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        app_id: 'rocket.shield.vpn',
+        app_name: 'Rocket Shield VPN Dashboard',
+        app_version: '1.0',
+        device_name: 'Browser'
+      })
+    });
+    const authData = await authRes.json();
+
+    if (authData.success) {
+      const appToken = authData.result.app_token;
+      const trackId = authData.result.track_id;
+
+      // Step 2: Wait for user to confirm on Freebox
+      alert('Please confirm the authorization on your Freebox (check LCD screen or Freebox OS notifications), then click OK.');
+
+      // Step 3: Check authorization status
+      const statusRes = await fetch(`${url}/api/v8/login/authorize/${trackId}`);
+      const statusData = await statusRes.json();
+
+      if (statusData.result.status === 'granted') {
+        freeboxToken = appToken;
+        localStorage.setItem('rs-fbx-token', appToken);
+        localStorage.setItem('rs-fbx-url', url);
+        renderContent();
+      } else {
+        alert('Authorization not granted. Status: ' + statusData.result.status);
+      }
+    } else {
+      alert('Failed to connect: ' + (authData.msg || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Connection failed. Make sure you are on the Freebox local network.\n\nError: ' + e.message);
+  }
+}
+
+function disconnectFreebox() {
+  freeboxToken = '';
+  localStorage.removeItem('rs-fbx-token');
+  localStorage.removeItem('rs-fbx-url');
+  renderContent();
+}
+
+async function fetchFreeboxData() {
+  const url = (localStorage.getItem('rs-fbx-url') || 'http://mafreebox.freebox.fr').replace(/\/+$/, '');
+  try {
+    // Get session token
+    const challengeRes = await fetch(`${url}/api/v8/login/`);
+    const challengeData = await challengeRes.json();
+
+    if (!challengeData.success) throw new Error('Failed to get challenge');
+
+    // Compute session password (HMAC-SHA1 of challenge with app_token)
+    // Note: In-browser HMAC-SHA1 using SubtleCrypto
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(freeboxToken);
+    const key = await crypto.subtle.importKey('raw', keyData, {name:'HMAC',hash:'SHA-1'}, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(challengeData.result.challenge));
+    const password = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join('');
+
+    // Open session
+    const sessionRes = await fetch(`${url}/api/v8/login/session/`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({app_id: 'rocket.shield.vpn', password: password})
+    });
+    const sessionData = await sessionRes.json();
+
+    if (!sessionData.success) throw new Error('Session failed: ' + (sessionData.msg || ''));
+
+    const sessionToken = sessionData.result.session_token;
+
+    // Fetch VPN config
+    const vpnRes = await fetch(`${url}/api/v8/vpn/`, {
+      headers: {'X-Fbx-App-Auth': sessionToken}
+    });
+    const vpnData = await vpnRes.json();
+
+    if (vpnData.success && vpnData.result) {
+      // Try to get WireGuard peers
+      try {
+        const wgRes = await fetch(`${url}/api/v8/vpn/wg/config/`, {
+          headers: {'X-Fbx-App-Auth': sessionToken}
+        });
+        const wgData = await wgRes.json();
+        if (wgData.success && wgData.result && wgData.result.peers) {
+          devices = wgData.result.peers.map((p, i) => ({
+            name: p.id || `Peer ${i+1}`,
+            icon: ['📱','💻','🖥️','📱'][i % 4],
+            ip: p.ip || '?.?.?.?',
+            pubkey: (p.public_key || '').substring(0,12) + '...',
+            endpoint: p.endpoint || '(none)',
+            handshake: p.last_handshake ? p.last_handshake * 1000 : 0,
+            rx: p.rx_bytes || 0,
+            tx: p.tx_bytes || 0,
+            allowed: p.allowed_ips || '?'
+          }));
+          renderDevices();
+        }
+      } catch(e) {
+        console.log('WireGuard API not available, trying generic VPN:', e);
+      }
+    }
+  } catch (e) {
+    console.error('Freebox API error:', e);
+    document.getElementById('contentArea').innerHTML += `
+      <div style="text-align:center;padding:8px;color:var(--red);font-size:.82rem;margin-top:8px">
+        ⚠️ API error: ${e.message}
+        <button onclick="renderContent()" style="margin-left:8px;padding:4px 10px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:.75rem">Retry</button>
+      </div>
+    `;
+  }
+}
+
+// ═══ Render ═══
+function renderDevices() {
+  const grid = document.getElementById('deviceGrid');
+  const statsEl = document.getElementById('totalStats');
+  const timelineEl = document.getElementById('timeline');
+
+  if (devices.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">📡</div><p>No connected devices</p></div>`;
+    statsEl.innerHTML = '';
+    timelineEl.innerHTML = '';
+    document.getElementById('statPeers').textContent = '0';
+    document.getElementById('statRx').textContent = '0 B';
+    document.getElementById('statTx').textContent = '0 B';
+    return;
+  }
+
+  const online = devices.filter(d => d.handshake > 0 && (Date.now() - d.handshake) < 180000);
+  const totalRx = devices.reduce((s,d) => s + d.rx, 0);
+  const totalTx = devices.reduce((s,d) => s + d.tx, 0);
+
+  document.getElementById('statPeers').textContent = online.length + '/' + devices.length;
+  document.getElementById('statRx').textContent = formatBytes(totalRx);
+  document.getElementById('statTx').textContent = formatBytes(totalTx);
+  document.getElementById('serverOrb').className = 'server-orb ' + (online.length > 0 ? 'on' : 'off');
+
+  // Total stats
+  statsEl.innerHTML = `
+    <div class="total-stat"><div class="val" style="color:var(--accent)">${online.length}</div><div class="lbl">Online Now</div></div>
+    <div class="total-stat"><div class="val" style="color:var(--accent2)">${devices.length}</div><div class="lbl">Total Peers</div></div>
+    <div class="total-stat"><div class="val" style="color:var(--accent)">${formatBytes(totalRx)}</div><div class="lbl">Total Received</div></div>
+    <div class="total-stat"><div class="val" style="color:var(--orange)"><span>${formatBytes(totalTx)}</span></div><div class="lbl">Total Sent</div></div>
+  `;
+
+  // Device cards
+  grid.innerHTML = devices.map(d => {
+    const ago = d.handshake > 0 ? timeAgo(d.handshake) : 'Never';
+    const isOnline = d.handshake > 0 && (Date.now() - d.handshake) < 180000;
+    const isStale = d.handshake > 0 && (Date.now() - d.handshake) >= 180000 && (Date.now() - d.handshake) < 86400000;
+    const statusClass = isOnline ? 'online' : isStale ? 'stale' : 'offline';
+    const quality = isOnline ? Math.max(0, 100 - Math.floor((Date.now()-d.handshake)/1800)) : 0;
+    const qColor = quality > 70 ? 'var(--accent)' : quality > 30 ? 'var(--yellow)' : 'var(--red)';
+
+    return `<div class="device">
+      <div class="device-status ${statusClass}"></div>
+      <div class="device-header">
+        <div class="device-icon">${d.icon}</div>
+        <div>
+          <div class="device-name">${d.name}</div>
+          <div class="device-ip">${d.ip}</div>
+        </div>
+      </div>
+      <div class="device-details">
+        <div class="device-detail"><div class="dlbl">Last Handshake</div><div class="dval" style="color:${isOnline?'var(--accent)':isStale?'var(--yellow)':'var(--red)'}">${ago}</div></div>
+        <div class="device-detail"><div class="dlbl">Endpoint</div><div class="dval" style="font-size:.7rem">${d.endpoint === '(none)' ? '—' : d.endpoint.split(':')[0]}</div></div>
+        <div class="device-detail"><div class="dlbl">Received</div><div class="dval" style="color:var(--accent)">${formatBytes(d.rx)}</div></div>
+        <div class="device-detail"><div class="dlbl">Sent</div><div class="dval" style="color:var(--orange)">${formatBytes(d.tx)}</div></div>
+      </div>
+      <div class="device-quality"><div class="device-quality-bar" style="width:${quality}%;background:${qColor}"></div></div>
+      <div style="margin-top:6px;font-size:.65rem;color:var(--text3)">Key: ${d.pubkey} · Allowed: ${d.allowed}</div>
+    </div>`;
+  }).join('');
+
+  // Timeline
+  const evts = mode === 'demo' ? demoEvents : events;
+  if (evts.length > 0) {
+    timelineEl.innerHTML = `<h3>📜 Connection History</h3>` +
+      evts.slice(0, 10).map(e => {
+        const color = e.type === 'connect' ? 'var(--accent)' : 'var(--red)';
+        const icon = e.type === 'connect' ? '🟢' : '🔴';
+        return `<div class="tl-item">
+          <div class="tl-dot" style="background:${color}"></div>
+          <div class="tl-time">${timeAgo(e.time)}</div>
+          <div>${icon} <strong>${e.device}</strong> — ${e.detail}</div>
+        </div>`;
+      }).join('');
+  } else {
+    timelineEl.innerHTML = '';
+  }
+}
+
+// ═══ Helpers ═══
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function timeAgo(ts) {
+  if (!ts) return 'Never';
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 5) return 'Just now';
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+// ═══ Init ═══
+renderContent();
+refreshData();
+setAutoRefresh(10);
+</script>
+</body>
+</html>
