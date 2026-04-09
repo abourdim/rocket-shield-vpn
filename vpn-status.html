@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPN Status Checker — Rocket Shield VPN</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--red:#ff5c6a;--red-soft:rgba(255,92,106,.12);--red-glow:rgba(255,92,106,.4);--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);--radius:16px;--radius-sm:10px;--radius-pill:999px;--shadow:0 8px 32px rgba(0,0,0,.4);--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;--font-mono:'JetBrains Mono',monospace;--star-opacity:1}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);--border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--red:#ff5c5c;--red-soft:rgba(255,92,92,.12);--red-glow:rgba(255,92,92,.4);--gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);--gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);--star-opacity:.6}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);--border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--red:#f87171;--red-soft:rgba(248,113,113,.12);--red-glow:rgba(248,113,113,.4);--gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);--gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);--star-opacity:.8}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);--border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--red:#dc3545;--red-soft:rgba(220,53,69,.1);--red-glow:rgba(220,53,69,.3);--gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);--gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);--shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--accent-glow);border-radius:3px}
+
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+.app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 16px 60px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:40px;height:40px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);font-size:1.3rem}
+.logo-text{font-family:var(--font-display);font-size:1.2rem;font-weight:700}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;font-family:var(--font-body);background:var(--bg3);color:var(--text);border:1px solid var(--border);cursor:pointer;font-weight:600}
+.hdr-select:focus{outline:none;border-color:var(--accent)}
+.back-link{font-size:.8rem;padding:5px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600}
+.back-link:hover{border-color:var(--accent);text-decoration:none}
+
+/* Shield */
+.shield-wrap{text-align:center;padding:36px 0 24px}
+.shield{font-size:5rem;display:inline-block;filter:drop-shadow(0 0 24px var(--accent-glow));animation:pulse 2.5s ease infinite;transition:filter .5s}
+.shield.exposed{filter:drop-shadow(0 0 24px var(--red-glow))}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.shield-label{font-family:var(--font-display);font-size:1.8rem;font-weight:700;margin-top:8px;letter-spacing:.06em}
+.shield-label.ok{color:var(--accent)}
+.shield-label.bad{color:var(--red)}
+.shield-sub{color:var(--text2);font-size:.85rem;margin-top:4px}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:all .25s}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent 60%)}
+.card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-display);font-size:.85rem;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-value{font-size:1.15rem;font-weight:700;word-break:break-all}
+.card-value.mono{font-family:var(--font-mono);font-size:1.3rem;letter-spacing:.04em}
+.card-detail{font-size:.8rem;color:var(--text2);margin-top:6px}
+.badge{display:inline-block;padding:3px 10px;border-radius:var(--radius-pill);font-size:.7rem;font-weight:700;letter-spacing:.04em}
+.badge-green{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-glow)}
+.badge-red{background:var(--red-soft);color:var(--red);border:1px solid var(--red-glow)}
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:1.3em;width:70%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.small-btn{padding:4px 12px;border-radius:var(--radius-pill);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.75rem;font-family:var(--font-body);cursor:pointer;font-weight:600;transition:all .2s}
+.small-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Bottom */
+.bottom{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:var(--radius-pill);border:none;font-family:var(--font-display);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .25s}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 20px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--accent-glow)}
+.bottom-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap}
+.toggle-wrap{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text2)}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .3s}
+.toggle.on{background:var(--accent-soft);border-color:var(--accent)}
+.toggle::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:var(--text2);top:2px;left:2px;transition:all .3s}
+.toggle.on::after{left:18px;background:var(--accent)}
+.timestamp{font-size:.75rem;color:var(--text3)}
+.tip{margin-top:14px;font-size:.8rem;color:var(--text2);background:var(--bg2);padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);display:inline-block}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="app">
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-text"><span>VPN Status</span></div>
+    </div>
+    <div class="hdr-right">
+      <select class="hdr-select" id="themeSelect" title="Theme">
+        <option value="space">Space</option><option value="desert">Desert</option>
+        <option value="synthwave">Synthwave</option><option value="paper">Paper</option>
+      </select>
+      <a href="index.html" class="back-link">Home</a>
+      <a href="docs.html" class="back-link">Docs</a>
+    </div>
+  </header>
+
+  <div class="shield-wrap">
+    <div class="shield" id="shield">🛡️</div>
+    <div class="shield-label" id="shieldLabel"><div class="skeleton" style="margin:0 auto"></div></div>
+    <div class="shield-sub" id="shieldSub">Checking your connection...</div>
+  </div>
+
+  <div class="grid">
+    <div class="card" id="cardIp">
+      <div class="card-title">🌐 Your IP Address</div>
+      <div class="card-value mono" id="ipVal"><div class="skeleton"></div></div>
+      <div class="card-detail"><button class="small-btn" id="copyIp" style="margin-top:6px">Copy IP</button></div>
+    </div>
+    <div class="card" id="cardLoc">
+      <div class="card-title">📍 Location</div>
+      <div class="card-value" id="locVal"><div class="skeleton"></div></div>
+      <div class="card-detail" id="locDetail"></div>
+    </div>
+    <div class="card" id="cardIsp">
+      <div class="card-title">🏢 ISP / Organization</div>
+      <div class="card-value" id="ispVal"><div class="skeleton"></div></div>
+      <div class="card-detail" id="ispDetail"></div>
+    </div>
+    <div class="card" id="cardDns">
+      <div class="card-title">🔒 DNS Leak Check</div>
+      <div class="card-value" id="dnsVal">Manual check recommended</div>
+      <div class="card-detail" style="margin-top:8px">
+        <a href="https://dnsleaktest.com" target="_blank" class="small-btn">Check on dnsleaktest.com</a>
+      </div>
+    </div>
+    <div class="card" id="cardWebrtc">
+      <div class="card-title">📡 WebRTC Leak Check</div>
+      <div class="card-value" id="webrtcVal"><div class="skeleton"></div></div>
+      <div class="card-detail" id="webrtcDetail"></div>
+    </div>
+    <div class="card" id="cardConn">
+      <div class="card-title">📶 Connection Type</div>
+      <div class="card-value" id="connVal"><div class="skeleton"></div></div>
+      <div class="card-detail" id="connDetail"></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <button class="btn btn-primary" id="refreshBtn" onclick="runAll()">🔄 Refresh All</button>
+    <div class="bottom-row">
+      <div class="toggle-wrap">
+        <div class="toggle" id="autoToggle" onclick="toggleAuto()"></div>
+        <span>Auto-refresh (30s)</span>
+      </div>
+      <div class="timestamp" id="ts">Last check: --</div>
+    </div>
+    <div class="tip">If you see your real IP address, your VPN is not working!</div>
+  </div>
+</div>
+
+<script>
+// Stars
+(function(){const c=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${2+Math.random()*4}s ${Math.random()*4}s ease infinite`;c.appendChild(s)}})();
+
+// Theme
+const ts=document.getElementById('themeSelect');
+ts.value=localStorage.getItem('rs-theme')||'space';
+document.documentElement.setAttribute('data-theme',ts.value);
+ts.onchange=()=>{document.documentElement.setAttribute('data-theme',ts.value);localStorage.setItem('rs-theme',ts.value)};
+
+const VPN_PROVIDERS=['nordvpn','protonvpn','mullvad','expressvpn','surfshark','cyberghost','pia','privateinternetaccess','windscribe','ipvanish','hotspot shield','tunnelbear','hide.me','purevpn','torguard','astrill','ivpn','ovpn','azirevpn','airvpn','m247','datacamp','hetzner','digitalocean','vultr','choopa','quadranet'];
+
+let publicIp='', geoData=null, autoInterval=null;
+
+function skel(){return '<div class="skeleton"></div>'}
+function err(id,msg){document.getElementById(id).innerHTML=`<span style="color:var(--red)">${msg}</span> <button class="small-btn" onclick="runAll()" style="margin-left:6px">Retry</button>`}
+
+async function fetchIp(){
+  document.getElementById('ipVal').innerHTML=skel();
+  try{
+    const r=await fetch('https://api.ipify.org?format=json');
+    const d=await r.json(); publicIp=d.ip;
+    document.getElementById('ipVal').textContent=publicIp;
+  }catch(e){err('ipVal','Could not fetch IP')}
+}
+
+async function fetchGeo(){
+  document.getElementById('locVal').innerHTML=skel();
+  document.getElementById('ispVal').innerHTML=skel();
+  if(!publicIp){document.getElementById('locVal').textContent='Waiting for IP...';return}
+  try{
+    const r=await fetch(`https://ipapi.co/${publicIp}/json/`);
+    geoData=await r.json();
+    if(geoData.error) throw new Error(geoData.reason);
+    const flag=geoData.country_code?String.fromCodePoint(...[...geoData.country_code.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65)):'';
+    document.getElementById('locVal').textContent=`${flag} ${geoData.city||'--'}, ${geoData.region||''}`;
+    document.getElementById('locDetail').textContent=`${geoData.country_name||''} | ${geoData.timezone||''} | ${geoData.postal||''}`;
+    const org=geoData.org||'Unknown';
+    const isp=geoData.org||'';
+    document.getElementById('ispVal').textContent=org;
+    const isVpn=VPN_PROVIDERS.some(v=>isp.toLowerCase().includes(v));
+    document.getElementById('ispDetail').innerHTML=`ASN: ${geoData.asn||'--'} `+(isVpn?'<span class="badge badge-green">VPN Detected</span>':'');
+    checkVpnStatus(isVpn);
+  }catch(e){err('locVal','Could not fetch location');err('ispVal','Could not fetch ISP')}
+}
+
+function checkVpnStatus(ispIsVpn){
+  let vpnLikely=ispIsVpn;
+  try{
+    const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if(geoData&&geoData.timezone&&tz!==geoData.timezone) vpnLikely=true;
+  }catch(e){}
+  const sh=document.getElementById('shield');
+  const sl=document.getElementById('shieldLabel');
+  const ss=document.getElementById('shieldSub');
+  if(vpnLikely){
+    sh.className='shield';sl.className='shield-label ok';
+    sl.textContent='PROTECTED';ss.textContent='VPN connection likely detected';
+  }else{
+    sh.className='shield exposed';sl.className='shield-label bad';
+    sl.textContent='EXPOSED';ss.textContent='No VPN detected - your real IP may be visible';
+  }
+}
+
+async function checkWebRTC(){
+  const el=document.getElementById('webrtcVal');
+  const det=document.getElementById('webrtcDetail');
+  el.innerHTML=skel();det.textContent='';
+  if(typeof RTCPeerConnection==='undefined'){el.textContent='WebRTC not supported';det.textContent='Your browser blocks WebRTC - no leak possible';return}
+  try{
+    const ips=new Set();
+    const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+    pc.createDataChannel('');
+    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+    await new Promise((ok)=>{
+      const to=setTimeout(ok,4000);
+      pc.onicecandidate=e=>{
+        if(!e||!e.candidate){clearTimeout(to);ok();return}
+        const m=e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if(m)ips.add(m[1]);
+      };
+    });
+    pc.close();
+    const local=[...ips].filter(ip=>ip!==publicIp&&!ip.startsWith('0.'));
+    if(local.length===0){
+      el.innerHTML='<span style="color:var(--accent)">No WebRTC Leak</span>';
+      det.textContent='No local IPs exposed via WebRTC';
+    }else{
+      const leaked=local.some(ip=>ip!==publicIp);
+      if(leaked&&publicIp){
+        el.innerHTML='<span class="badge badge-red">WebRTC Leak Detected!</span>';
+        det.textContent='Local IPs found: '+local.join(', ');
+      }else{
+        el.innerHTML='<span style="color:var(--accent)">No WebRTC Leak</span>';
+        det.textContent='IPs found: '+local.join(', ');
+      }
+    }
+  }catch(e){el.textContent='Could not check WebRTC';det.textContent=e.message}
+}
+
+function checkConnection(){
+  const el=document.getElementById('connVal');
+  const det=document.getElementById('connDetail');
+  const c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  if(!c){el.textContent='Not available';det.textContent="Browser doesn't support Connection API";return}
+  el.textContent=`${(c.effectiveType||'--').toUpperCase()}`;
+  const parts=[];
+  if(c.downlink) parts.push(`Downlink: ${c.downlink} Mbps`);
+  if(c.rtt) parts.push(`RTT: ${c.rtt}ms`);
+  if(c.type) parts.push(`Type: ${c.type}`);
+  det.textContent=parts.join(' | ')||'Limited info available';
+}
+
+async function runAll(){
+  await fetchIp();
+  await fetchGeo();
+  checkWebRTC();
+  checkConnection();
+  document.getElementById('ts').textContent='Last check: '+new Date().toLocaleTimeString();
+}
+
+// Copy IP
+document.getElementById('copyIp').onclick=()=>{
+  if(publicIp){navigator.clipboard.writeText(publicIp).then(()=>{
+    const b=document.getElementById('copyIp');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy IP',1500);
+  })}
+};
+
+// Auto-refresh
+function toggleAuto(){
+  const t=document.getElementById('autoToggle');
+  if(autoInterval){clearInterval(autoInterval);autoInterval=null;t.classList.remove('on')}
+  else{autoInterval=setInterval(runAll,30000);t.classList.add('on')}
+}
+
+runAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed Test - Rocket Shield VPN</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,0.92);--card-hover:rgba(20,28,80,0.95);
+  --border:rgba(100,140,255,0.15);--border-hover:rgba(68,229,160,0.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,0.12);--accent-glow:rgba(68,229,160,0.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,0.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,0.92);--card-hover:rgba(55,35,15,0.95);
+  --border:rgba(255,160,60,0.2);--border-hover:rgba(255,140,66,0.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,0.12);--accent-glow:rgba(255,140,66,0.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:0.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,0.92);--card-hover:rgba(35,12,75,0.95);
+  --border:rgba(168,85,247,0.2);--border-hover:rgba(244,114,182,0.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,0.12);--accent-glow:rgba(244,114,182,0.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:0.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,0.92);--card-hover:rgba(255,255,255,0.98);
+  --border:rgba(180,160,130,0.3);--border-hover:rgba(34,150,100,0.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,0.1);--accent-glow:rgba(34,150,106,0.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,0.08);--star-opacity:0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+.app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 16px 60px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);text-decoration:none}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:999px;font-size:.75rem;font-family:var(--font-body);background:var(--bg3);color:var(--text);border:1px solid var(--border);cursor:pointer;font-weight:600}
+.hdr-select:focus{outline:none;border-color:var(--accent)}
+.nav-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-family:var(--font-body);white-space:nowrap;transition:border-color .2s}
+.nav-link:hover{border-color:var(--accent)}
+
+/* Start button */
+.start-area{text-align:center;margin:32px 0 24px}
+#startBtn{
+  font-family:var(--font-display);font-size:1.3rem;font-weight:700;padding:16px 48px;
+  border:none;border-radius:999px;background:var(--gradient-btn);color:#fff;cursor:pointer;
+  box-shadow:0 4px 24px var(--accent-glow);transition:transform .2s,box-shadow .2s;
+}
+#startBtn:hover{transform:scale(1.05);box-shadow:0 8px 32px var(--accent-glow)}
+#startBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.sim-badge{display:inline-block;margin-top:10px;font-size:.72rem;color:var(--text2);background:var(--bg3);padding:4px 12px;border-radius:999px;border:1px solid var(--border)}
+
+/* Gauge grid */
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.gauge-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow);transition:border-color .3s,box-shadow .3s}
+.gauge-card:hover{border-color:var(--border-hover);box-shadow:0 0 20px var(--accent-glow)}
+.gauge-label{font-family:var(--font-display);font-size:.9rem;font-weight:600;margin-bottom:12px;color:var(--text2)}
+.gauge-value{font-family:var(--font-display);font-size:2rem;font-weight:700;margin:8px 0 4px}
+.gauge-unit{font-size:.75rem;color:var(--text2)}
+
+/* Bar gauge */
+.bar-track{width:100%;height:14px;background:var(--bg3);border-radius:7px;overflow:hidden;margin:10px 0}
+.bar-fill{height:100%;width:0;border-radius:7px;transition:width 0.3s ease-out}
+
+/* Circular gauge */
+.circle-wrap{width:110px;height:110px;margin:0 auto;position:relative}
+.circle-bg{width:100%;height:100%;border-radius:50%;background:conic-gradient(var(--bg3) 0deg,var(--bg3) 360deg);display:flex;align-items:center;justify-content:center;transition:background .3s}
+.circle-inner{width:80px;height:80px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;flex-direction:column}
+
+/* Actions */
+.actions{text-align:center;margin:20px 0}
+.btn-secondary{font-family:var(--font-body);font-size:.85rem;font-weight:700;padding:10px 28px;border:1px solid var(--accent);border-radius:999px;background:var(--accent-soft);color:var(--accent);cursor:pointer;transition:all .2s;margin:0 6px}
+.btn-secondary:hover{background:var(--accent);color:var(--bg)}
+.btn-secondary:disabled{opacity:.4;cursor:not-allowed}
+
+/* History table */
+.section-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border)}
+th{font-family:var(--font-display);color:var(--accent);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+td{color:var(--text2)}
+.empty-msg{text-align:center;color:var(--text3);padding:20px;font-size:.85rem}
+
+/* Compare panel */
+.compare{display:none;margin:24px 0}
+.compare.show{display:block}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+.compare-col{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.compare-col h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:12px;color:var(--accent2)}
+.compare-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;border-bottom:1px solid var(--border)}
+.compare-row:last-child{border:none}
+.diff-badge{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.diff-good{background:rgba(68,229,160,.15);color:#44e5a0}
+.diff-bad{background:rgba(255,92,106,.15);color:#ff5c6a}
+.tip{margin-top:14px;font-size:.78rem;color:var(--text2);background:var(--bg3);padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+
+@media(max-width:500px){
+  .gauges,.compare-grid{grid-template-columns:1fr}
+  #startBtn{font-size:1.1rem;padding:14px 36px}
+}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="app">
+  <div class="header">
+    <a class="logo" href="index.html">&#128640; Rocket Shield</a>
+    <div class="hdr-right">
+      <select class="hdr-select" id="themeSelect" onchange="setTheme(this.value)">
+        <option value="space">&#127756; Space</option>
+        <option value="desert">&#127964;&#65039; Desert</option>
+        <option value="synthwave">&#127918; Synth</option>
+        <option value="paper">&#128220; Paper</option>
+      </select>
+      <a class="nav-link" href="index.html">&#127968; Home</a>
+      <a class="nav-link" href="docs.html">&#128218; Docs</a>
+    </div>
+  </div>
+
+  <div class="start-area">
+    <button id="startBtn" onclick="runTest()">&#9889; Start Speed Test</button>
+    <div class="sim-badge">&#128300; Simulated - for real results visit fast.com</div>
+  </div>
+
+  <div class="gauges">
+    <div class="gauge-card" id="dlCard">
+      <div class="gauge-label">&#11015;&#65039; Download</div>
+      <div class="bar-track"><div class="bar-fill" id="dlBar"></div></div>
+      <div class="gauge-value" id="dlVal">--</div>
+      <div class="gauge-unit">Mbps</div>
+    </div>
+    <div class="gauge-card" id="ulCard">
+      <div class="gauge-label">&#11014;&#65039; Upload</div>
+      <div class="bar-track"><div class="bar-fill" id="ulBar"></div></div>
+      <div class="gauge-value" id="ulVal">--</div>
+      <div class="gauge-unit">Mbps</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-label">&#128225; Ping</div>
+      <div class="circle-wrap"><div class="circle-bg" id="pingCircle"><div class="circle-inner">
+        <div class="gauge-value" id="pingVal" style="font-size:1.5rem">--</div>
+        <div class="gauge-unit">ms</div>
+      </div></div></div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-label">&#12336;&#65039; Jitter</div>
+      <div class="circle-wrap"><div class="circle-bg" id="jitCircle"><div class="circle-inner">
+        <div class="gauge-value" id="jitVal" style="font-size:1.5rem">--</div>
+        <div class="gauge-unit">ms</div>
+      </div></div></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" id="saveBtn" onclick="saveResult()" disabled>&#128190; Save Result</button>
+    <button class="btn-secondary" id="compareBtn" onclick="toggleCompare()" disabled>&#128200; Compare</button>
+    <button class="btn-secondary" id="clearBtn" onclick="clearHistory()">&#128465;&#65039; Clear History</button>
+  </div>
+
+  <div class="compare" id="comparePanel">
+    <div class="section-title">&#128200; Before vs After VPN</div>
+    <div class="compare-grid" id="compareGrid"></div>
+    <div class="tip">&#128161; WireGuard typically drops speed by 5-10%. OpenVPN by 15-30%. If your drop is larger, try a closer server.</div>
+  </div>
+
+  <div class="section-title">&#128203; History</div>
+  <div id="historyArea"></div>
+</div>
+
+<script>
+/* Stars */
+(function(){const c=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${2+Math.random()*4}s ${Math.random()*3}s infinite`;c.appendChild(s)}})();
+
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('rs-theme',t)}
+(function(){const t=localStorage.getItem('rs-theme');if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('themeSelect').value=t}})();
+
+/* State */
+let current=null, running=false;
+const STORAGE_KEY='rs-speed-history';
+
+function getHistory(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]}catch{return[]}}
+function setHistory(h){localStorage.setItem(STORAGE_KEY,JSON.stringify(h))}
+
+/* Color helpers */
+function dlColor(v){return v>=50?'#44e5a0':v>=10?'#ffe156':'#ff5c6a'}
+function pingColor(v){return v<30?'#44e5a0':v<100?'#ffe156':'#ff5c6a'}
+
+/* Animate a value from 0 to target over duration ms */
+function animateValue(el,target,duration,fmt){
+  const start=performance.now();
+  function tick(now){
+    const p=Math.min((now-start)/duration,1);
+    const eased=1-Math.pow(1-p,3);
+    const v=eased*target;
+    el.textContent=fmt(v);
+    if(p<1)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* Simulate speed test */
+async function runTest(){
+  if(running)return;
+  running=true;
+  document.getElementById('startBtn').disabled=true;
+  document.getElementById('startBtn').textContent='Testing...';
+  document.getElementById('saveBtn').disabled=true;
+
+  // Reset visuals
+  ['dlBar','ulBar'].forEach(id=>{document.getElementById(id).style.width='0';document.getElementById(id).style.background='var(--accent)'});
+  ['dlVal','ulVal','pingVal','jitVal'].forEach(id=>{document.getElementById(id).textContent='--'});
+  ['pingCircle','jitCircle'].forEach(id=>{document.getElementById(id).style.background=`conic-gradient(var(--bg3) 0deg,var(--bg3) 360deg)`});
+
+  // Simulate download (use Blob + timing)
+  const dl=await simulateTransfer(1024*1024*2, true);
+  const dlSpeed=Math.min(dl*1.2+Math.random()*30,200);
+  const dlC=dlColor(dlSpeed);
+  animateValue(document.getElementById('dlVal'),dlSpeed,1500,v=>v.toFixed(1));
+  animateBar('dlBar',Math.min(dlSpeed/150*100,100),dlC,1500);
+
+  await delay(400);
+
+  // Simulate upload
+  const ul=await simulateTransfer(1024*512, false);
+  const ulSpeed=Math.min(ul*0.6+Math.random()*15,100);
+  const ulC=dlColor(ulSpeed);
+  animateValue(document.getElementById('ulVal'),ulSpeed,1200,v=>v.toFixed(1));
+  animateBar('ulBar',Math.min(ulSpeed/100*100,100),ulC,1200);
+
+  await delay(400);
+
+  // Simulate ping
+  const ping=8+Math.random()*60;
+  const pC=pingColor(ping);
+  animateValue(document.getElementById('pingVal'),ping,1000,v=>v.toFixed(0));
+  animateCircle('pingCircle',Math.min(ping/200,1),pC,1000);
+
+  await delay(300);
+
+  // Simulate jitter
+  const jitter=1+Math.random()*15;
+  const jC=pingColor(jitter*3);
+  animateValue(document.getElementById('jitVal'),jitter,800,v=>v.toFixed(1));
+  animateCircle('jitCircle',Math.min(jitter/50,1),jC,800);
+
+  await delay(500);
+
+  current={dl:+dlSpeed.toFixed(1),ul:+ulSpeed.toFixed(1),ping:+ping.toFixed(0),jitter:+jitter.toFixed(1),ts:Date.now()};
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('startBtn').textContent='\u26A1 Start Speed Test';
+  document.getElementById('saveBtn').disabled=false;
+  running=false;
+  updateCompareBtn();
+}
+
+function simulateTransfer(bytes){
+  return new Promise(res=>{
+    const t0=performance.now();
+    const blob=new Blob([new ArrayBuffer(bytes)]);
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const elapsed=(performance.now()-t0)/1000;
+      const mbps=(bytes*8/1e6)/Math.max(elapsed,0.001);
+      res(mbps);
+    };
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+function animateBar(id,pct,color,dur){
+  const el=document.getElementById(id);
+  el.style.transition=`width ${dur}ms cubic-bezier(.22,1,.36,1)`;
+  el.style.background=color;
+  requestAnimationFrame(()=>{el.style.width=pct+'%'});
+}
+
+function animateCircle(id,frac,color,dur){
+  const el=document.getElementById(id);
+  const deg=frac*360;
+  el.style.transition=`background ${dur}ms ease-out`;
+  el.style.background=`conic-gradient(${color} 0deg,${color} ${deg}deg,var(--bg3) ${deg}deg,var(--bg3) 360deg)`;
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+
+/* Save */
+function saveResult(){
+  if(!current)return;
+  const h=getHistory();
+  h.unshift(current);
+  if(h.length>20)h.length=20;
+  setHistory(h);
+  current=null;
+  document.getElementById('saveBtn').disabled=true;
+  renderHistory();
+  updateCompareBtn();
+}
+
+/* History */
+function renderHistory(){
+  const h=getHistory();
+  const area=document.getElementById('historyArea');
+  if(!h.length){area.innerHTML='<div class="empty-msg">No saved results yet. Run a test and save it.</div>';return}
+  let html='<table><thead><tr><th>Date</th><th>DL</th><th>UL</th><th>Ping</th><th>Jitter</th><th>Label</th></tr></thead><tbody>';
+  h.forEach((r,i)=>{
+    const d=new Date(r.ts);
+    const label=r.label||'';
+    html+=`<tr>
+      <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="color:${dlColor(r.dl)}">${r.dl}</td>
+      <td style="color:${dlColor(r.ul)}">${r.ul}</td>
+      <td style="color:${pingColor(r.ping)}">${r.ping}</td>
+      <td>${r.jitter}</td>
+      <td><select onchange="labelResult(${i},this.value)" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:2px 6px;font-size:.72rem">
+        <option value="" ${label===''?'selected':''}>--</option>
+        <option value="No VPN" ${label==='No VPN'?'selected':''}>No VPN</option>
+        <option value="With VPN" ${label==='With VPN'?'selected':''}>With VPN</option>
+      </select></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  area.innerHTML=html;
+}
+
+function labelResult(i,val){
+  const h=getHistory();
+  if(h[i])h[i].label=val;
+  setHistory(h);
+  updateCompareBtn();
+}
+
+function clearHistory(){
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+  document.getElementById('comparePanel').classList.remove('show');
+  updateCompareBtn();
+}
+
+/* Compare */
+function updateCompareBtn(){
+  const h=getHistory();
+  const has=h.some(r=>r.label==='No VPN')&&h.some(r=>r.label==='With VPN');
+  document.getElementById('compareBtn').disabled=!has;
+}
+
+function toggleCompare(){
+  const panel=document.getElementById('comparePanel');
+  if(panel.classList.contains('show')){panel.classList.remove('show');return}
+  const h=getHistory();
+  const noVpn=h.find(r=>r.label==='No VPN');
+  const withVpn=h.find(r=>r.label==='With VPN');
+  if(!noVpn||!withVpn)return;
+
+  function diffPct(a,b,lower){
+    const pct=((b-a)/Math.max(a,0.01)*100).toFixed(1);
+    const good=lower?(b<=a):(b>=a*0.7);
+    return `<span class="diff-badge ${good?'diff-good':'diff-bad'}">${pct>0?'+':''}${pct}%</span>`;
+  }
+
+  const metrics=[
+    {name:'Download',a:noVpn.dl,b:withVpn.dl,unit:'Mbps',lower:false},
+    {name:'Upload',a:noVpn.ul,b:withVpn.ul,unit:'Mbps',lower:false},
+    {name:'Ping',a:noVpn.ping,b:withVpn.ping,unit:'ms',lower:true},
+    {name:'Jitter',a:noVpn.jitter,b:withVpn.jitter,unit:'ms',lower:true}
+  ];
+
+  let left='',right='',diffs='';
+  metrics.forEach(m=>{
+    left+=`<div class="compare-row"><span>${m.name}</span><span>${m.a} ${m.unit}</span></div>`;
+    right+=`<div class="compare-row"><span>${m.name}</span><span>${m.b} ${m.unit} ${diffPct(m.a,m.b,m.lower)}</span></div>`;
+  });
+
+  document.getElementById('compareGrid').innerHTML=
+    `<div class="compare-col"><h3>&#128275; Without VPN</h3>${left}</div>`+
+    `<div class="compare-col"><h3>&#128274; With VPN</h3>${right}</div>`;
+  panel.classList.add('show');
+}
+
+/* Init */
+renderHistory();
+updateCompareBtn();
+</script>
+</body>
+</html>
