@@ -138,6 +138,8 @@ a:hover{text-decoration:underline}
   <div class="sidebar-section">
     <div class="sidebar-title">Deployment</div>
     <a class="sidebar-link" onclick="showSection('freebox')">📦 Freebox</a>
+    <a class="sidebar-link" onclick="showSection('freebox-revolution')">🔴 Revolution (OpenVPN)</a>
+    <a class="sidebar-link" onclick="showSection('freebox-wireguard')">⚡ Freebox WireGuard</a>
     <a class="sidebar-link" onclick="showSection('raspberry-pi')">🍓 Raspberry Pi</a>
     <a class="sidebar-link" onclick="showSection('docker')">🐳 Docker</a>
   </div>
@@ -774,6 +776,234 @@ openvpn --genkey secret ta.key</code></pre>
       <tr><td><strong>Requires</strong></td><td>VPN provider subscription</td><td>Nothing (Freebox is the server)</td></tr>
       <tr><td><strong>Protects</strong></td><td>All home devices</td><td>Your connection when away</td></tr>
     </table>
+  </div>
+
+  <!-- FREEBOX REVOLUTION -->
+  <div class="doc-section" id="sec-freebox-revolution">
+    <h1>🔴 Freebox Revolution — OpenVPN Setup</h1>
+    <div class="doc-warn">⚠️ The Freebox Revolution supports <strong>OpenVPN only</strong> (no WireGuard).</div>
+
+    <h2>Overview</h2>
+    <p>The Freebox Revolution (released 2011) is still one of the most widely used Freebox models. It supports both VPN Client and VPN Server modes, but only with the OpenVPN protocol.</p>
+
+    <h2>Access Freebox OS</h2>
+    <ol>
+      <li>Connect to your Freebox network (WiFi or Ethernet)</li>
+      <li>Open browser → <code>http://mafreebox.freebox.fr</code> (or <code>192.168.1.254</code>)</li>
+      <li>First time: confirm on the Freebox LCD screen, then set admin password</li>
+      <li>Navigate to <strong>Paramètres → Mode Avancé → VPN</strong></li>
+    </ol>
+
+    <h2>VPN Client — Connect to External Provider</h2>
+    <h3>Step 1: Get an OpenVPN config file</h3>
+    <table>
+      <tr><th>Provider</th><th>How to get .ovpn file</th></tr>
+      <tr><td><strong>NordVPN</strong></td><td>Log in → Manual Setup → OpenVPN → Select server → Download UDP config</td></tr>
+      <tr><td><strong>ProtonVPN</strong></td><td>Log in → Downloads → OpenVPN configuration → Select country → Download</td></tr>
+      <tr><td><strong>Mullvad</strong></td><td>Log in → OpenVPN config generator → Select server → Download</td></tr>
+      <tr><td><strong>Surfshark</strong></td><td>Log in → Manual Setup → OpenVPN → Download</td></tr>
+    </table>
+
+    <h3>Step 2: Import into Freebox</h3>
+    <ol>
+      <li>Go to <strong>VPN → Client VPN → Ajouter une connexion</strong></li>
+      <li>Type: <strong>OpenVPN</strong></li>
+      <li>Description: name it (e.g., "NordVPN-France")</li>
+      <li>Click <strong>"Parcourir"</strong> (Browse) → select the <code>.ovpn</code> file</li>
+      <li>Enter your VPN provider <strong>username</strong> and <strong>password</strong></li>
+      <li>Click <strong>"Sauvegarder"</strong> (Save)</li>
+    </ol>
+
+    <h3>Step 3: Activate</h3>
+    <ol>
+      <li>Toggle the connection switch to <strong>ON</strong></li>
+      <li>Wait 5-10 seconds → Status: <strong>"Connecté"</strong></li>
+      <li>Verify: visit <a href="https://whatismyip.com" target="_blank">whatismyip.com</a> from any home device</li>
+    </ol>
+
+    <h2>VPN Server — Host Your Own</h2>
+    <h3>Step 1: Enable OpenVPN Server</h3>
+    <ol>
+      <li>Go to <strong>VPN → Serveur VPN → OpenVPN</strong></li>
+      <li>Toggle <strong>"Activer"</strong> (Enable) → ON</li>
+      <li>Port: <code>1194</code> (default) — UDP recommended</li>
+      <li>Click <strong>"Appliquer"</strong> (Apply)</li>
+    </ol>
+
+    <h3>Step 2: Create Users</h3>
+    <ol>
+      <li>Go to <strong>"Utilisateurs"</strong> (Users) tab</li>
+      <li>Click <strong>"Ajouter un utilisateur"</strong></li>
+      <li>Set username (e.g., "phone") and strong password</li>
+      <li>Click <strong>"Sauvegarder"</strong></li>
+    </ol>
+
+    <h3>Step 3: Download Config & Connect</h3>
+    <ol>
+      <li>Click the <strong>download icon</strong> next to the user</li>
+      <li>Save the <code>.ovpn</code> file</li>
+      <li>Send to your phone/laptop and import into OpenVPN Connect</li>
+    </ol>
+
+    <h2>Import on Your Devices</h2>
+    <div class="doc-card">
+      <h4>📱 iPhone/iPad</h4>
+      <p>App Store → <strong>"OpenVPN Connect"</strong> → Install. Send <code>.ovpn</code> via email/AirDrop → Tap file → <strong>"Open in OpenVPN"</strong> → <strong>Add</strong> → Enter credentials → Toggle connect.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🤖 Android</h4>
+      <p>Play Store → <strong>"OpenVPN Connect"</strong> → Install. <strong>"+"</strong> → <strong>"Upload File"</strong> → Select <code>.ovpn</code> → <strong>Import</strong> → Enter credentials → <strong>Connect</strong>.</p>
+    </div>
+    <div class="doc-card">
+      <h4>💻 Windows</h4>
+      <p>Download from <a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a>. <strong>"+"</strong> → <strong>"Upload File"</strong> → Select <code>.ovpn</code> → <strong>Connect</strong>. May need Run as Administrator.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🍎 macOS</h4>
+      <p>Download OpenVPN Connect or <a href="https://tunnelblick.net" target="_blank">Tunnelblick</a>. Import <code>.ovpn</code> → Enter credentials → Connect.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🐧 Linux</h4>
+      <p><code>sudo apt install openvpn && sudo openvpn --config freebox.ovpn</code></p>
+      <p>Auto-start: <code>sudo cp freebox.ovpn /etc/openvpn/client/freebox.conf && sudo systemctl enable openvpn-client@freebox</code></p>
+    </div>
+
+    <h2>Freebox OS French → English</h2>
+    <table>
+      <tr><th>French</th><th>English</th></tr>
+      <tr><td>Paramètres</td><td>Settings</td></tr>
+      <tr><td>Mode Avancé</td><td>Advanced Mode</td></tr>
+      <tr><td>Client VPN</td><td>VPN Client</td></tr>
+      <tr><td>Serveur VPN</td><td>VPN Server</td></tr>
+      <tr><td>Ajouter une connexion</td><td>Add connection</td></tr>
+      <tr><td>Utilisateurs</td><td>Users</td></tr>
+      <tr><td>Sauvegarder</td><td>Save</td></tr>
+      <tr><td>Appliquer</td><td>Apply</td></tr>
+      <tr><td>Activer / Désactiver</td><td>Enable / Disable</td></tr>
+      <tr><td>Connecté / Déconnecté</td><td>Connected / Disconnected</td></tr>
+      <tr><td>Parcourir</td><td>Browse</td></tr>
+      <tr><td>Télécharger</td><td>Download</td></tr>
+      <tr><td>Pare-feu</td><td>Firewall</td></tr>
+    </table>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <tr><th>Problem</th><th>Solution</th></tr>
+      <tr><td>Can't access mafreebox.freebox.fr</td><td>Make sure you're on Freebox network. Try <code>192.168.1.254</code></td></tr>
+      <tr><td>VPN Client shows "Erreur"</td><td>Check username/password. Try a different server .ovpn file</td></tr>
+      <tr><td>Connected but no internet</td><td>Try a different VPN server region. Check DNS settings</td></tr>
+      <tr><td>Can't connect from outside</td><td>Check port 1194/UDP is forwarded. Verify public IP hasn't changed</td></tr>
+      <tr><td>TLS handshake failed</td><td>Re-download the .ovpn config. Check system clock is correct</td></tr>
+      <tr><td>Slow speeds</td><td>Try UDP instead of TCP. Pick a closer server</td></tr>
+      <tr><td>Public IP changed</td><td>Set up Dynamic DNS: Freebox OS → Settings → DynDNS</td></tr>
+    </table>
+
+    <div class="doc-tip">💡 Full detailed guide with 15+ troubleshooting items: see <a href="docs/FREEBOX-REVOLUTION.md">FREEBOX-REVOLUTION.md</a></div>
+  </div>
+
+  <!-- FREEBOX WIREGUARD -->
+  <div class="doc-section" id="sec-freebox-wireguard">
+    <h1>⚡ Freebox WireGuard Setup</h1>
+    <div class="doc-note">For Freebox <strong>One, Delta, Pop, Ultra</strong> only. Revolution/Mini 4K → use <a href="#" onclick="showSection('freebox-revolution')">Revolution OpenVPN guide</a>.</div>
+
+    <h2>Why WireGuard?</h2>
+    <table>
+      <tr><th>Feature</th><th>WireGuard</th><th>OpenVPN</th></tr>
+      <tr><td>Connection time</td><td><strong>~100ms</strong></td><td>~5-10 seconds</td></tr>
+      <tr><td>Throughput</td><td><strong>Higher</strong></td><td>Lower</td></tr>
+      <tr><td>Battery drain</td><td><strong>Minimal</strong></td><td>Higher</td></tr>
+      <tr><td>Reconnect after sleep</td><td><strong>Instant</strong></td><td>Slow (re-handshake)</td></tr>
+      <tr><td>Config complexity</td><td><strong>~15 lines</strong></td><td>~50+ lines</td></tr>
+      <tr><td>Mobile QR import</td><td><strong>Yes!</strong></td><td>No</td></tr>
+    </table>
+
+    <h2>VPN Client — Route Home Traffic Through Provider</h2>
+    <h3>Step 1: Get WireGuard config from provider</h3>
+    <table>
+      <tr><th>Provider</th><th>How</th></tr>
+      <tr><td><strong>NordVPN</strong></td><td>Log in → Manual Setup → WireGuard (NordLynx) → Download</td></tr>
+      <tr><td><strong>ProtonVPN</strong></td><td>Log in → Downloads → WireGuard config → Select server → Download .conf</td></tr>
+      <tr><td><strong>Mullvad</strong></td><td>Log in → WireGuard config generator → Generate key → Download</td></tr>
+    </table>
+
+    <h3>Step 2: Import into Freebox</h3>
+    <ol>
+      <li><strong>VPN → Client VPN → Ajouter</strong></li>
+      <li>Type: <strong>WireGuard</strong></li>
+      <li>Upload the <code>.conf</code> file</li>
+      <li>Save → Toggle ON</li>
+    </ol>
+
+    <h3>Step 3: Verify</h3>
+    <p>Visit <a href="https://whatismyip.com" target="_blank">whatismyip.com</a> — should show VPN provider's IP.</p>
+
+    <h2>VPN Server — Host Your Own</h2>
+    <h3>Step 1: Enable WireGuard Server</h3>
+    <ol>
+      <li><strong>VPN → Serveur VPN → WireGuard</strong></li>
+      <li>Toggle <strong>"Activer"</strong> → ON</li>
+      <li>Port: <code>51820</code> (default)</li>
+      <li>Click <strong>"Appliquer"</strong></li>
+    </ol>
+
+    <h3>Step 2: Create Peers</h3>
+    <ol>
+      <li>Click <strong>"Ajouter un pair"</strong> (Add peer)</li>
+      <li>Name it (e.g., "phone", "laptop")</li>
+      <li>Freebox auto-generates all keys</li>
+      <li>Save</li>
+    </ol>
+
+    <h3>Step 3: Export Config</h3>
+    <ul>
+      <li>Click <strong>download icon</strong> → save <code>.conf</code> file</li>
+      <li>Or click <strong>QR code icon</strong> → scan with WireGuard mobile app!</li>
+    </ul>
+
+    <h2>Import on Your Devices</h2>
+    <div class="doc-card">
+      <h4>📱 Phone — QR Code (Easiest!)</h4>
+      <p>Install <strong>"WireGuard"</strong> from App/Play Store → <strong>"+"</strong> → <strong>"Create from QR code"</strong> → Scan QR from Freebox OS → Name it → Allow VPN → Toggle ON. Done in 10 seconds!</p>
+    </div>
+    <div class="doc-card">
+      <h4>📱 Phone — File Import</h4>
+      <p>Send <code>.conf</code> to phone → Tap file → <strong>"Open in WireGuard?"</strong> → Yes → Allow. Or: WireGuard app → <strong>"+"</strong> → <strong>"Create from file"</strong> → Select file.</p>
+    </div>
+    <div class="doc-card">
+      <h4>💻 Windows</h4>
+      <p>Download from <a href="https://www.wireguard.com/install/" target="_blank">wireguard.com/install</a> → Open → <strong>"Import tunnel(s) from file"</strong> → Select <code>.conf</code> → <strong>"Activate"</strong>.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🍎 macOS</h4>
+      <p>App Store → <strong>"WireGuard"</strong> → <strong>"+"</strong> → <strong>"Import from file"</strong> → Select <code>.conf</code> → <strong>"Activate"</strong>.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🐧 Linux</h4>
+      <p><code>sudo apt install wireguard && sudo cp freebox.conf /etc/wireguard/wg0.conf && sudo wg-quick up wg0</code></p>
+      <p>Auto-start: <code>sudo systemctl enable wg-quick@wg0</code></p>
+    </div>
+
+    <h2>Advanced: Split Tunneling</h2>
+    <p>By default, <code>AllowedIPs = 0.0.0.0/0</code> routes ALL traffic through VPN. To only route home network traffic:</p>
+    <pre><code># In client .conf, change AllowedIPs:
+AllowedIPs = 192.168.1.0/24, 10.66.66.0/24
+# This only tunnels home network traffic
+# Regular internet goes direct (faster!)</code></pre>
+    <div class="doc-tip">💡 Use split tunneling to access your home NAS/printer remotely while keeping full internet speed.</div>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <tr><th>Problem</th><th>Solution</th></tr>
+      <tr><td>Handshake never completes</td><td>Check public key matches. Verify port 51820/UDP is forwarded</td></tr>
+      <tr><td>Connected but no internet</td><td>Check AllowedIPs includes <code>0.0.0.0/0</code>. Check DNS setting</td></tr>
+      <tr><td>QR code won't scan</td><td>Increase screen brightness. Try file import instead</td></tr>
+      <tr><td>Connection drops after idle</td><td>Add <code>PersistentKeepalive = 25</code> to [Peer] section</td></tr>
+      <tr><td>Slow speeds</td><td>Try <code>MTU = 1380</code> in [Interface]. Pick closer endpoint</td></tr>
+      <tr><td>Can't reach home devices</td><td>Add home subnet to AllowedIPs (e.g., <code>192.168.1.0/24</code>)</td></tr>
+      <tr><td>Freebox says WireGuard unavailable</td><td>Update firmware: Paramètres → Mise à jour → Vérifier</td></tr>
+    </table>
+
+    <div class="doc-tip">💡 Full detailed guide with performance benchmarks and advanced config: see <a href="docs/FREEBOX-WIREGUARD.md">FREEBOX-WIREGUARD.md</a></div>
   </div>
 
   <!-- RASPBERRY PI -->

@@ -15,6 +15,8 @@ Everything you need to understand, configure, deploy, and extend the project is 
 | [WIREGUARD.md](WIREGUARD.md) | WireGuard VPN client and server setup guide |
 | [OPENVPN.md](OPENVPN.md) | OpenVPN client and server setup guide |
 | [FREEBOX.md](FREEBOX.md) | Configuring VPN on a Free (Freebox) router |
+| [FREEBOX-REVOLUTION.md](FREEBOX-REVOLUTION.md) | **Freebox Revolution** — Complete OpenVPN setup (client + server) |
+| [FREEBOX-WIREGUARD.md](FREEBOX-WIREGUARD.md) | **Freebox WireGuard** — Complete setup for Delta/Pop/Ultra/One |
 | [RASPBERRY-PI.md](RASPBERRY-PI.md) | Deploying Rocket Shield VPN on a Raspberry Pi |
 | [DOCKER.md](DOCKER.md) | Docker and Docker Compose deployment |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Technical architecture and codebase reference |
