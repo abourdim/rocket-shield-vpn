@@ -51,6 +51,7 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 | [phishing-detector.html](../phishing-detector.html) | 🎣 Spot the phishing email — 15 scenarios training game |
 | [firewall-builder.html](../firewall-builder.html) | 🧱 Build firewall rules, see iptables commands, test with packets |
 | [vpn-dashboard.html](../vpn-dashboard.html) | 📡 See real connected VPN devices — Freebox API, wg show parser, demo |
+| [vpngate.html](../vpngate.html) | 🎓 Browse 5,000+ free VPN Gate servers, download OpenVPN configs |
 | [docs.html](../docs.html) | 📚 Full HTML documentation hub with search and sidebar |
 
 ---

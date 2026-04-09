@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════
 // Rocket Shield VPN — Service Worker
 // ═══════════════════════════════════════════
-const CACHE_NAME = 'rocket-shield-v2';
+const CACHE_NAME = 'rocket-shield-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -19,6 +19,7 @@ const ASSETS = [
   '/phishing-detector.html',
   '/firewall-builder.html',
   '/vpn-dashboard.html',
+  '/vpngate.html',
   '/icon-512.png',
   '/manifest.json'
 ];
