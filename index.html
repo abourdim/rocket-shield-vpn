@@ -909,11 +909,12 @@ const i18n = {
     navFreebox:"Freebox VPN",
     freeboxIntro:"Let's configure VPN on your Freebox!",
     fb1title:"What is a Freebox?",
-    fb1text:"The <strong>Freebox</strong> is an internet router made by Free (a French ISP). It's special because it has a <strong>built-in VPN</strong> — both as a client and a server! That means you can protect your whole home network or access your home from anywhere.",
+    fb1text:"The <strong>Freebox</strong> is an internet router made by Free (a French ISP). It's special because it has a <strong>built-in VPN</strong> — both as a client and a server! But what's the difference?",
     fb1feat1:"<strong>📦 Router + VPN</strong> — No extra hardware needed!",
-    fb1feat2:"<strong>🔒 VPN Client</strong> — Route all home traffic through a VPN provider",
-    fb1feat3:"<strong>🌍 VPN Server</strong> — Access your home network from anywhere in the world",
-    fb1note:"The Freebox supports <strong>OpenVPN</strong> and <strong>WireGuard</strong> protocols.",
+    fb1client:"<strong>🔒 VPN Client (outgoing)</strong> — Your Freebox connects OUT to an external VPN provider (NordVPN, ProtonVPN, etc.). All devices at home browse the internet through that VPN tunnel. Your ISP can't see your traffic, and websites see the VPN's IP instead of yours.",
+    fb1server:"<strong>🌍 VPN Server (incoming)</strong> — Your Freebox becomes the VPN server itself. When you're AWAY from home (school, travel, café), you connect BACK to your Freebox. You get secure access to your home network — files, printers, cameras — as if you were home.",
+    fb1vs:"<strong>🆚 Key Difference:</strong> Client = you hide behind someone else's server. Server = YOU are the server and others (you!) connect to it remotely.",
+    fb1note:"Both modes support <strong>OpenVPN</strong> and <strong>WireGuard</strong> protocols.",
     fb2title:"Access Freebox OS",
     fb2text:"To configure VPN, you need to open the Freebox management interface:",
     fb2step1:"<strong>Step 1:</strong> Make sure you're connected to your Freebox network (WiFi or Ethernet)",
@@ -1734,8 +1735,9 @@ function renderFreeboxStep() {
       <div class="step-content"><p>${t('fb1text')}</p>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
         <div class="card" style="padding:12px">${t('fb1feat1')}</div>
-        <div class="card" style="padding:12px">${t('fb1feat2')}</div>
-        <div class="card" style="padding:12px">${t('fb1feat3')}</div>
+        <div class="card" style="padding:14px;border-left:3px solid var(--accent)">${t('fb1client')}</div>
+        <div class="card" style="padding:14px;border-left:3px solid var(--accent2)">${t('fb1server')}</div>
+        <div class="card" style="padding:14px;background:var(--bg3);border-left:3px solid var(--yellow)">${t('fb1vs')}</div>
       </div>
       <p style="margin-top:12px;color:var(--accent2);font-weight:700">${t('fb1note')}</p></div></div>`;
   } else if (s === 1) {
