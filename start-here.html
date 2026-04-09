@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Start Here</title>
+<meta name="description" content="Step-by-step VPN setup guide. Server first, then client. WireGuard and OpenVPN. Test from desktop, phone, tablet.">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b);--gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee);--gradient-btn:linear-gradient(135deg,#f472b6,#e044a0)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea);--gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);--shadow:0 4px 20px rgba(0,0,0,.08)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-sub{font-size:.75rem;color:var(--text2)}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;white-space:nowrap}
+.hdr-link:hover{border-color:var(--accent);text-decoration:none}
+
+/* Main */
+.main{max-width:820px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.8rem;font-weight:700;text-align:center;margin:20px 0 8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-family:var(--font-display);font-size:1.3rem;margin:32px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-family:var(--font-display);font-size:1.05rem;margin:20px 0 8px;color:var(--accent)}
+h4{font-family:var(--font-display);font-size:.92rem;margin:14px 0 6px}
+p{margin:8px 0;font-size:.92rem;color:var(--text)}
+ul,ol{margin:8px 0 8px 24px;font-size:.9rem}
+li{margin:4px 0}
+code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.82rem;font-family:'Fira Code',monospace;color:var(--accent)}
+pre{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;overflow-x:auto;margin:12px 0;font-size:.8rem;line-height:1.6}
+pre code{background:none;padding:0;color:var(--text)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85rem}
+th{background:var(--bg3);padding:10px 14px;text-align:left;font-family:var(--font-display);font-weight:600;border:1px solid var(--border);color:var(--accent)}
+td{padding:8px 14px;border:1px solid var(--border);vertical-align:top}
+tr:hover td{background:var(--accent-soft)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:10px 0;transition:all .2s}
+.card:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.card h4{margin:0 0 6px}
+
+/* Roadmap */
+.roadmap{position:relative;padding-left:32px;margin:16px 0}
+.roadmap::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent2),var(--accent3),var(--orange))}
+.rm-step{position:relative;margin:20px 0;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);transition:all .3s}
+.rm-step:hover{border-color:var(--border-hover);transform:translateX(4px)}
+.rm-dot{position:absolute;left:-26px;top:18px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--bg)}
+.rm-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:6px}
+.rm-time{font-size:.7rem;color:var(--text3);margin-bottom:6px}
+
+/* Tip/Warn/Note */
+.tip{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid var(--accent);background:rgba(68,229,160,.08);color:var(--accent)}
+.warn{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid var(--yellow);background:rgba(255,225,86,.08);color:var(--yellow)}
+.note{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid var(--accent2);background:rgba(77,201,246,.08);color:var(--accent2)}
+
+/* Expand */
+.expand{cursor:pointer;position:relative;padding-right:30px}
+.expand::after{content:'▼';position:absolute;right:16px;top:16px;font-size:.6rem;color:var(--text3);transition:transform .3s}
+.expand.open::after{transform:rotate(180deg)}
+.expand-body{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.expand.open .expand-body{max-height:3000px}
+
+/* Grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0;flex-wrap:wrap}
+.flow-node{text-align:center;padding:10px 14px;min-width:70px}
+.flow-node .icon{font-size:2rem}
+.flow-node .label{font-size:.72rem;font-weight:700;font-family:var(--font-display);margin-top:4px}
+.flow-node .sub{font-size:.6rem;color:var(--text3)}
+.flow-pipe{width:40px;height:4px;border-radius:2px;position:relative;overflow:hidden}
+.flow-pipe.green{background:var(--accent)}
+.flow-pipe.blue{background:var(--accent2)}
+.flow-pipe.orange{background:var(--orange)}
+
+/* Check grid */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+@media(max-width:640px){.check-grid{grid-template-columns:1fr}}
+.check-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:all .2s}
+.check-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.check-card .icon{font-size:1.5rem;margin-bottom:6px}
+.check-card .title{font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:4px}
+.check-card .desc{font-size:.75rem;color:var(--text2)}
+
+/* Phase badge */
+.phase{display:inline-block;padding:4px 12px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:.75rem;font-weight:700;margin-bottom:8px}
+.phase-server{background:rgba(68,229,160,.15);color:var(--accent);border:1px solid var(--accent)}
+.phase-client{background:rgba(77,201,246,.15);color:var(--accent2);border:1px solid var(--accent2)}
+.phase-test{background:rgba(255,140,66,.15);color:var(--orange);border:1px solid var(--orange)}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:20px 0}
+.toc h3{margin:0 0 12px;color:var(--text)}
+.toc a{display:block;padding:4px 0;font-size:.88rem;color:var(--text2);border-bottom:1px dashed var(--border)}
+.toc a:hover{color:var(--accent);text-decoration:none}
+
+/* Print */
+@media print{.hdr{display:none}.main{padding:10px}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <span class="hdr-logo">🚀 START HERE</span>
+  <span class="hdr-sub">Server → Client → Test</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option>
+    <option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option>
+    <option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+
+  <h1>🚀 Your VPN Setup — Start Here</h1>
+  <p style="text-align:center;color:var(--text2);margin-bottom:8px">The complete path from zero to fully protected. Server first, then client, then verify everything works.</p>
+
+  <!-- WHY SERVER FIRST -->
+  <div class="tip">💡 <strong>Why server first?</strong> You own a Freebox — it's a free VPN server! No subscription needed. Set up the server, generate configs, then connect all your devices. You learn more and control everything.</div>
+
+  <!-- ROADMAP -->
+  <h2>🗺️ The Roadmap</h2>
+  <div class="flow">
+    <div class="flow-node"><div class="icon">🛰️</div><div class="label">Server</div><div class="sub">5-10 min</div></div>
+    <div class="flow-pipe green"></div>
+    <div class="flow-node"><div class="icon">📄</div><div class="label">Configs</div><div class="sub">2 min</div></div>
+    <div class="flow-pipe blue"></div>
+    <div class="flow-node"><div class="icon">📱💻</div><div class="label">Clients</div><div class="sub">5 min each</div></div>
+    <div class="flow-pipe orange"></div>
+    <div class="flow-node"><div class="icon">✅</div><div class="label">Test</div><div class="sub">3 min</div></div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📋 Table of Contents</h3>
+    <a href="#phase1">Phase 1: Set Up Your VPN Server</a>
+    <a href="#wg-server">&nbsp;&nbsp;⚡ WireGuard Server (Freebox Delta/Pop/Ultra/One)</a>
+    <a href="#ovpn-server">&nbsp;&nbsp;🔐 OpenVPN Server (Freebox Revolution)</a>
+    <a href="#phase2">Phase 2: Connect Your Devices (Clients)</a>
+    <a href="#wg-phone">&nbsp;&nbsp;⚡📱 WireGuard on Phone</a>
+    <a href="#wg-desktop">&nbsp;&nbsp;⚡💻 WireGuard on Desktop</a>
+    <a href="#wg-linux">&nbsp;&nbsp;⚡🐧 WireGuard on Linux</a>
+    <a href="#ovpn-phone">&nbsp;&nbsp;🔐📱 OpenVPN on Phone</a>
+    <a href="#ovpn-desktop">&nbsp;&nbsp;🔐💻 OpenVPN on Desktop</a>
+    <a href="#ovpn-linux">&nbsp;&nbsp;🔐🐧 OpenVPN on Linux</a>
+    <a href="#phase3">Phase 3: Test Everything Works</a>
+    <a href="#test-desktop">&nbsp;&nbsp;💻 Test from Desktop</a>
+    <a href="#test-phone">&nbsp;&nbsp;📱 Test from Phone</a>
+    <a href="#test-advanced">&nbsp;&nbsp;🔬 Advanced Tests</a>
+    <a href="#troubleshoot">Troubleshooting</a>
+    <a href="#next">What's Next?</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 1: SERVER                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 id="phase1"><span class="phase phase-server">PHASE 1</span> Set Up Your VPN Server</h2>
+  <p>Choose your protocol based on your Freebox model:</p>
+
+  <div class="grid2">
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <h4>⚡ WireGuard</h4>
+      <p style="font-size:.82rem;color:var(--text2)">Freebox <strong>One, Delta, Pop, Ultra</strong></p>
+      <p style="font-size:.78rem;color:var(--accent)">Faster, modern, QR code import, recommended</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--orange)">
+      <h4>🔐 OpenVPN</h4>
+      <p style="font-size:.82rem;color:var(--text2)">Freebox <strong>Revolution, Mini 4K</strong> (+ all models)</p>
+      <p style="font-size:.78rem;color:var(--orange)">Battle-tested, widely supported</p>
+    </div>
+  </div>
+
+  <!-- WireGuard Server -->
+  <h3 id="wg-server">⚡ WireGuard Server Setup (Delta/Pop/Ultra/One)</h3>
+
+  <div class="roadmap">
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--accent)">1</div>
+      <div class="rm-title">Open Freebox OS</div>
+      <div class="rm-time">⏱️ 1 minute</div>
+      <ol>
+        <li>Connect to your Freebox WiFi or Ethernet</li>
+        <li>Open browser → type <code>http://mafreebox.freebox.fr</code></li>
+        <li>Log in with your admin password</li>
+        <li>If first time: confirm on the Freebox LCD screen</li>
+      </ol>
+      <div class="note">Can't access? Try <code>192.168.1.254</code> instead. Make sure you're on the Freebox network, not another WiFi.</div>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--accent)">2</div>
+      <div class="rm-title">Enable WireGuard Server</div>
+      <div class="rm-time">⏱️ 2 minutes</div>
+      <ol>
+        <li>Navigate to <strong>Paramètres → VPN → Serveur VPN</strong> (Settings → VPN → VPN Server)</li>
+        <li>Click the <strong>WireGuard</strong> tab</li>
+        <li>Toggle <strong>"Activer"</strong> (Enable) → <strong>ON</strong></li>
+        <li>Port: keep <code>51820</code> (default) unless you have a reason to change</li>
+        <li>Click <strong>"Appliquer"</strong> (Apply)</li>
+      </ol>
+      <div class="tip">💡 Port forwarding is usually automatic on newer Freebox models. No extra router config needed!</div>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--accent)">3</div>
+      <div class="rm-title">Create Client Peers</div>
+      <div class="rm-time">⏱️ 2 minutes per device</div>
+      <p>Create one peer for each device you want to connect:</p>
+      <ol>
+        <li>Click <strong>"Ajouter un pair"</strong> (Add peer)</li>
+        <li>Name: <code>phone</code>, <code>laptop</code>, <code>work-pc</code>, etc.</li>
+        <li>The Freebox <strong>auto-generates all keys</strong> — you don't need to do anything</li>
+        <li>Click <strong>"Sauvegarder"</strong> (Save)</li>
+        <li>Repeat for each device</li>
+      </ol>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--accent)">4</div>
+      <div class="rm-title">Download Configs / QR Codes</div>
+      <div class="rm-time">⏱️ 1 minute</div>
+      <p>For each peer you created:</p>
+      <ul>
+        <li>Click the <strong>📥 download icon</strong> → saves a <code>.conf</code> file</li>
+        <li>Or click the <strong>QR code icon</strong> → scan directly with phone (fastest!)</li>
+      </ul>
+      <div class="warn">⚠️ Keep these files safe! Anyone with the config file can connect to your home network.</div>
+    </div>
+  </div>
+
+  <!-- OpenVPN Server -->
+  <h3 id="ovpn-server">🔐 OpenVPN Server Setup (Freebox Revolution)</h3>
+
+  <div class="roadmap">
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--orange)">1</div>
+      <div class="rm-title">Open Freebox OS</div>
+      <div class="rm-time">⏱️ 1 minute</div>
+      <ol>
+        <li>Connect to your Freebox Revolution WiFi or Ethernet</li>
+        <li>Open browser → <code>http://mafreebox.freebox.fr</code> (or <code>192.168.1.254</code>)</li>
+        <li>Log in with admin password</li>
+        <li>Navigate to <strong>Paramètres → Mode Avancé → VPN</strong></li>
+      </ol>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--orange)">2</div>
+      <div class="rm-title">Enable OpenVPN Server</div>
+      <div class="rm-time">⏱️ 2 minutes</div>
+      <ol>
+        <li>Click <strong>"Serveur VPN"</strong> (VPN Server) tab</li>
+        <li>Select <strong>"OpenVPN"</strong></li>
+        <li>Toggle <strong>"Activer"</strong> (Enable) → ON</li>
+        <li>Port: keep <code>1194</code> (default)</li>
+        <li>Protocol: <strong>UDP</strong> (recommended — faster than TCP)</li>
+        <li>Click <strong>"Appliquer"</strong> (Apply)</li>
+      </ol>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--orange)">3</div>
+      <div class="rm-title">Create VPN Users</div>
+      <div class="rm-time">⏱️ 2 minutes per user</div>
+      <ol>
+        <li>Go to <strong>"Utilisateurs"</strong> (Users) tab</li>
+        <li>Click <strong>"Ajouter un utilisateur"</strong> (Add user)</li>
+        <li>Login: choose a name (e.g., <code>phone</code>, <code>laptop</code>)</li>
+        <li>Password: set a <strong>strong password</strong> (12+ characters)</li>
+        <li>Click <strong>"Sauvegarder"</strong> (Save)</li>
+      </ol>
+    </div>
+
+    <div class="rm-step">
+      <div class="rm-dot" style="background:var(--orange)">4</div>
+      <div class="rm-title">Download Config Files</div>
+      <div class="rm-time">⏱️ 1 minute</div>
+      <ol>
+        <li>Click the <strong>📥 download icon</strong> next to each user</li>
+        <li>Save the <code>.ovpn</code> file for each device</li>
+        <li>The file contains: server address, port, certificates, encryption settings</li>
+      </ol>
+      <div class="note">The config uses your Freebox's <strong>public IP</strong>. If it changes, set up Dynamic DNS: Freebox OS → Paramètres → DynDNS</div>
+    </div>
+  </div>
+
+  <div class="tip">💡 <strong>Server is ready!</strong> Now let's connect your devices.</div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 2: CLIENTS                            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 id="phase2"><span class="phase phase-client">PHASE 2</span> Connect Your Devices (Clients)</h2>
+  <p>Pick your device and protocol below. Each section is self-contained — follow it from top to bottom.</p>
+
+  <!-- WireGuard Clients -->
+  <h3 id="wg-phone">⚡📱 WireGuard on Phone (iPhone / Android)</h3>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🍎 iPhone / iPad</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Open <strong>App Store</strong></li>
+        <li>Search <strong>"WireGuard"</strong> (developer: WireGuard Development Team / Jason A. Donenfeld)</li>
+        <li>Tap <strong>Get</strong> → Confirm with Face ID / Touch ID</li>
+        <li>Open the WireGuard app</li>
+        <li><strong>QR Code method (fastest!):</strong>
+          <ul>
+            <li>Tap <strong>"+"</strong> → <strong>"Create from QR code"</strong></li>
+            <li>Point your camera at the QR code shown in Freebox OS</li>
+            <li>Name the tunnel (e.g., "Home")</li>
+            <li>iOS asks <strong>"Allow VPN Configurations?"</strong> → Tap <strong>"Allow"</strong></li>
+          </ul>
+        </li>
+        <li><strong>File method:</strong>
+          <ul>
+            <li>Send the <code>.conf</code> file to your phone (email, AirDrop, iCloud Drive)</li>
+            <li>Tap the file → <strong>"Open in WireGuard?"</strong> → Yes</li>
+            <li>Or: in WireGuard app → <strong>"+"</strong> → <strong>"Create from file or archive"</strong> → select from Files</li>
+          </ul>
+        </li>
+        <li>Tap the <strong>toggle switch</strong> next to the tunnel → turns <strong style="color:var(--accent)">green</strong> = connected!</li>
+        <li>A VPN icon appears in your status bar (🔒 or VPN badge)</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🤖 Android</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Open <strong>Google Play Store</strong></li>
+        <li>Search <strong>"WireGuard"</strong> → Install</li>
+        <li>Open the WireGuard app</li>
+        <li><strong>QR Code method:</strong>
+          <ul>
+            <li>Tap <strong>"+"</strong> (blue button) → <strong>"Scan from QR code"</strong></li>
+            <li>Scan the QR from Freebox OS</li>
+            <li>Name it → Save</li>
+          </ul>
+        </li>
+        <li><strong>File method:</strong>
+          <ul>
+            <li>Tap <strong>"+"</strong> → <strong>"Import from file or archive"</strong></li>
+            <li>Browse to your <code>.conf</code> file → select it</li>
+          </ul>
+        </li>
+        <li>Tap the tunnel → toggle <strong>ON</strong></li>
+        <li>Android asks to set up VPN → tap <strong>"OK"</strong></li>
+        <li>Key icon (🔑) appears in status bar = connected!</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3 id="wg-desktop">⚡💻 WireGuard on Desktop (Windows / macOS)</h3>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>💻 Windows</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Go to <a href="https://www.wireguard.com/install/" target="_blank">wireguard.com/install</a></li>
+        <li>Click <strong>"Download Windows Installer"</strong></li>
+        <li>Run the <code>.msi</code> file → <strong>Next → Install → Finish</strong></li>
+        <li>WireGuard opens (also available in system tray)</li>
+        <li>Click <strong>"Import tunnel(s) from file"</strong></li>
+        <li>Select your <code>.conf</code> file from Freebox</li>
+        <li>The tunnel appears in the list</li>
+        <li>Click <strong>"Activate"</strong></li>
+        <li>Status shows <strong style="color:var(--accent)">Active</strong> with green indicator = connected!</li>
+        <li>To disconnect: click <strong>"Deactivate"</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🍎 macOS</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Open <strong>App Store</strong> → search <strong>"WireGuard"</strong> → <strong>Get</strong></li>
+        <li>Or via terminal: <code>brew install wireguard-tools</code></li>
+        <li>Open WireGuard app</li>
+        <li>Click <strong>"+"</strong> → <strong>"Import Tunnel(s) from File..."</strong></li>
+        <li>Select your <code>.conf</code> file</li>
+        <li>macOS asks: <strong>"WireGuard would like to Add VPN Configurations"</strong> → enter your Mac password → <strong>"Allow"</strong></li>
+        <li>Click <strong>"Activate"</strong></li>
+        <li>WireGuard icon appears in menu bar → <strong style="color:var(--accent)">green dot</strong> = connected!</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3 id="wg-linux">⚡🐧 WireGuard on Linux (Ubuntu / Debian)</h3>
+
+  <div class="card">
+    <pre><code># 1. Install WireGuard
+sudo apt update && sudo apt install wireguard -y
+
+# 2. Copy your config file
+sudo cp ~/Downloads/freebox-phone.conf /etc/wireguard/freebox.conf
+sudo chmod 600 /etc/wireguard/freebox.conf
+
+# 3. Connect
+sudo wg-quick up freebox
+
+# 4. Verify
+sudo wg show          # Shows handshake + data transfer
+curl ifconfig.me      # Should show Freebox public IP
+
+# 5. Disconnect
+sudo wg-quick down freebox
+
+# 6. Auto-start on boot (optional)
+sudo systemctl enable wg-quick@freebox</code></pre>
+  </div>
+
+  <!-- OpenVPN Clients -->
+  <h3 id="ovpn-phone">🔐📱 OpenVPN on Phone (iPhone / Android)</h3>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🍎 iPhone / iPad</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Open <strong>App Store</strong></li>
+        <li>Search <strong>"OpenVPN Connect"</strong> (developer: OpenVPN Technologies)</li>
+        <li>Tap <strong>Get</strong> → Install</li>
+        <li>Send the <code>.ovpn</code> file to your phone:
+          <ul>
+            <li><strong>Email:</strong> Email it to yourself → open on phone → tap attachment → <strong>"Open in OpenVPN"</strong></li>
+            <li><strong>AirDrop:</strong> Send from Mac → accept on iPhone → opens in OpenVPN</li>
+            <li><strong>Files:</strong> Save to iCloud Drive → In OpenVPN: <strong>"+"</strong> → <strong>"Upload File"</strong> → select from Files</li>
+          </ul>
+        </li>
+        <li>OpenVPN shows the profile → tap <strong>"Add"</strong></li>
+        <li>Enter the <strong>username</strong> and <strong>password</strong> you created in Freebox OS</li>
+        <li>Tap the <strong>toggle switch</strong> to connect</li>
+        <li>iOS asks <strong>"Allow VPN?"</strong> → tap <strong>"Allow"</strong></li>
+        <li>Status: <strong>Connected</strong> → VPN icon appears in status bar</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🤖 Android</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Open <strong>Play Store</strong> → search <strong>"OpenVPN Connect"</strong> → Install</li>
+        <li>Open the app</li>
+        <li>Tap <strong>"+"</strong> → <strong>"Upload File"</strong></li>
+        <li>Browse to your <code>.ovpn</code> file (Downloads folder, email attachment, or cloud storage)</li>
+        <li>Tap <strong>"Import"</strong></li>
+        <li>Enter <strong>username</strong> and <strong>password</strong></li>
+        <li>Tap <strong>"Connect"</strong></li>
+        <li>Android asks to allow VPN → tap <strong>"OK"</strong></li>
+        <li>Key icon (🔑) appears in status bar = connected!</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3 id="ovpn-desktop">🔐💻 OpenVPN on Desktop (Windows / macOS)</h3>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>💻 Windows</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Download <strong>OpenVPN Connect</strong> from <a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></li>
+        <li>Run the installer → <strong>Next → Install → Finish</strong></li>
+        <li>Windows may ask to install a <strong>TAP adapter</strong> → click <strong>"Yes"</strong> (required!)</li>
+        <li>Open OpenVPN Connect</li>
+        <li>Click <strong>"+"</strong> → <strong>"Upload File"</strong></li>
+        <li>Select your <code>.ovpn</code> file</li>
+        <li>Enter <strong>username</strong> and <strong>password</strong> from Freebox</li>
+        <li>Click <strong>"Connect"</strong></li>
+        <li>System tray icon turns <strong style="color:var(--accent)">green</strong> = connected!</li>
+      </ol>
+      <div class="warn" style="margin-top:8px">⚠️ If connection fails, try <strong>Run as Administrator</strong>: right-click OpenVPN Connect → "Run as administrator"</div>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🍎 macOS</h4>
+    <div class="expand-body">
+      <ol style="margin-top:10px">
+        <li>Download <strong>OpenVPN Connect</strong> from <a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></li>
+        <li>Or install <strong>Tunnelblick</strong> (free, open source): <a href="https://tunnelblick.net" target="_blank">tunnelblick.net</a></li>
+        <li>Open the app → drag & drop your <code>.ovpn</code> file into the window</li>
+        <li>Or: click <strong>"+"</strong> → <strong>"Import from file"</strong> → select file</li>
+        <li>Enter credentials → click <strong>"Connect"</strong></li>
+        <li>macOS asks for your admin password → enter it</li>
+        <li>VPN icon appears in menu bar = connected!</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3 id="ovpn-linux">🔐🐧 OpenVPN on Linux (Ubuntu / Debian)</h3>
+
+  <div class="card">
+    <pre><code># 1. Install OpenVPN
+sudo apt update && sudo apt install openvpn -y
+
+# 2. Connect (foreground — see output)
+sudo openvpn --config ~/Downloads/freebox.ovpn
+# Enter username and password when prompted
+# Ctrl+C to disconnect
+
+# 3. Connect (background — daemon mode)
+sudo openvpn --config ~/Downloads/freebox.ovpn --daemon
+# To disconnect: sudo killall openvpn
+
+# 4. Auto-start on boot
+sudo cp ~/Downloads/freebox.ovpn /etc/openvpn/client/freebox.conf
+# Create credentials file:
+echo -e "your-username\nyour-password" | sudo tee /etc/openvpn/client/freebox-auth.txt
+sudo chmod 600 /etc/openvpn/client/freebox-auth.txt
+# Add "auth-user-pass freebox-auth.txt" to freebox.conf
+sudo systemctl enable openvpn-client@freebox
+
+# 5. Verify
+curl ifconfig.me      # Should show Freebox public IP</code></pre>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 3: TEST                               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 id="phase3"><span class="phase phase-test">PHASE 3</span> Test Everything Works</h2>
+  <p>You MUST verify your VPN is actually working. Here are 5 tests to run from every connected device.</p>
+
+  <h3 id="test-desktop">💻 Test from Desktop (Windows / macOS / Linux)</h3>
+
+  <div class="check-grid">
+    <div class="check-card">
+      <div class="icon">🕵️</div>
+      <div class="title">Test 1: IP Check</div>
+      <div class="desc">Open browser → <a href="https://whatismyip.com" target="_blank">whatismyip.com</a><br>Should show your <strong>Freebox's public IP</strong>, NOT your current network's IP</div>
+    </div>
+    <div class="check-card">
+      <div class="icon">📍</div>
+      <div class="title">Test 2: Location</div>
+      <div class="desc">Same site shows your city/country<br>Should match your <strong>Freebox's location</strong> (your home city)</div>
+    </div>
+    <div class="check-card">
+      <div class="icon">🔒</div>
+      <div class="title">Test 3: DNS Leak</div>
+      <div class="desc">Open <a href="https://dnsleaktest.com" target="_blank">dnsleaktest.com</a> → <strong>Extended Test</strong><br>DNS servers should NOT show your current ISP</div>
+    </div>
+    <div class="check-card">
+      <div class="icon">⚡</div>
+      <div class="title">Test 4: Speed</div>
+      <div class="desc">Open <a href="https://fast.com" target="_blank">fast.com</a><br>Small drop is normal: WireGuard ~5%, OpenVPN ~15-30%</div>
+    </div>
+  </div>
+
+  <h4>🔧 Command-Line Tests (Advanced)</h4>
+  <div class="card">
+    <pre><code># Check your public IP (should be Freebox IP)
+curl ifconfig.me
+
+# Check DNS resolution (should NOT be your current ISP)
+nslookup google.com
+
+# Ping your home network (should work through VPN)
+ping 192.168.1.1          # Your Freebox
+ping 192.168.1.100        # A device at home (NAS, Pi, etc.)
+
+# Check VPN interface is active
+# WireGuard:
+sudo wg show              # Shows handshake time + data transferred
+# OpenVPN:
+ip addr show tun0         # Shows the VPN tunnel interface
+
+# Trace the route (should go through VPN tunnel)
+traceroute google.com     # First hop should be VPN gateway</code></pre>
+  </div>
+
+  <h3 id="test-phone">📱 Test from Phone (iPhone / Android)</h3>
+
+  <div class="warn">⚠️ <strong>IMPORTANT:</strong> Disconnect from your home WiFi first! Use <strong>mobile data (4G/5G)</strong> or <strong>another WiFi network</strong>. Testing while on your Freebox's own WiFi proves nothing — you need to be OUTSIDE your home network.</div>
+
+  <div class="check-grid">
+    <div class="check-card">
+      <div class="icon">📶</div>
+      <div class="title">Step 1: Disconnect WiFi</div>
+      <div class="desc">Turn OFF WiFi on your phone<br>Use <strong>mobile data</strong> (4G/5G)</div>
+    </div>
+    <div class="check-card">
+      <div class="icon">🔒</div>
+      <div class="title">Step 2: Connect VPN</div>
+      <div class="desc">Open WireGuard/OpenVPN app<br>Toggle your tunnel <strong>ON</strong></div>
+    </div>
+    <div class="check-card">
+      <div class="icon">🕵️</div>
+      <div class="title">Step 3: Check IP</div>
+      <div class="desc">Open Safari/Chrome → <a href="https://whatismyip.com" target="_blank">whatismyip.com</a><br>Should show <strong>Freebox IP</strong>, not mobile carrier IP</div>
+    </div>
+    <div class="check-card">
+      <div class="icon">🏠</div>
+      <div class="title">Step 4: Access Home</div>
+      <div class="desc">Try <code>192.168.1.254</code> in browser<br>Should open Freebox OS = you're home!</div>
+    </div>
+  </div>
+
+  <h4>📱 Quick Test Checklist</h4>
+  <table>
+    <tr><th>Test</th><th>Without VPN</th><th>With VPN</th><th>Status</th></tr>
+    <tr><td>whatismyip.com</td><td>Shows mobile carrier IP</td><td>Shows Freebox public IP</td><td>✅ if different</td></tr>
+    <tr><td>Location</td><td>Current location</td><td>Your home city</td><td>✅ if home city</td></tr>
+    <tr><td>192.168.1.254</td><td>❌ Unreachable</td><td>Opens Freebox OS</td><td>✅ if accessible</td></tr>
+    <tr><td>Home NAS/files</td><td>❌ Unreachable</td><td>Accessible</td><td>✅ if accessible</td></tr>
+    <tr><td>Speed (fast.com)</td><td>Full speed</td><td>Slightly slower</td><td>✅ if usable</td></tr>
+  </table>
+
+  <h4>📱 The Ultimate Phone Test</h4>
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <ol>
+      <li>Turn OFF WiFi → use 4G</li>
+      <li>Connect VPN</li>
+      <li>Open browser → type <code>192.168.1.254</code></li>
+      <li><strong>If you see Freebox OS → VPN works perfectly!</strong> You're accessing your home router from mobile data through an encrypted tunnel.</li>
+      <li>Try accessing a shared folder on your home computer or NAS</li>
+      <li>Disconnect VPN → try <code>192.168.1.254</code> again → should fail. This proves the VPN was doing the work.</li>
+    </ol>
+  </div>
+
+  <h3 id="test-advanced">🔬 Advanced Tests</h3>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🔒 WebRTC Leak Test</h4>
+    <div class="expand-body">
+      <p style="margin-top:8px">Even with VPN, your browser might leak your real IP via WebRTC.</p>
+      <ol>
+        <li>Open <a href="https://browserleaks.com/webrtc" target="_blank">browserleaks.com/webrtc</a></li>
+        <li>Check "Public IP Address" — should show VPN IP, not your real IP</li>
+        <li>If it shows your real IP: disable WebRTC in your browser</li>
+        <li>Firefox: type <code>about:config</code> → search <code>media.peerconnection.enabled</code> → set to <strong>false</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🌐 IPv6 Leak Test</h4>
+    <div class="expand-body">
+      <p style="margin-top:8px">Some VPNs only tunnel IPv4, leaking your IPv6 address.</p>
+      <ol>
+        <li>Open <a href="https://test-ipv6.com" target="_blank">test-ipv6.com</a></li>
+        <li>If it shows an IPv6 address that's not your VPN's → you have a leak</li>
+        <li>Fix: disable IPv6 on your device while using VPN, or ensure your VPN handles IPv6</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>📡 Kill Switch Test</h4>
+    <div class="expand-body">
+      <p style="margin-top:8px">Test what happens when VPN drops unexpectedly.</p>
+      <ol>
+        <li>Connect to VPN</li>
+        <li>Open <a href="https://whatismyip.com" target="_blank">whatismyip.com</a> — note VPN IP</li>
+        <li>Quickly disconnect VPN (toggle OFF)</li>
+        <li>Immediately refresh whatismyip.com</li>
+        <li>If your <strong>real IP flashes</strong> even for a second → no kill switch protection</li>
+        <li>WireGuard: add <code>PostDown = iptables -I OUTPUT ! -o %i -m mark ! --mark 51820 -j DROP</code> for a basic kill switch</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card expand" onclick="this.classList.toggle('open')">
+    <h4>🏓 Latency Test</h4>
+    <div class="expand-body">
+      <p style="margin-top:8px">Measure the VPN overhead in milliseconds.</p>
+      <pre><code># Without VPN:
+ping -c 10 google.com | tail -1
+# Example: avg 15ms
+
+# With VPN:
+ping -c 10 google.com | tail -1
+# Example: avg 25ms
+
+# Difference = VPN overhead
+# WireGuard: typically 5-15ms extra
+# OpenVPN: typically 20-50ms extra</code></pre>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TROUBLESHOOTING                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 id="troubleshoot">🔧 Troubleshooting</h2>
+
+  <table>
+    <tr><th>Problem</th><th>Protocol</th><th>Solution</th></tr>
+    <tr><td>Can't access mafreebox.freebox.fr</td><td>Both</td><td>Make sure you're on Freebox WiFi/Ethernet. Try <code>192.168.1.254</code></td></tr>
+    <tr><td>WireGuard handshake never completes</td><td>WG</td><td>Check port 51820/UDP is open. Verify peer public key matches. Restart Freebox</td></tr>
+    <tr><td>OpenVPN "AUTH_FAILED"</td><td>OVPN</td><td>Wrong username/password. Re-check credentials in Freebox OS → Users</td></tr>
+    <tr><td>Connected but no internet</td><td>Both</td><td>Check DNS settings. Try adding <code>DNS = 1.1.1.1</code> to WireGuard config</td></tr>
+    <tr><td>Can't reach home devices (192.168.x.x)</td><td>Both</td><td>Check AllowedIPs includes <code>192.168.1.0/24</code>. Check Freebox firewall</td></tr>
+    <tr><td>VPN works on WiFi but not on 4G</td><td>Both</td><td>Your mobile carrier may block VPN ports. Try port 443/TCP for OpenVPN</td></tr>
+    <tr><td>Connection drops after sleep</td><td>OVPN</td><td>WireGuard reconnects instantly. OpenVPN: enable "Seamless Tunnel" in app settings</td></tr>
+    <tr><td>Slow speeds</td><td>Both</td><td>WG: try <code>MTU = 1380</code>. OVPN: switch to UDP. Check your upload speed at home (VPN is limited by home upload)</td></tr>
+    <tr><td>DNS leak detected</td><td>Both</td><td>WG: add <code>DNS = 1.1.1.1, 8.8.8.8</code>. OVPN: check server pushes DNS</td></tr>
+    <tr><td>QR code won't scan</td><td>WG</td><td>Increase screen brightness. Try file import instead. Regenerate QR in Freebox OS</td></tr>
+    <tr><td>TAP adapter error (Windows)</td><td>OVPN</td><td>Reinstall OpenVPN Connect. Run as Administrator. Reboot PC</td></tr>
+    <tr><td>Public IP changed, VPN broken</td><td>Both</td><td>Set up Dynamic DNS: Freebox OS → Paramètres → DynDNS. Use DuckDNS</td></tr>
+    <tr><td>"WireGuard not available" on Freebox</td><td>WG</td><td>Revolution/Mini 4K don't support WG. Use OpenVPN. Or update firmware on newer models</td></tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- WHAT'S NEXT                                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 id="next">🚀 What's Next?</h2>
+
+  <div class="grid2">
+    <div class="card" style="cursor:pointer" onclick="location.href='index.html'">
+      <h4>🚀 Explore the App</h4>
+      <p style="font-size:.82rem;color:var(--text2)">Learn VPN concepts in the interactive educational app</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="location.href='docs.html'">
+      <h4>📚 Full Documentation</h4>
+      <p style="font-size:.82rem;color:var(--text2)">Deep dive into WireGuard, OpenVPN, Freebox, Docker, Pi</p>
+    </div>
+    <div class="card">
+      <h4>🔒 VPN Client on Freebox</h4>
+      <p style="font-size:.82rem;color:var(--text2)">Route all home traffic through NordVPN/ProtonVPN. See <a href="docs.html#freebox-revolution">Revolution guide</a></p>
+    </div>
+    <div class="card">
+      <h4>🍓 Raspberry Pi Server</h4>
+      <p style="font-size:.82rem;color:var(--text2)">More control: custom DNS, Pi-hole ad blocking. See <a href="docs.html#raspberry-pi">Pi guide</a></p>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top:20px">
+    <strong>Quick Tips:</strong><br>
+    • Disconnect VPN when not needed — saves phone battery<br>
+    • VPN doesn't make you invincible — still avoid suspicious links!<br>
+    • Keep your VPN apps updated for security fixes<br>
+    • Your VPN speed is limited by your home <strong>upload</strong> speed<br>
+    • WireGuard reconnects instantly after sleep — OpenVPN takes a few seconds
+  </div>
+
+  <p style="text-align:center;margin-top:32px;font-size:1.5rem">🚀🛡️✅</p>
+  <p style="text-align:center;color:var(--text3);font-size:.85rem">Stay safe out there, Commander!</p>
+
+</main>
+</body>
+</html>
