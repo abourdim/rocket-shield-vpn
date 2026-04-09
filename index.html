@@ -1086,7 +1086,13 @@ const i18n = {
     fb2warn:"⚠️ Ask a parent or the account holder for the Freebox password!",
     fb3title:"VPN Client: Add a Config",
     fb3text:"The VPN Client lets your Freebox route ALL home internet traffic through an external VPN provider. Here's how to set it up:",
-    fb3step1:"<strong>1. Get a config file</strong> — 3 sources:<br>• <strong>VPN provider</strong>: NordVPN, ProtonVPN, Mullvad → download .ovpn or .conf from your account<br>• <strong>VPN Gate</strong> (free!): <a href='https://www.vpngate.net/' target='_blank' style='color:var(--accent)'>vpngate.net</a> → pick a server → download .ovpn (user: vpn / pass: vpn)<br>• <strong>Your own server</strong>: from your other Freebox or Raspberry Pi",
+    fb3step1:"<strong>1. Get a config file</strong> — pick one of these sources (tap for details):",
+    fb3src1:"<strong>🎓 VPN Gate (free, no signup!)</strong><br>1. Go to <a href='https://www.vpngate.net/' target='_blank' style='color:var(--accent)'>vpngate.net</a><br>2. Browse the server list — pick a country with good speed<br>3. Click <strong>\"OpenVPN Config file\"</strong> next to the server<br>4. Choose <strong>UDP</strong> (faster) or TCP (more reliable)<br>5. Save the <code>.ovpn</code> file<br>6. Credentials: Username <code>vpn</code> / Password <code>vpn</code>",
+    fb3src2:"<strong>🔒 NordVPN</strong><br>1. Log in at <a href='https://my.nordaccount.com/' target='_blank' style='color:var(--accent)'>my.nordaccount.com</a><br>2. Go to <strong>Services → NordVPN</strong><br>3. Click <strong>\"Manual Setup\"</strong><br>4. Tab: <strong>OpenVPN</strong> → pick a server (e.g., fr123.nordvpn.com)<br>5. Download the <code>.ovpn</code> file (UDP recommended)<br>6. Note your <strong>service credentials</strong> (different from your login!)",
+    fb3src3:"<strong>🛡️ ProtonVPN</strong><br>1. Log in at <a href='https://account.protonvpn.com/' target='_blank' style='color:var(--accent)'>account.protonvpn.com</a><br>2. Go to <strong>Downloads</strong><br>3. Select <strong>OpenVPN configuration files</strong> (or WireGuard)<br>4. Choose platform, protocol (UDP), and server<br>5. Click <strong>Download</strong><br>6. Use your ProtonVPN credentials",
+    fb3src4:"<strong>🔐 Mullvad</strong><br>1. Go to <a href='https://mullvad.net/en/account/openvpn-config' target='_blank' style='color:var(--accent)'>mullvad.net/account</a> (or WireGuard config page)<br>2. Select platform, country, city<br>3. Click <strong>Download</strong><br>4. No username/password — Mullvad uses account number only",
+    fb3src5:"<strong>📦 Your Own Freebox Server</strong><br>1. Open <code>mafreebox.freebox.fr</code> on your other Freebox<br>2. Go to <strong>Serveur VPN → WireGuard</strong> (or OpenVPN)<br>3. Click <strong>download icon</strong> 📥 next to your user<br>4. Save the <code>.conf</code> or <code>.ovpn</code> file<br>5. Import into this Freebox's VPN Client",
+    fb3src6:"<strong>🍓 Your Raspberry Pi Server</strong><br>1. Run <code>bash rocket-shield.sh</code> on your Pi<br>2. Select <strong>option 3 → Add Client</strong><br>3. Config saved to <code>./vpn-configs/</code><br>4. Copy the <code>.conf</code> file to this machine",
     fb3step2:"<strong>2. Open VPN Client</strong> — In Freebox OS, go to <strong>VPN → VPN Client → Add a connection</strong>",
     fb3step3:"<strong>3. Import the file</strong> — Select your protocol, upload the config file, and enter your VPN username/password",
     fb3step4:"<strong>4. Save</strong> — Click Save and your configuration is ready to activate!",
@@ -2162,7 +2168,15 @@ function renderFreeboxStep() {
         </div>
       </div>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step1')}</div>
+        <div class="card" style="padding:12px;font-size:.85rem;font-weight:700">${t('fb3step1')}</div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--accent)" onclick="toggleStepDetail('fb3-vpngate')">${t('fb3src1').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-vpngate">${t('fb3src1').substring(t('fb3src1').indexOf('<br>')+4)}</div></div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--accent2)" onclick="toggleStepDetail('fb3-nord')">${t('fb3src2').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-nord">${t('fb3src2').substring(t('fb3src2').indexOf('<br>')+4)}</div></div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--accent3)" onclick="toggleStepDetail('fb3-proton')">${t('fb3src3').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-proton">${t('fb3src3').substring(t('fb3src3').indexOf('<br>')+4)}</div></div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--orange)" onclick="toggleStepDetail('fb3-mullvad')">${t('fb3src4').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-mullvad">${t('fb3src4').substring(t('fb3src4').indexOf('<br>')+4)}</div></div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--yellow)" onclick="toggleStepDetail('fb3-freebox')">${t('fb3src5').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-freebox">${t('fb3src5').substring(t('fb3src5').indexOf('<br>')+4)}</div></div>
+        <div class="card lp-expand" style="padding:12px;font-size:.82rem;border-left:3px solid var(--pink)" onclick="toggleStepDetail('fb3-pi')">${t('fb3src6').split('<br>')[0]}<div class="lp-expand-detail" id="fb3-pi">${t('fb3src6').substring(t('fb3src6').indexOf('<br>')+4)}</div></div>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step2')}</div>
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step3')}</div>
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb3step4')}</div>
