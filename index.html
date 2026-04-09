@@ -1054,10 +1054,14 @@ const i18n = {
     fb5tip:"💡 The Freebox will generate a config file you can download for your devices!",
     fb6title:"VPN Server: Connect Remotely",
     fb6text:"Now that your Freebox VPN Server is running, here's how to connect from outside your home:",
-    fb6step1:"<strong>1. Download config</strong> — From Freebox OS, download the client configuration file for your user",
-    fb6step2:"<strong>2. Install on your device</strong> — Install the WireGuard or OpenVPN app on your phone/laptop",
-    fb6step3:"<strong>3. Import config</strong> — Open the VPN app and import the config file from your Freebox",
-    fb6step4:"<strong>4. Connect!</strong> — When you're away from home, turn on the VPN to access your home network securely",
+    fb6step1:"<strong>1. Download config</strong> — In Freebox OS → VPN Server → click your user → <strong>Download configuration file</strong>. Save the <code>.conf</code> (WireGuard) or <code>.ovpn</code> (OpenVPN) file.",
+    fb6step2a:"<strong>2a. 📱 iPhone/iPad</strong> — Open App Store → search <strong>\"WireGuard\"</strong> (by WireGuard Development Team) → Install. For OpenVPN: search <strong>\"OpenVPN Connect\"</strong> → Install.",
+    fb6step2b:"<strong>2b. 🤖 Android</strong> — Open Play Store → search <strong>\"WireGuard\"</strong> → Install. For OpenVPN: search <strong>\"OpenVPN Connect\"</strong> → Install.",
+    fb6step2c:"<strong>2c. 💻 PC/Mac</strong> — WireGuard: download from <strong>wireguard.com/install</strong>. macOS: also on App Store. Ubuntu: <code>sudo apt install wireguard</code>. OpenVPN: download from <strong>openvpn.net/client</strong>.",
+    fb6step3a:"<strong>3a. 📱 Phone import</strong> — Send the config file to your phone (email, AirDrop, USB). Open it → it will ask <strong>\"Open in WireGuard?\"</strong> → Tap Yes → Tap <strong>\"Allow\"</strong> to add the VPN tunnel.",
+    fb6step3b:"<strong>3b. 💻 PC/Mac import</strong> — WireGuard app: click <strong>\"Import tunnel(s) from file\"</strong> (or <code>+</code> button) → select your <code>.conf</code> file. OpenVPN: click <strong>\"+\"</strong> → <strong>\"Import from file\"</strong> → select your <code>.ovpn</code> file.",
+    fb6step3c:"<strong>3c. 🐧 Linux import</strong> — <code>sudo cp your-config.conf /etc/wireguard/wg0.conf</code> then <code>sudo wg-quick up wg0</code>. For OpenVPN: <code>sudo openvpn --config your-config.ovpn</code>.",
+    fb6step4:"<strong>4. Connect!</strong> — Open the app → tap the <strong>toggle switch</strong> next to your tunnel name → it turns green = connected! When away from home, just toggle ON to access your home network securely.",
     fb6note:"🏠 You can now access your home files, printers, and devices from anywhere in the world!",
     fb7title:"Checklist & Troubleshooting",
     fb7text:"Let's verify everything is working! Complete each check:",
@@ -2029,9 +2033,15 @@ function renderFreeboxStep() {
       </div>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step1')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step4')}</div>
+        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:12px 0 6px;color:var(--accent2)">📥 Step 2: Install the VPN App</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2a')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2b')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2c')}</div>
+        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:12px 0 6px;color:var(--accent3)">📂 Step 3: Import the Config File</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3a')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3b')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3c')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('fb6step4')}</div>
       </div>
       <p style="margin-top:10px;color:var(--accent);font-weight:700;font-size:.85rem">${t('fb6note')}</p></div></div>`;
 

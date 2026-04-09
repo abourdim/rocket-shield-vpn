@@ -595,12 +595,43 @@ bash rocket-shield.sh
     <p>See the full <a href="#" onclick="showSection('freebox')">Freebox Guide</a> for details.</p>
 
     <h2>Part 6: Connect Remotely</h2>
-    <ol>
-      <li>Install WireGuard app on your phone (<a href="https://apps.apple.com/app/wireguard/id1441195209" target="_blank">iOS</a> / <a href="https://play.google.com/store/apps/details?id=com.wireguard.android" target="_blank">Android</a>)</li>
-      <li>Import the client config file (or scan QR code from launch script)</li>
-      <li>Toggle the connection ON when away from home</li>
-      <li>You now have encrypted access to your home network!</li>
-    </ol>
+
+    <h3>Step 1: Download your config file</h3>
+    <p>In Freebox OS (or from your server), download the client configuration file: <code>.conf</code> for WireGuard or <code>.ovpn</code> for OpenVPN.</p>
+
+    <h3>Step 2: Install the VPN app</h3>
+    <table>
+      <tr><th>Platform</th><th>WireGuard App</th><th>OpenVPN App</th></tr>
+      <tr><td>📱 iPhone/iPad</td><td>App Store → search <strong>"WireGuard"</strong> (by WireGuard Development Team)</td><td>App Store → <strong>"OpenVPN Connect"</strong></td></tr>
+      <tr><td>🤖 Android</td><td>Play Store → search <strong>"WireGuard"</strong></td><td>Play Store → <strong>"OpenVPN Connect"</strong></td></tr>
+      <tr><td>💻 macOS</td><td><a href="https://apps.apple.com/app/wireguard/id1451685025" target="_blank">App Store</a> or <code>brew install wireguard-tools</code></td><td><a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></td></tr>
+      <tr><td>💻 Windows</td><td><a href="https://www.wireguard.com/install/" target="_blank">wireguard.com/install</a></td><td><a href="https://openvpn.net/client/" target="_blank">openvpn.net/client</a></td></tr>
+      <tr><td>🐧 Ubuntu/Linux</td><td><code>sudo apt install wireguard</code></td><td><code>sudo apt install openvpn</code></td></tr>
+    </table>
+
+    <h3>Step 3: Import the config file</h3>
+    <div class="doc-card">
+      <h4>📱 Phone (iOS / Android)</h4>
+      <p>Send the config file to your phone (email attachment, AirDrop, USB, or cloud storage). Tap the file → it will prompt <strong>"Open in WireGuard?"</strong> → Tap Yes → Tap <strong>"Allow"</strong> to add the VPN tunnel.</p>
+      <p>Alternative: In the WireGuard app, tap <strong>"+"</strong> → <strong>"Create from file or archive"</strong> → select the <code>.conf</code> file.</p>
+      <p>QR code method: If you used the launch script, it generates a QR code. In WireGuard app, tap <strong>"+"</strong> → <strong>"Create from QR code"</strong> → scan it.</p>
+    </div>
+    <div class="doc-card">
+      <h4>💻 PC / Mac (WireGuard)</h4>
+      <p>Open the WireGuard app → click <strong>"Import tunnel(s) from file"</strong> (or the <strong>"+"</strong> button on macOS) → navigate to your <code>.conf</code> file → select it → the tunnel appears in the list.</p>
+    </div>
+    <div class="doc-card">
+      <h4>💻 PC / Mac (OpenVPN)</h4>
+      <p>Open OpenVPN Connect → click <strong>"+"</strong> → <strong>"Import from file"</strong> → select your <code>.ovpn</code> file → enter credentials if prompted → click <strong>"Connect"</strong>.</p>
+    </div>
+    <div class="doc-card">
+      <h4>🐧 Linux (command line)</h4>
+      <p>WireGuard: <code>sudo cp your-config.conf /etc/wireguard/wg0.conf &amp;&amp; sudo wg-quick up wg0</code></p>
+      <p>OpenVPN: <code>sudo openvpn --config your-config.ovpn</code></p>
+    </div>
+
+    <h3>Step 4: Connect!</h3>
+    <p>Open the app → tap/click the <strong>toggle switch</strong> next to your tunnel name → it turns <strong style="color:var(--accent)">green</strong> = connected! When you're away from home, just toggle ON to access your home network securely.</p>
 
     <h2>Part 7: Verify & Test</h2>
     <table>
