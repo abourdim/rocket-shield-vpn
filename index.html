@@ -1058,9 +1058,15 @@ const i18n = {
     fb6step2a:"<strong>2a. 📱 iPhone/iPad</strong> — Open App Store → search <strong>\"WireGuard\"</strong> (by WireGuard Development Team) → Install. For OpenVPN: search <strong>\"OpenVPN Connect\"</strong> → Install.",
     fb6step2b:"<strong>2b. 🤖 Android</strong> — Open Play Store → search <strong>\"WireGuard\"</strong> → Install. For OpenVPN: search <strong>\"OpenVPN Connect\"</strong> → Install.",
     fb6step2c:"<strong>2c. 💻 PC/Mac</strong> — WireGuard: download from <strong>wireguard.com/install</strong>. macOS: also on App Store. Ubuntu: <code>sudo apt install wireguard</code>. OpenVPN: download from <strong>openvpn.net/client</strong>.",
-    fb6step3a:"<strong>3a. 📱 Phone import</strong> — Send the config file to your phone (email, AirDrop, USB). Open it → it will ask <strong>\"Open in WireGuard?\"</strong> → Tap Yes → Tap <strong>\"Allow\"</strong> to add the VPN tunnel.",
-    fb6step3b:"<strong>3b. 💻 PC/Mac import</strong> — WireGuard app: click <strong>\"Import tunnel(s) from file\"</strong> (or <code>+</code> button) → select your <code>.conf</code> file. OpenVPN: click <strong>\"+\"</strong> → <strong>\"Import from file\"</strong> → select your <code>.ovpn</code> file.",
-    fb6step3c:"<strong>3c. 🐧 Linux import</strong> — <code>sudo cp your-config.conf /etc/wireguard/wg0.conf</code> then <code>sudo wg-quick up wg0</code>. For OpenVPN: <code>sudo openvpn --config your-config.ovpn</code>.",
+    fb6wgTitle:"⚡ Import WireGuard (.conf)",
+    fb6wg3a:"<strong>📱 Phone</strong> — Send the <code>.conf</code> to your phone (email, AirDrop, USB, cloud). Tap the file → <strong>\"Open in WireGuard?\"</strong> → Yes → <strong>\"Allow\"</strong>. Or: open WireGuard app → <strong>\"+\"</strong> → <strong>\"Create from file or archive\"</strong> → select the file. Or: <strong>\"+\"</strong> → <strong>\"Create from QR code\"</strong> → scan.",
+    fb6wg3b:"<strong>💻 PC/Mac</strong> — Open WireGuard app → click <strong>\"Import tunnel(s) from file\"</strong> (Windows) or <strong>\"+\"</strong> → <strong>\"Import from file\"</strong> (macOS) → select your <code>.conf</code> file → tunnel appears in the list → click <strong>\"Activate\"</strong>.",
+    fb6wg3c:"<strong>🐧 Linux</strong> — <code>sudo cp your-config.conf /etc/wireguard/wg0.conf &amp;&amp; sudo chmod 600 /etc/wireguard/wg0.conf &amp;&amp; sudo wg-quick up wg0</code>. Auto-start on boot: <code>sudo systemctl enable wg-quick@wg0</code>.",
+    fb6ovpnTitle:"🔐 Import OpenVPN (.ovpn)",
+    fb6ovpn3a:"<strong>📱 iPhone/iPad</strong> — Send the <code>.ovpn</code> to your phone. Tap the file → <strong>\"Open in OpenVPN Connect?\"</strong> → Yes → Review the profile → Tap <strong>\"Add\"</strong> → Enter username/password if asked → Tap the toggle to <strong>connect</strong>.",
+    fb6ovpn3b:"<strong>🤖 Android</strong> — Open OpenVPN Connect → tap <strong>\"+\"</strong> → <strong>\"Upload File\"</strong> → browse to your <code>.ovpn</code> → tap <strong>\"Import\"</strong> → enter credentials → tap <strong>\"Connect\"</strong>. Or: tap the <code>.ovpn</code> file directly from your file manager.",
+    fb6ovpn3c:"<strong>💻 PC/Mac</strong> — Open OpenVPN Connect → click <strong>\"+\"</strong> → <strong>\"Upload File\"</strong> → drag or browse to your <code>.ovpn</code> file → click <strong>\"Connect\"</strong> → enter username/password if prompted. On Windows: you may need to <strong>Run as Administrator</strong>.",
+    fb6ovpn3d:"<strong>🐧 Linux</strong> — <code>sudo openvpn --config your-config.ovpn</code> (foreground). For background: <code>sudo openvpn --config your-config.ovpn --daemon</code>. Auto-start: <code>sudo cp your-config.ovpn /etc/openvpn/client.conf &amp;&amp; sudo systemctl enable openvpn@client</code>.",
     fb6step4:"<strong>4. Connect!</strong> — Open the app → tap the <strong>toggle switch</strong> next to your tunnel name → it turns green = connected! When away from home, just toggle ON to access your home network securely.",
     fb6note:"🏠 You can now access your home files, printers, and devices from anywhere in the world!",
     fb7title:"Checklist & Troubleshooting",
@@ -2037,11 +2043,16 @@ function renderFreeboxStep() {
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2a')}</div>
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2b')}</div>
         <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step2c')}</div>
-        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:12px 0 6px;color:var(--accent3)">📂 Step 3: Import the Config File</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3a')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3b')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem">${t('fb6step3c')}</div>
-        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('fb6step4')}</div>
+        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:14px 0 6px;color:var(--accent)">${t('fb6wgTitle')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('fb6wg3a')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('fb6wg3b')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('fb6wg3c')}</div>
+        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin:14px 0 6px;color:var(--orange)">${t('fb6ovpnTitle')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('fb6ovpn3a')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('fb6ovpn3b')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('fb6ovpn3c')}</div>
+        <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('fb6ovpn3d')}</div>
+        <div class="card" style="padding:12px;font-size:.85rem;border-left:3px solid var(--accent2);margin-top:8px">${t('fb6step4')}</div>
       </div>
       <p style="margin-top:10px;color:var(--accent);font-weight:700;font-size:.85rem">${t('fb6note')}</p></div></div>`;
 
