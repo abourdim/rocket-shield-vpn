@@ -264,16 +264,40 @@ bash rocket-shield.sh
 
 ```
 rocket-shield-vpn/
-├── index.html              ← The entire web app (single file!)
-├── icon-512.png            ← App icon
-├── rocket-shield.sh        ← Launch script (Linux/macOS/Pi)
-├── rocket-shield.ps1       ← Launch script (Windows)
-├── Dockerfile              ← Docker container for web app
-├── docker-compose.yml      ← Docker Compose (web + optional VPN server)
-└── README.md               ← You're reading this
+├── index.html                 ← Main educational app (PWA)
+├── start-here.html            ← Server-first VPN setup guide
+├── docs.html                  ← HTML documentation hub
+│
+├── packet-journey.html        ← 🎬 Packet animation visualization
+├── attack-simulator.html      ← 🎮 10-level cyber defense game
+├── config-generator.html      ← ⚙️ WireGuard/OpenVPN config + QR generator
+├── speed-test.html            ← ⚡ Speed test dashboard
+├── vpn-status.html            ← 🛡️ Live VPN status checker
+├── password-generator.html    ← 🔐 Password & passphrase generator
+├── dns-explorer.html          ← 🌐 DNS resolution visualizer
+├── encryption-playground.html ← 🔒 Caesar/XOR/AES-256 playground
+├── crypto-quiz.html           ← 🧪 50-question cybersecurity quiz
+├── phishing-detector.html     ← 🎣 Spot-the-phishing training game
+├── firewall-builder.html      ← 🧱 Firewall rule builder + tester
+│
+├── icon-512.png               ← App icon
+├── manifest.json              ← PWA manifest
+├── sw.js                      ← Service worker (offline support)
+├── rocket-shield.sh           ← Launch script (Linux/macOS/Pi)
+├── rocket-shield.ps1          ← Launch script (Windows)
+├── Dockerfile                 ← Docker container
+├── docker-compose.yml         ← Docker Compose (web + optional VPN)
+│
+├── .github/workflows/
+│   └── deploy.yml             ← GitHub Pages auto-deploy
+│
+└── docs/                      ← 12 Markdown documentation files
+    ├── README.md, FAQ.md, STEP-BY-STEP.md, WIREGUARD.md, OPENVPN.md
+    ├── FREEBOX.md, FREEBOX-REVOLUTION.md, FREEBOX-WIREGUARD.md
+    ├── RASPBERRY-PI.md, DOCKER.md, ARCHITECTURE.md, LAUNCH-SCRIPT.md
 ```
 
-The **web app is one single HTML file** — HTML, CSS, JavaScript, translations, logo, animations — all embedded. The launch scripts add real VPN infrastructure on top.
+The **web app is one single HTML file** with 12 interactive tool pages. The launch scripts add real VPN infrastructure. Everything is PWA-enabled for offline use and installable on phones.
 
 ---
 
