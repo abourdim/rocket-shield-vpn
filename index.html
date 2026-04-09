@@ -572,6 +572,7 @@ body{
     <button class="nav-btn active" onclick="showPage('command')" data-page="command"><span>🚀</span> <span data-i18n="navCommand">Command Center</span></button>
     <button class="nav-btn" onclick="showPage('academy')" data-page="academy"><span>🧠</span> <span data-i18n="navAcademy">Academy</span></button>
     <button class="nav-btn" onclick="showPage('launchpad')" data-page="launchpad"><span>🔧</span> <span data-i18n="navLaunchpad">Launch Pad</span></button>
+    <button class="nav-btn" onclick="showPage('freebox')" data-page="freebox"><span>📦</span> <span data-i18n="navFreebox">Freebox VPN</span></button>
   </div>
 
   <!-- ═══════════════════════════════ -->
@@ -709,6 +710,26 @@ body{
     <div class="step-nav">
       <button class="btn btn-outline" id="stepPrev" onclick="stepNav(-1)" data-i18n="prev">⬅ Back</button>
       <button class="btn btn-primary" id="stepNext" onclick="stepNav(1)" data-i18n="next">Next ➡</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PAGE: FREEBOX VPN                          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="page" id="page-freebox">
+    <div style="text-align:center;margin:16px 0">
+      <div class="bytebot">
+        <div class="bytebot-antenna"></div>
+        <div class="bytebot-body">📦</div>
+      </div>
+      <div class="bytebot-speech" data-i18n="freeboxIntro">Let's configure VPN on your Freebox!</div>
+    </div>
+
+    <div class="steps-progress" id="freeboxProgress"></div>
+    <div id="freeboxContent"></div>
+    <div class="step-nav">
+      <button class="btn btn-outline" id="freeboxPrev" onclick="freeboxNav(-1)" data-i18n="prev">⬅ Back</button>
+      <button class="btn btn-primary" id="freeboxNext" onclick="freeboxNav(1)" data-i18n="next">Next ➡</button>
     </div>
   </div>
 
@@ -884,6 +905,58 @@ const i18n = {
     a12m:"Myth: VPNs make you 100% anonymous. Fact: They help a lot but aren't magic. Myth: VPNs are illegal. Fact: They're legal in most countries. Myth: Free VPNs are just as good. Fact: Many sell your data! Myth: VPNs slow you way down. Fact: Modern ones barely affect speed. Myth: Only hackers use VPNs. Fact: Billions of normal people do!",
     a12f:"Over 1.5 billion people worldwide use VPNs — including businesses, students, and families!",
     a12q:"VPNs make you 100% anonymous...",a12a:"True",a12b:"False — they help but aren't magic",a12c:"Only on Tuesdays",a12x:"1",
+    // Freebox VPN
+    navFreebox:"Freebox VPN",
+    freeboxIntro:"Let's configure VPN on your Freebox!",
+    fb1title:"What is a Freebox?",
+    fb1text:"The <strong>Freebox</strong> is an internet router made by Free (a French ISP). It's special because it has a <strong>built-in VPN</strong> — both as a client and a server! That means you can protect your whole home network or access your home from anywhere.",
+    fb1feat1:"<strong>📦 Router + VPN</strong> — No extra hardware needed!",
+    fb1feat2:"<strong>🔒 VPN Client</strong> — Route all home traffic through a VPN provider",
+    fb1feat3:"<strong>🌍 VPN Server</strong> — Access your home network from anywhere in the world",
+    fb1note:"The Freebox supports <strong>OpenVPN</strong> and <strong>WireGuard</strong> protocols.",
+    fb2title:"Access Freebox OS",
+    fb2text:"To configure VPN, you need to open the Freebox management interface:",
+    fb2step1:"<strong>Step 1:</strong> Make sure you're connected to your Freebox network (WiFi or Ethernet)",
+    fb2step2:"<strong>Step 2:</strong> Open a browser and go to <strong>mafreebox.freebox.fr</strong>",
+    fb2step3:"<strong>Step 3:</strong> Log in with your Freebox password (set it up first if you haven't)",
+    fb2step4:"<strong>Step 4:</strong> Navigate to <strong>Settings → VPN</strong> in the menu",
+    fb2warn:"⚠️ Ask a parent or the account holder for the Freebox password!",
+    fb3title:"VPN Client: Add a Config",
+    fb3text:"The VPN Client lets your Freebox route ALL home internet traffic through an external VPN provider. Here's how to set it up:",
+    fb3step1:"<strong>1. Get a config file</strong> — Download an OpenVPN (.ovpn) or WireGuard (.conf) file from your VPN provider (NordVPN, ProtonVPN, Mullvad, etc.)",
+    fb3step2:"<strong>2. Open VPN Client</strong> — In Freebox OS, go to <strong>VPN → VPN Client → Add a connection</strong>",
+    fb3step3:"<strong>3. Import the file</strong> — Select your protocol, upload the config file, and enter your VPN username/password",
+    fb3step4:"<strong>4. Save</strong> — Click Save and your configuration is ready to activate!",
+    fb3tip:"💡 WireGuard is faster and more modern. OpenVPN is more widely supported. Both work great!",
+    fb4title:"VPN Client: Connect",
+    fb4text:"Now let's activate the VPN and verify it works:",
+    fb4step1:"<strong>1. Enable</strong> — Toggle the VPN Client connection to <strong>ON</strong> in Freebox OS",
+    fb4step2:"<strong>2. Check status</strong> — The Freebox dashboard will show 'Connected' with a green indicator",
+    fb4step3:"<strong>3. Verify IP</strong> — Visit <strong>whatismyip.com</strong> from any device on your network — your IP should now match the VPN server location",
+    fb4step4:"<strong>4. Test DNS</strong> — Visit <strong>dnsleaktest.com</strong> to make sure there are no DNS leaks",
+    fb4note:"🌍 All devices on your home network are now protected — phones, tablets, computers, smart TVs!",
+    fb5title:"VPN Server: Setup",
+    fb5text:"The VPN Server lets you connect <strong>back to your home network</strong> when you're away (at school, traveling, etc.). It's like having a secret tunnel home!",
+    fb5step1:"<strong>1. Open VPN Server</strong> — In Freebox OS, go to <strong>VPN → VPN Server</strong>",
+    fb5step2:"<strong>2. Choose protocol</strong> — Select <strong>WireGuard</strong> (recommended) or <strong>OpenVPN</strong>",
+    fb5step3:"<strong>3. Enable the server</strong> — Toggle it ON and configure the port (default is fine)",
+    fb5step4:"<strong>4. Create a user</strong> — Add a VPN user with a strong username and password",
+    fb5tip:"💡 The Freebox will generate a config file you can download for your devices!",
+    fb6title:"VPN Server: Connect Remotely",
+    fb6text:"Now that your Freebox VPN Server is running, here's how to connect from outside your home:",
+    fb6step1:"<strong>1. Download config</strong> — From Freebox OS, download the client configuration file for your user",
+    fb6step2:"<strong>2. Install on your device</strong> — Install the WireGuard or OpenVPN app on your phone/laptop",
+    fb6step3:"<strong>3. Import config</strong> — Open the VPN app and import the config file from your Freebox",
+    fb6step4:"<strong>4. Connect!</strong> — When you're away from home, turn on the VPN to access your home network securely",
+    fb6note:"🏠 You can now access your home files, printers, and devices from anywhere in the world!",
+    fb7title:"Checklist & Troubleshooting",
+    fb7text:"Let's verify everything is working! Complete each check:",
+    fb7check1:"📦 I can access mafreebox.freebox.fr from my home network",
+    fb7check2:"🔒 VPN Client: My IP changes when I enable the VPN client",
+    fb7check3:"🌍 VPN Server: I can connect to my home from outside",
+    fb7check4:"🛡️ No DNS leaks detected on dnsleaktest.com",
+    fb7check5:"⚡ Internet speed is acceptable with VPN enabled",
+    fb7trouble:"<strong>Common fixes:</strong> Restart Freebox • Re-import config file • Check port forwarding • Update Freebox firmware • Try switching between OpenVPN and WireGuard",
   },
   fr: {
     logoSub:"VPN pour Jeunes Explorateurs",navCommand:"Centre de Commande",navAcademy:"Académie",navLaunchpad:"Rampe de Lancement",
@@ -1215,6 +1288,8 @@ let completedCards = { newbie: new Set(), explorer: new Set(), advanced: new Set
 let bytebotClicks = 0;
 let selectedServer = 0;
 let checks = [false, false, false, false];
+let freeboxStep = 0;
+let freeboxChecks = [false, false, false, false, false];
 let konamiSeq = [];
 const konamiCode = [38,38,40,40,37,39,37,39,66,65];
 const shipColorOptions = [
@@ -1270,6 +1345,8 @@ function init() {
   renderConceptGrid();
   renderStep();
   updateStepsProgress();
+  renderFreeboxStep();
+  updateFreeboxProgress();
 }
 
 function generateStars() {
@@ -1641,6 +1718,105 @@ function toggleCheck(i) {
   checks[i] = !checks[i];
   renderStep();
   if (checks.every(c => c)) fireConfetti();
+}
+
+// ═══════════════════════════════════════════
+// FREEBOX VPN
+// ═══════════════════════════════════════════
+const totalFreeboxSteps = 7;
+
+function renderFreeboxStep() {
+  const el = document.getElementById('freeboxContent');
+  const s = freeboxStep;
+  let html = '';
+  if (s === 0) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">1</div><div class="step-title">${t('fb1title')}</div></div>
+      <div class="step-content"><p>${t('fb1text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb1feat1')}</div>
+        <div class="card" style="padding:12px">${t('fb1feat2')}</div>
+        <div class="card" style="padding:12px">${t('fb1feat3')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent2);font-weight:700">${t('fb1note')}</p></div></div>`;
+  } else if (s === 1) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">2</div><div class="step-title">${t('fb2title')}</div></div>
+      <div class="step-content"><p>${t('fb2text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb2step1')}</div>
+        <div class="card" style="padding:12px">${t('fb2step2')}</div>
+        <div class="card" style="padding:12px">${t('fb2step3')}</div>
+        <div class="card" style="padding:12px">${t('fb2step4')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--yellow);font-weight:700">${t('fb2warn')}</p></div></div>`;
+  } else if (s === 2) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">3</div><div class="step-title">${t('fb3title')}</div></div>
+      <div class="step-content"><p>${t('fb3text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb3step1')}</div>
+        <div class="card" style="padding:12px">${t('fb3step2')}</div>
+        <div class="card" style="padding:12px">${t('fb3step3')}</div>
+        <div class="card" style="padding:12px">${t('fb3step4')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb3tip')}</p></div></div>`;
+  } else if (s === 3) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">4</div><div class="step-title">${t('fb4title')}</div></div>
+      <div class="step-content"><p>${t('fb4text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb4step1')}</div>
+        <div class="card" style="padding:12px">${t('fb4step2')}</div>
+        <div class="card" style="padding:12px">${t('fb4step3')}</div>
+        <div class="card" style="padding:12px">${t('fb4step4')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb4note')}</p></div></div>`;
+  } else if (s === 4) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">5</div><div class="step-title">${t('fb5title')}</div></div>
+      <div class="step-content"><p>${t('fb5text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb5step1')}</div>
+        <div class="card" style="padding:12px">${t('fb5step2')}</div>
+        <div class="card" style="padding:12px">${t('fb5step3')}</div>
+        <div class="card" style="padding:12px">${t('fb5step4')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb5tip')}</p></div></div>`;
+  } else if (s === 5) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">6</div><div class="step-title">${t('fb6title')}</div></div>
+      <div class="step-content"><p>${t('fb6text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px">${t('fb6step1')}</div>
+        <div class="card" style="padding:12px">${t('fb6step2')}</div>
+        <div class="card" style="padding:12px">${t('fb6step3')}</div>
+        <div class="card" style="padding:12px">${t('fb6step4')}</div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent);font-weight:700">${t('fb6note')}</p></div></div>`;
+  } else if (s === 6) {
+    html = `<div class="step-card"><div class="step-header"><div class="step-num">7</div><div class="step-title">${t('fb7title')}</div></div>
+      <div class="step-content"><p>${t('fb7text')}</p>
+      ${[0,1,2,3,4].map(i => `<div class="check-item ${freeboxChecks[i]?'checked':''}" onclick="toggleFreeboxCheck(${i})"><div class="check-box">${freeboxChecks[i]?'✓':''}</div><span>${t('fb7check'+(i+1))}</span></div>`).join('')}
+      <p style="margin-top:16px;color:var(--yellow);font-size:0.9rem">${t('fb7trouble')}</p>
+      </div></div>`;
+  }
+  el.innerHTML = html;
+  document.getElementById('freeboxPrev').style.visibility = s === 0 ? 'hidden' : 'visible';
+  document.getElementById('freeboxNext').style.visibility = s === totalFreeboxSteps-1 ? 'hidden' : 'visible';
+  updateFreeboxProgress();
+}
+
+function updateFreeboxProgress() {
+  const el = document.getElementById('freeboxProgress');
+  el.innerHTML = Array.from({length:totalFreeboxSteps}, (_,i) =>
+    `<div class="step-dot ${i < freeboxStep ? 'done' : i === freeboxStep ? 'current' : ''}"></div>`
+  ).join('');
+}
+
+function freeboxNav(dir) {
+  freeboxStep = Math.max(0, Math.min(totalFreeboxSteps-1, freeboxStep + dir));
+  renderFreeboxStep();
+}
+
+function toggleFreeboxCheck(i) {
+  freeboxChecks[i] = !freeboxChecks[i];
+  renderFreeboxStep();
+  if (freeboxChecks.every(c => c)) fireConfetti();
 }
 
 // ═══════════════════════════════════════════
