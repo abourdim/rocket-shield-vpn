@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Network Scanner</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;--gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;--gradient-btn:linear-gradient(135deg,#f472b6,#e044a0)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;--shadow:0 4px 20px rgba(0,0,0,.08);--gradient-btn:linear-gradient(135deg,#22966a,#1a7a55)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:'Fira Code',monospace}
+
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none}
+.hdr-link:hover{border-color:var(--accent)}
+
+.main{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:var(--radius);padding:4px;margin-bottom:20px;border:1px solid var(--border);flex-wrap:wrap}
+.tab{flex:1;padding:10px 6px;text-align:center;border-radius:12px;font-family:var(--font-display);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .25s;background:transparent;color:var(--text2);border:none;min-width:100px}
+.tab.active{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.tab:hover:not(.active){background:var(--bg3);color:var(--text)}
+
+.panel{display:none}.panel.active{display:block}
+
+.stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
+.stat-card{flex:1;min-width:110px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-card .val{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent)}
+.stat-card .lbl{font-size:.68rem;color:var(--text3);text-transform:uppercase}
+
+.devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:16px}
+.device{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .3s;position:relative;overflow:hidden}
+.device:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.device-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.device-icon{font-size:1.8rem}
+.device-name{font-family:var(--font-display);font-size:.95rem;font-weight:700;word-break:break-word}
+.device-ip{font-size:.72rem;color:var(--text2);font-family:'Fira Code',monospace}
+.device-dot{position:absolute;top:12px;right:12px;width:10px;height:10px;border-radius:50%}
+.device-dot.on{background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+.device-dot.off{background:var(--red);opacity:.5}
+.device-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.device-meta-item{background:var(--bg3);border-radius:var(--radius-sm);padding:6px 8px}
+.device-meta-item .ml{font-size:.58rem;color:var(--text3);text-transform:uppercase}
+.device-meta-item .mv{font-size:.78rem;font-weight:600;font-family:'Fira Code',monospace;word-break:break-all}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.65rem;font-weight:700;margin-top:6px;margin-right:4px}
+.badge-router{background:var(--accent-soft);color:var(--accent)}
+.badge-vpn{background:rgba(176,102,255,.15);color:var(--accent3)}
+.badge-wifi{background:rgba(77,201,246,.12);color:var(--accent2)}
+.badge-eth{background:rgba(255,140,66,.12);color:var(--orange)}
+
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;max-width:420px;margin:20px auto}
+.auth-card h3{font-family:var(--font-display);margin-bottom:8px}
+.auth-card p{font-size:.85rem;color:var(--text2);margin:8px 0}
+.auth-card input{width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem;margin:6px 0;outline:none}
+.auth-card input:focus{border-color:var(--accent)}
+.btn{padding:10px 24px;border-radius:var(--radius-sm);background:var(--gradient-btn);color:var(--bg);font-family:var(--font-display);font-weight:700;border:none;cursor:pointer;font-size:.88rem}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.btn-sm{padding:6px 14px;font-size:.78rem;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font-body)}
+.btn-sm:hover{border-color:var(--accent)}
+
+.paste-area{width:100%;min-height:180px;background:var(--bg3);border:2px dashed var(--border);border-radius:var(--radius);padding:16px;font-family:'Fira Code',monospace;font-size:.78rem;color:var(--text);resize:vertical;outline:none;line-height:1.6}
+.paste-area:focus{border-color:var(--accent)}
+.paste-area::placeholder{color:var(--text3)}
+
+.progress{height:6px;border-radius:3px;background:var(--bg3);margin:12px 0;overflow:hidden}
+.progress-bar{height:100%;border-radius:3px;background:var(--gradient-btn);transition:width .15s}
+
+.net-map{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;position:relative;min-height:300px}
+.net-map canvas{width:100%;height:280px;display:block}
+
+.collapse-hdr{cursor:pointer;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-display);font-weight:600;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.collapse-hdr:hover{border-color:var(--accent)}
+.collapse-body{display:none;padding:16px;background:var(--bg3);border:1px solid var(--border);border-top:0;border-radius:0 0 var(--radius) var(--radius)}
+.collapse-body.open{display:block}
+.collapse-body pre{font-family:'Fira Code',monospace;font-size:.78rem;line-height:1.7;white-space:pre-wrap;color:var(--text2)}
+.collapse-body pre strong{color:var(--accent);font-weight:700}
+
+.info-tip{background:var(--accent-soft);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:.8rem;color:var(--text2);margin:10px 0;line-height:1.5}
+
+.myip-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:500px;margin:20px auto;text-align:center}
+.myip-card h3{font-family:var(--font-display);margin-bottom:12px}
+.myip-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.myip-row:last-child{border:none}
+.myip-lbl{color:var(--text2)}
+.myip-val{font-family:'Fira Code',monospace;font-weight:700}
+
+.empty{text-align:center;padding:40px;color:var(--text3)}
+.empty .icon{font-size:3rem;margin-bottom:12px;opacity:.5}
+@media(max-width:640px){.devices{grid-template-columns:1fr}.tabs{flex-wrap:wrap}.tab{min-width:80px;font-size:.75rem}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <span class="hdr-logo">🔍 Network Scanner</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">Space</option><option value="desert">Desert</option>
+    <option value="synthwave">Synth</option><option value="paper">Paper</option>
+  </select>
+  <a href="vpn-dashboard.html" class="hdr-link">📡 VPN</a>
+  <a href="index.html" class="hdr-link">← App</a>
+</header>
+
+<main class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('freebox')">📡 Freebox API</button>
+    <button class="tab" onclick="switchTab('scan')">⚡ Quick Scan</button>
+    <button class="tab" onclick="switchTab('paste')">📋 Paste</button>
+    <button class="tab" onclick="switchTab('myip')">🌐 My IP</button>
+  </div>
+
+  <div id="statsBar" class="stats"></div>
+
+  <!-- Freebox Panel -->
+  <div id="p-freebox" class="panel active"></div>
+
+  <!-- Quick Scan Panel -->
+  <div id="p-scan" class="panel">
+    <div class="info-tip">Quick Scan tries to reach each IP in your local range via HTTP. Most devices won't respond, but routers and servers usually do. For complete results, use Freebox API or paste arp/nmap output.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0">
+      <label style="font-size:.85rem">Range:</label>
+      <input id="scanStart" class="mono" style="width:140px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.8rem" value="192.168.1.1">
+      <span style="color:var(--text3)">to</span>
+      <input id="scanEnd" class="mono" style="width:140px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.8rem" value="192.168.1.254">
+      <button class="btn" onclick="startQuickScan()">Scan</button>
+    </div>
+    <div class="progress" id="scanProgress" style="display:none"><div class="progress-bar" id="scanBar" style="width:0"></div></div>
+    <div id="scanStatus" style="font-size:.8rem;color:var(--text2);margin:8px 0"></div>
+    <div class="devices" id="scanGrid"></div>
+  </div>
+
+  <!-- Paste Panel -->
+  <div id="p-paste" class="panel">
+    <div class="info-tip">Paste the output of <strong>arp -a</strong>, <strong>nmap -sn</strong>, or <strong>ip neigh</strong> below. The parser will extract IPs, MACs, and hostnames.</div>
+    <textarea class="paste-area" id="pasteInput" placeholder="Paste arp -a / nmap / ip neigh output here...
+
+Example (arp -a):
+? (192.168.1.1) at 14:0c:76:aa:bb:cc on en0 ifscope [ethernet]
+? (192.168.1.42) at 3c:22:fb:11:22:33 on en0 ifscope [ethernet]
+
+Example (nmap -sn):
+Nmap scan report for 192.168.1.1
+Host is up (0.0012s latency).
+MAC Address: 14:0C:76:AA:BB:CC (Freebox SAS)"></textarea>
+    <button class="btn" onclick="parsePaste()" style="margin-top:10px">Parse & Display</button>
+    <div class="devices" id="pasteGrid" style="margin-top:16px"></div>
+  </div>
+
+  <!-- My IP Panel -->
+  <div id="p-myip" class="panel">
+    <div class="myip-card">
+      <h3>🌐 Your Network Identity</h3>
+      <div id="myipInfo"><p style="color:var(--text3);padding:20px">Detecting...</p></div>
+    </div>
+    <div class="info-tip" style="max-width:500px;margin:12px auto">If your local and public IPs differ, you're behind NAT (normal). If you're on a VPN, the public IP will show the VPN server's address.</div>
+  </div>
+
+  <!-- Network Map -->
+  <div id="netMapSection" style="display:none">
+    <h3 style="font-family:var(--font-display);margin:20px 0 8px">Network Map</h3>
+    <div class="net-map"><canvas id="netCanvas"></canvas></div>
+  </div>
+
+  <!-- Device Grid (shared for freebox) -->
+  <div class="devices" id="deviceGrid"></div>
+
+  <!-- Commands Reference -->
+  <div class="collapse-hdr" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span>Terminal Commands Reference</span><span id="collapseArrow">+</span>
+  </div>
+  <div class="collapse-body">
+    <pre><strong># Windows</strong>
+arp -a
+ipconfig /all
+
+<strong># macOS</strong>
+arp -a
+ifconfig
+networksetup -listallhardwareports
+
+<strong># Linux</strong>
+ip neigh
+arp -a
+sudo nmap -sn 192.168.1.0/24
+hostname -I</pre>
+  </div>
+
+  <!-- Tips -->
+  <div class="info-tip" style="margin-top:16px">
+    <strong>Tips:</strong> Your Freebox is at 192.168.1.254 — it's your router and VPN server.
+    VPN peers appear on 192.168.27.x — they're connected through the WireGuard tunnel.
+    Devices you don't recognize? Check who's on your WiFi!
+  </div>
+</main>
+
+<script>
+// ═══ MAC Vendor Lookup ═══
+const MAC_VENDORS = {
+  '00:1A:2B':'Apple','3C:22:FB':'Apple','A4:83:E7':'Apple','F0:18:98':'Apple','AC:DE:48':'Apple',
+  '78:7B:8A':'Apple','DC:A4:CA':'Apple','A8:66:7F':'Apple','14:98:77':'Apple','BC:D0:74':'Apple',
+  'B8:27:EB':'Raspberry Pi','DC:A6:32':'Raspberry Pi','E4:5F:01':'Raspberry Pi','28:CD:C1':'Raspberry Pi','D8:3A:DD':'Raspberry Pi',
+  'FC:A1:3E':'Samsung','84:25:DB':'Samsung','8C:F5:A3':'Samsung','50:01:BB':'Samsung',
+  '00:50:56':'VMware','00:0C:29':'VMware','00:1C:14':'VMware',
+  '08:00:27':'VirtualBox','0A:00:27':'VirtualBox',
+  'B4:2E:99':'Intel','A4:C3:F0':'Intel','00:1B:21':'Intel','3C:97:0E':'Intel',
+  '14:0C:76':'Freebox','E4:9E:12':'Freebox','68:A3:78':'Freebox','F4:CA:E5':'Freebox',
+  '00:1E:58':'D-Link','1C:7E:E5':'D-Link',
+  'C0:25:E9':'TP-Link','50:C7:BF':'TP-Link','EC:08:6B':'TP-Link','60:32:B1':'TP-Link',
+  'A4:2B:B0':'TP-Link','30:B5:C2':'TP-Link',
+  '44:94:FC':'Netgear','E0:91:F5':'Netgear','B0:7F:B9':'Netgear',
+  '00:17:88':'Philips Hue','EC:B5:FA':'Philips Hue',
+  'B0:BE:76':'Google','F4:F5:D8':'Google','48:D6:D5':'Google',
+  '50:C5:8D':'Microsoft','7C:1E:52':'Microsoft',
+  'AC:84:C6':'TP-Link','70:4F:57':'TP-Link',
+  '18:B4:30':'Nest','64:16:66':'Nest',
+  '00:04:20':'Lexmark','00:1B:A9':'Brother','00:1E:8F':'Canon','C4:34:6B':'HP',
+  'F8:1A:67':'TP-Link','D4:6E:0E':'TP-Link',
+  '38:F7:3D':'Amazon','44:65:0D':'Amazon','FC:65:DE':'Amazon',
+  '7C:2F:80':'Gigabyte','04:D9:F5':'ASUS','2C:56:DC':'ASUS',
+  '00:24:E4':'Withings','00:1D:C9':'ASUS',
+};
+
+function lookupVendor(mac) {
+  if (!mac) return '';
+  const prefix = mac.toUpperCase().replace(/[^A-F0-9]/g,':').split(':').slice(0,3).join(':');
+  return MAC_VENDORS[prefix] || '';
+}
+
+function detectIcon(dev) {
+  const h = (dev.hostname || '').toLowerCase();
+  const v = (dev.vendor || '').toLowerCase();
+  if (dev.ip === '192.168.1.254' || v.includes('freebox')) return '📦';
+  if (h.includes('iphone') || h.includes('android') || h.includes('galaxy') || h.includes('pixel') || h.includes('phone')) return '📱';
+  if (h.includes('ipad') || h.includes('tablet')) return '📱';
+  if (h.includes('macbook') || h.includes('laptop') || h.includes('thinkpad') || h.includes('surface')) return '💻';
+  if (h.includes('desktop') || h.includes('pc') || h.includes('imac') || h.includes('tower')) return '🖥️';
+  if (h.includes('printer') || h.includes('canon') || h.includes('epson') || h.includes('brother') || v.includes('canon') || v.includes('brother') || v.includes('hp') || v.includes('lexmark')) return '🖨️';
+  if (h.includes('tv') || h.includes('chromecast') || h.includes('shield') || h.includes('roku') || h.includes('fire') || h.includes('appletv')) return '📺';
+  if (h.includes('echo') || h.includes('alexa') || h.includes('homepod') || h.includes('nest') || v.includes('amazon') || v.includes('nest') || v.includes('google')) return '🔊';
+  if (h.includes('cam') || h.includes('camera')) return '📷';
+  if (v.includes('raspberry')) return '🍓';
+  if (v.includes('apple')) return '🍎';
+  if (v.includes('samsung')) return '📱';
+  if (v.includes('vmware') || v.includes('virtualbox')) return '🖥️';
+  return '❓';
+}
+
+// ═══ State ═══
+let currentTab = 'freebox';
+let allDevices = [];
+let freeboxToken = localStorage.getItem('rs-fbx-token') || '';
+
+// ═══ Tab Switching ═══
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['freebox','scan','paste','myip'][i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('p-' + tab).classList.add('active');
+  document.getElementById('deviceGrid').innerHTML = '';
+  document.getElementById('statsBar').innerHTML = '';
+  document.getElementById('netMapSection').style.display = 'none';
+  if (tab === 'freebox') renderFreeboxPanel();
+  if (tab === 'myip') detectMyIP();
+}
+
+// ═══ Freebox API ═══
+function renderFreeboxPanel() {
+  const el = document.getElementById('p-freebox');
+  if (!freeboxToken) {
+    el.innerHTML = `
+      <div class="auth-card">
+        <h3>📡 Connect to Freebox</h3>
+        <p>Fetch all devices on your network via the Freebox LAN browser API.</p>
+        <input type="text" id="fbxUrl" placeholder="http://mafreebox.freebox.fr" value="http://mafreebox.freebox.fr">
+        <p style="font-size:.72rem;color:var(--text3)">You must be on your Freebox local network.</p>
+        <button class="btn" onclick="connectFreebox()">Connect</button>
+        <p style="margin-top:12px;font-size:.72rem;color:var(--text3)">
+          First time? Confirm the authorization on your Freebox LCD screen.
+        </p>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div style="text-align:center;padding:10px;font-size:.85rem;color:var(--accent)">
+        Connected to Freebox API
+        <button class="btn-sm" onclick="disconnectFreebox()" style="margin-left:10px">Disconnect</button>
+        <button class="btn-sm" onclick="fetchFreeboxDevices()" style="margin-left:6px">Refresh</button>
+      </div>`;
+    fetchFreeboxDevices();
+  }
+}
+
+async function connectFreebox() {
+  const url = document.getElementById('fbxUrl').value.trim().replace(/\/+$/, '');
+  try {
+    const authRes = await fetch(`${url}/api/v8/login/authorize/`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ app_id: 'rocket.shield.scanner', app_name: 'Rocket Shield Network Scanner', app_version: '1.0', device_name: 'Browser' })
+    });
+    const authData = await authRes.json();
+    if (!authData.success) { alert('Failed: ' + (authData.msg || 'Unknown error')); return; }
+    const appToken = authData.result.app_token;
+    const trackId = authData.result.track_id;
+    alert('Please confirm on your Freebox (LCD screen or Freebox OS), then click OK.');
+    const statusRes = await fetch(`${url}/api/v8/login/authorize/${trackId}`);
+    const statusData = await statusRes.json();
+    if (statusData.result.status === 'granted') {
+      freeboxToken = appToken;
+      localStorage.setItem('rs-fbx-token', appToken);
+      localStorage.setItem('rs-fbx-url', url);
+      renderFreeboxPanel();
+    } else {
+      alert('Authorization not granted. Status: ' + statusData.result.status);
+    }
+  } catch (e) {
+    alert('Connection failed. Are you on the Freebox network?\n\n' + e.message);
+  }
+}
+
+function disconnectFreebox() {
+  freeboxToken = '';
+  localStorage.removeItem('rs-fbx-token');
+  localStorage.removeItem('rs-fbx-url');
+  allDevices = [];
+  renderFreeboxPanel();
+  document.getElementById('deviceGrid').innerHTML = '';
+  document.getElementById('statsBar').innerHTML = '';
+  document.getElementById('netMapSection').style.display = 'none';
+}
+
+async function getFreeboxSession() {
+  const url = (localStorage.getItem('rs-fbx-url') || 'http://mafreebox.freebox.fr').replace(/\/+$/, '');
+  const cRes = await fetch(`${url}/api/v8/login/`);
+  const cData = await cRes.json();
+  if (!cData.success) throw new Error('Challenge failed');
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(freeboxToken), {name:'HMAC',hash:'SHA-1'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(cData.result.challenge));
+  const password = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join('');
+  const sRes = await fetch(`${url}/api/v8/login/session/`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({app_id:'rocket.shield.scanner', password})
+  });
+  const sData = await sRes.json();
+  if (!sData.success) throw new Error('Session: ' + (sData.msg || 'failed'));
+  return { token: sData.result.session_token, url };
+}
+
+async function fetchFreeboxDevices() {
+  try {
+    const { token, url } = await getFreeboxSession();
+    const res = await fetch(`${url}/api/v8/lan/browser/pub/`, {
+      headers: {'X-Fbx-App-Auth': token}
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.msg || 'LAN browser failed');
+    allDevices = data.result.map(d => ({
+      hostname: d.primary_name || d.names?.[0]?.name || '',
+      ip: d.l3connectivities?.find(c => c.af === 'ipv4')?.addr || '',
+      mac: d.id || '',
+      vendor: lookupVendor(d.id || ''),
+      active: d.active || false,
+      type: d.access_point?.connectivity_type || '',
+      reachable: d.reachable || false,
+      manufacturer: d.vendor_name || lookupVendor(d.id || ''),
+    }));
+    allDevices.sort((a,b) => (b.active - a.active) || a.ip.localeCompare(b.ip, undefined, {numeric:true}));
+    renderDeviceGrid(allDevices, 'deviceGrid');
+    renderStats(allDevices);
+    renderNetMap(allDevices);
+  } catch (e) {
+    document.getElementById('deviceGrid').innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">⚠️</div><p>API error: ${e.message}</p><button class="btn-sm" onclick="fetchFreeboxDevices()" style="margin-top:10px">Retry</button></div>`;
+  }
+}
+
+// ═══ Quick Scan ═══
+async function startQuickScan() {
+  const startIP = document.getElementById('scanStart').value.trim();
+  const endIP = document.getElementById('scanEnd').value.trim();
+  const parts = startIP.split('.').map(Number);
+  const endParts = endIP.split('.').map(Number);
+  const from = parts[3], to = endParts[3];
+  const prefix = parts.slice(0,3).join('.');
+  const total = to - from + 1;
+  const progressEl = document.getElementById('scanProgress');
+  const barEl = document.getElementById('scanBar');
+  const statusEl = document.getElementById('scanStatus');
+  const grid = document.getElementById('scanGrid');
+  progressEl.style.display = 'block';
+  grid.innerHTML = '';
+  statusEl.textContent = `Scanning ${total} addresses...`;
+  const found = [];
+  let done = 0;
+  const batch = 20;
+  for (let i = from; i <= to; i += batch) {
+    const promises = [];
+    for (let j = i; j < Math.min(i + batch, to + 1); j++) {
+      const ip = prefix + '.' + j;
+      promises.push(probeIP(ip).then(ms => {
+        done++;
+        barEl.style.width = (done / total * 100) + '%';
+        if (ms >= 0) {
+          found.push({ hostname: '', ip, mac: '', vendor: '', active: true, type: '', reachable: true, responseMs: ms });
+          statusEl.textContent = `Scanning... ${done}/${total} checked, ${found.length} found`;
+        }
+      }));
+    }
+    await Promise.all(promises);
+  }
+  statusEl.textContent = `Done! ${found.length} device(s) responded out of ${total} scanned.`;
+  found.forEach(d => { d.manufacturer = d.vendor; });
+  renderDeviceGrid(found, 'scanGrid');
+}
+
+function probeIP(ip) {
+  return new Promise(resolve => {
+    const t0 = performance.now();
+    const img = new Image();
+    const timer = setTimeout(() => { img.src = ''; resolve(-1); }, 500);
+    img.onload = img.onerror = () => {
+      clearTimeout(timer);
+      const ms = Math.round(performance.now() - t0);
+      resolve(ms < 500 ? ms : -1);
+    };
+    img.src = `http://${ip}/favicon.ico?_=${Date.now()}`;
+  });
+}
+
+// ═══ Paste Parser ═══
+function parsePaste() {
+  const raw = document.getElementById('pasteInput').value.trim();
+  if (!raw) return;
+  const devices = [];
+  // arp -a: ? (192.168.1.1) at aa:bb:cc:dd:ee:ff ...
+  const arpRe = /\?\s*\((\d+\.\d+\.\d+\.\d+)\)\s+at\s+([\da-fA-F:]{17}|[\da-fA-F-]{17})/g;
+  let m;
+  while ((m = arpRe.exec(raw)) !== null) {
+    const mac = m[2].replace(/-/g, ':');
+    devices.push({ hostname: '', ip: m[1], mac, vendor: lookupVendor(mac), active: true, type: '', reachable: true, manufacturer: lookupVendor(mac) });
+  }
+  // nmap: Nmap scan report for hostname (ip) or Nmap scan report for ip
+  if (devices.length === 0) {
+    const nmapRe = /Nmap scan report for\s+(?:(\S+)\s+\()?(\d+\.\d+\.\d+\.\d+)\)?/g;
+    const macRe = /MAC Address:\s*([\dA-Fa-f:]{17})\s*(?:\(([^)]+)\))?/g;
+    const blocks = raw.split(/Nmap scan report for/);
+    blocks.slice(1).forEach(blk => {
+      const ipM = blk.match(/(?:(\S+)\s+\()?(\d+\.\d+\.\d+\.\d+)\)?/);
+      const macM = blk.match(/MAC Address:\s*([\dA-Fa-f:]{17})\s*(?:\(([^)]+)\))?/);
+      if (ipM) {
+        const mac = macM ? macM[1] : '';
+        const nmapVendor = macM ? macM[2] || '' : '';
+        devices.push({ hostname: ipM[1] && !ipM[1].match(/^\d/) ? ipM[1] : '', ip: ipM[2], mac, vendor: nmapVendor || lookupVendor(mac), active: true, type: '', reachable: true, manufacturer: nmapVendor || lookupVendor(mac) });
+      }
+    });
+  }
+  // ip neigh: 192.168.1.1 dev eth0 lladdr aa:bb:cc:dd:ee:ff REACHABLE
+  if (devices.length === 0) {
+    const neighRe = /(\d+\.\d+\.\d+\.\d+)\s+dev\s+\S+\s+lladdr\s+([\da-fA-F:]{17})\s+(\S+)/g;
+    while ((m = neighRe.exec(raw)) !== null) {
+      const mac = m[2];
+      devices.push({ hostname: '', ip: m[1], mac, vendor: lookupVendor(mac), active: m[3] !== 'FAILED', type: '', reachable: m[3] === 'REACHABLE', manufacturer: lookupVendor(mac) });
+    }
+  }
+  if (devices.length === 0) {
+    document.getElementById('pasteGrid').innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">🤔</div><p>Could not parse any devices. Try arp -a, nmap, or ip neigh format.</p></div>';
+    return;
+  }
+  renderDeviceGrid(devices, 'pasteGrid');
+}
+
+// ═══ My IP (WebRTC) ═══
+async function detectMyIP() {
+  const el = document.getElementById('myipInfo');
+  let localIP = '(detecting...)';
+  try {
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    pc.createDataChannel('');
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await new Promise((resolve) => {
+      pc.onicecandidate = e => {
+        if (!e.candidate) { resolve(); return; }
+        const m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (m && !m[1].startsWith('0.')) { localIP = m[1]; resolve(); }
+      };
+      setTimeout(resolve, 3000);
+    });
+    pc.close();
+  } catch (e) { localIP = '(WebRTC blocked)'; }
+  const isVPN = localIP.startsWith('192.168.27.') || localIP.startsWith('10.');
+  const isPrivate = localIP.startsWith('192.168.') || localIP.startsWith('10.') || localIP.startsWith('172.');
+  el.innerHTML = `
+    <div class="myip-row"><span class="myip-lbl">Local IP</span><span class="myip-val">${localIP}</span></div>
+    <div class="myip-row"><span class="myip-lbl">Network Type</span><span class="myip-val">${isPrivate ? 'Private (NAT)' : 'Public'}</span></div>
+    <div class="myip-row"><span class="myip-lbl">VPN Subnet?</span><span class="myip-val" style="color:${isVPN ? 'var(--accent3)' : 'var(--text2)'}">${isVPN ? 'Yes (VPN peer)' : 'No'}</span></div>
+    <div style="margin-top:12px;font-size:.78rem;color:var(--text3)">WebRTC may be blocked by browser privacy settings. For full info, run <code style="color:var(--accent)">ipconfig</code> or <code style="color:var(--accent)">ifconfig</code> in your terminal.</div>`;
+}
+
+// ═══ Render Devices ═══
+function renderDeviceGrid(devices, gridId) {
+  const grid = document.getElementById(gridId);
+  if (!devices.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">📡</div><p>No devices found</p></div>';
+    return;
+  }
+  grid.innerHTML = devices.map(d => {
+    d.vendor = d.vendor || d.manufacturer || lookupVendor(d.mac);
+    const icon = detectIcon(d);
+    const isRouter = d.ip === '192.168.1.254';
+    const isVPN = d.ip && d.ip.startsWith('192.168.27.');
+    const connBadge = d.type ? (d.type.toLowerCase().includes('wifi') || d.type.toLowerCase().includes('wlan')
+      ? '<span class="badge badge-wifi">WiFi</span>'
+      : '<span class="badge badge-eth">Ethernet</span>') : '';
+    return `<div class="device">
+      <div class="device-dot ${d.active || d.reachable ? 'on' : 'off'}"></div>
+      <div class="device-hdr">
+        <span class="device-icon">${icon}</span>
+        <div>
+          <div class="device-name">${d.hostname || d.ip || 'Unknown'}</div>
+          <div class="device-ip">${d.ip}</div>
+        </div>
+      </div>
+      <div class="device-meta">
+        ${d.mac ? `<div class="device-meta-item"><div class="ml">MAC</div><div class="mv">${d.mac}</div></div>` : ''}
+        ${d.vendor ? `<div class="device-meta-item"><div class="ml">Vendor</div><div class="mv">${d.vendor}</div></div>` : ''}
+        ${d.responseMs !== undefined ? `<div class="device-meta-item"><div class="ml">Response</div><div class="mv">${d.responseMs}ms</div></div>` : ''}
+        <div class="device-meta-item"><div class="ml">Status</div><div class="mv">${d.active || d.reachable ? '🟢 Online' : '🔴 Offline'}</div></div>
+      </div>
+      <div style="margin-top:8px">
+        ${isRouter ? '<span class="badge badge-router">Freebox Router</span>' : ''}
+        ${isVPN ? '<span class="badge badge-vpn">VPN Peer</span>' : ''}
+        ${connBadge}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStats(devices) {
+  const active = devices.filter(d => d.active).length;
+  const inactive = devices.length - active;
+  const wifi = devices.filter(d => (d.type||'').toLowerCase().includes('wifi') || (d.type||'').toLowerCase().includes('wlan')).length;
+  const eth = devices.filter(d => (d.type||'').toLowerCase().includes('ethernet')).length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card"><div class="val">${devices.length}</div><div class="lbl">Total</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--accent)">${active}</div><div class="lbl">Active</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--red)">${inactive}</div><div class="lbl">Inactive</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--accent2)">${wifi}</div><div class="lbl">WiFi</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--orange)">${eth}</div><div class="lbl">Ethernet</div></div>`;
+}
+
+// ═══ Network Map (Canvas) ═══
+function renderNetMap(devices) {
+  const section = document.getElementById('netMapSection');
+  section.style.display = 'block';
+  const canvas = document.getElementById('netCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth - 40;
+  const h = 280;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const style = getComputedStyle(document.documentElement);
+  const accent = style.getPropertyValue('--accent').trim();
+  const accent3 = style.getPropertyValue('--accent3').trim();
+  const textC = style.getPropertyValue('--text2').trim();
+  const borderC = style.getPropertyValue('--border').trim();
+
+  const cx = w / 2, cy = h / 2;
+  // Router center
+  ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.fillStyle = accent + '22'; ctx.fill();
+  ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = textC; ctx.font = '11px Nunito'; ctx.textAlign = 'center';
+  ctx.fillText('📦', cx, cy + 4);
+  ctx.fillText('Freebox', cx, cy + 36);
+  ctx.fillText('192.168.1.254', cx, cy + 48);
+
+  const lanDevices = devices.filter(d => d.ip && !d.ip.startsWith('192.168.27.') && d.ip !== '192.168.1.254');
+  const vpnDevices = devices.filter(d => d.ip && d.ip.startsWith('192.168.27.'));
+  const activeOnly = lanDevices.filter(d => d.active).slice(0, 16);
+
+  // Draw LAN devices
+  const lanR = Math.min(120, w / 3);
+  activeOnly.forEach((d, i) => {
+    const angle = (i / activeOnly.length) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(angle) * lanR;
+    const y = cy + Math.sin(angle) * lanR;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y);
+    ctx.strokeStyle = d.active ? accent + '44' : borderC; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = d.active ? accent : borderC; ctx.fill();
+    ctx.fillStyle = textC; ctx.font = '9px Fira Code'; ctx.textAlign = 'center';
+    const label = d.hostname ? d.hostname.substring(0, 12) : d.ip.split('.').pop();
+    ctx.fillText(label, x, y + 16);
+  });
+
+  // Draw VPN branch
+  if (vpnDevices.length > 0) {
+    const vx = cx + lanR + 60, vy = cy - 20;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(vx, vy);
+    ctx.strokeStyle = accent3 + '66'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = textC; ctx.font = '9px Nunito'; ctx.fillText('VPN 192.168.27.x', vx, vy - 10);
+    vpnDevices.slice(0, 5).forEach((d, i) => {
+      const py = vy + i * 22;
+      ctx.beginPath(); ctx.arc(vx + 20, py + 8, 5, 0, Math.PI * 2);
+      ctx.fillStyle = d.active ? accent3 : borderC; ctx.fill();
+      ctx.fillStyle = textC; ctx.font = '9px Fira Code';
+      ctx.fillText(d.hostname || d.ip, vx + 55, py + 12);
+    });
+  }
+}
+
+// ═══ Init ═══
+renderFreeboxPanel();
+</script>
+</body>
+</html>

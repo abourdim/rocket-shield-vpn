@@ -52,6 +52,7 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 | [firewall-builder.html](../firewall-builder.html) | 🧱 Build firewall rules, see iptables commands, test with packets |
 | [vpn-dashboard.html](../vpn-dashboard.html) | 📡 See real connected VPN devices — Freebox API, wg show parser, demo |
 | [vpngate.html](../vpngate.html) | 🎓 Browse 5,000+ free VPN Gate servers, download OpenVPN configs |
+| [network-scanner.html](../network-scanner.html) | 📡 Discover devices on your local network — Freebox API, scan, paste |
 | [docs.html](../docs.html) | 📚 Full HTML documentation hub with search and sidebar |
 
 ---
