@@ -1,0 +1,21 @@
+{
+  "name": "Rocket Shield VPN",
+  "short_name": "Rocket Shield",
+  "description": "Educational VPN app for young explorers. Learn cybersecurity through space adventures!",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0b0e2a",
+  "theme_color": "#44e5a0",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "security"],
+  "lang": "en",
+  "dir": "ltr"
+}
