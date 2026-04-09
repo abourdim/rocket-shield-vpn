@@ -163,6 +163,7 @@ a:hover{text-decoration:underline}
 
   <div class="sidebar-section">
     <div class="sidebar-title">Reference</div>
+    <a class="sidebar-link" onclick="showSection('vps-vpn')">🌍 VPS VPN Setup</a>
     <a class="sidebar-link" onclick="showSection('launch-script')">🚀 Launch Script</a>
     <a class="sidebar-link" onclick="showSection('architecture')">🏗️ Architecture</a>
   </div>
@@ -209,6 +210,10 @@ a:hover{text-decoration:underline}
       <div class="doc-card" onclick="showSection('launch-script')" style="cursor:pointer">
         <h4>🚀 Launch Script</h4>
         <p>Interactive menu script for Linux, macOS, Windows, and Raspberry Pi.</p>
+      </div>
+      <div class="doc-card" onclick="showSection('vps-vpn')" style="cursor:pointer">
+        <h4>🌍 VPS VPN Setup</h4>
+        <p>Get any country's IP (Saudi, UAE, Japan). Cheap VPS + WireGuard.</p>
       </div>
       <div class="doc-card" onclick="showSection('architecture')" style="cursor:pointer">
         <h4>🏗️ Architecture</h4>
@@ -1313,6 +1318,99 @@ docker-compose up -d
 sudo usermod -aG docker $USER
 # Log out and back in
 docker-compose up -d</code></pre>
+  </div>
+
+  <!-- LAUNCH SCRIPT -->
+  <!-- VPS VPN SETUP -->
+  <div class="doc-section" id="sec-vps-vpn">
+    <h1>🌍 VPS VPN Setup — Any Country's IP</h1>
+    <p>Need an IP from Saudi Arabia, UAE, Japan, or any country where VPN providers don't have servers? Rent a cheap VPS and install WireGuard in 2 minutes.</p>
+
+    <h2>Why a VPS?</h2>
+    <ul>
+      <li>Get an IP from <strong>any country</strong> (Saudi Arabia, UAE, Japan...)</li>
+      <li>Full control — your server, your rules, no logs</li>
+      <li>Cheap: <strong>$3-7/month</strong> (or hourly billing)</li>
+      <li>One-command setup with our installer script</li>
+    </ul>
+
+    <h2>VPS Providers by Region</h2>
+    <table>
+      <tr><th>Region</th><th>Provider</th><th>Price</th><th>Notes</th></tr>
+      <tr><td>🇸🇦 Saudi Arabia</td><td><a href="https://go.lightnode.com/saudi-arabia-vps" target="_blank">LightNode</a></td><td>~$7/mo</td><td>Jeddah & Riyadh, hourly billing</td></tr>
+      <tr><td>🇸🇦 Saudi Arabia</td><td><a href="https://ultahost.com/saudi-arabia-vps" target="_blank">Ultahost</a></td><td>~$5/mo</td><td>KSA, 55-second setup</td></tr>
+      <tr><td>🇦🇪 UAE / Bahrain</td><td><a href="https://aws.amazon.com/" target="_blank">AWS</a></td><td>~$3-5/mo</td><td>Bahrain region, free tier eligible</td></tr>
+      <tr><td>🇯🇵 Japan</td><td><a href="https://www.vultr.com/" target="_blank">Vultr</a></td><td>$5/mo</td><td>Tokyo datacenter</td></tr>
+      <tr><td>🇺🇸 USA</td><td><a href="https://www.digitalocean.com/" target="_blank">DigitalOcean</a></td><td>$4/mo</td><td>NYC, SF, multiple locations</td></tr>
+      <tr><td>🇪🇺 Europe</td><td><a href="https://www.hetzner.com/" target="_blank">Hetzner</a></td><td>€3.49/mo</td><td>Germany, Finland</td></tr>
+    </table>
+
+    <h2>One-Command Setup</h2>
+    <pre><code># SSH into your VPS, then run:
+bash vps-setup.sh
+
+# Or one-liner:
+curl -sSL https://raw.githubusercontent.com/abourdim/rocket-shield-vpn/main/vps-setup.sh | bash</code></pre>
+    <p>The script will:</p>
+    <ol>
+      <li>Install WireGuard</li>
+      <li>Generate server keys</li>
+      <li>Create server config with NAT/forwarding</li>
+      <li>Generate client configs (phone, laptop, tablet)</li>
+      <li>Show <strong>QR codes</strong> — scan with WireGuard app!</li>
+      <li>Enable auto-start on boot</li>
+    </ol>
+
+    <h2>Manual Setup</h2>
+    <pre><code># 1. Install
+apt update && apt install -y wireguard qrencode
+
+# 2. Generate keys
+wg genkey | tee /etc/wireguard/server_private | wg pubkey > /etc/wireguard/server_public
+
+# 3. Create config (replace YOUR_INTERFACE with eth0 or similar)
+cat > /etc/wireguard/wg0.conf &lt;&lt; EOF
+[Interface]
+Address = 10.77.77.1/24
+ListenPort = 51820
+PrivateKey = $(cat /etc/wireguard/server_private)
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+EOF
+
+# 4. Enable forwarding + start
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf && sysctl -p
+wg-quick up wg0 && systemctl enable wg-quick@wg0</code></pre>
+
+    <h2>Connect Your Devices</h2>
+    <div class="doc-card">
+      <h4>📱 Phone (fastest: QR code)</h4>
+      <p>The installer shows QR codes. Open WireGuard app → <strong>"+"</strong> → <strong>"Create from QR code"</strong> → scan → done!</p>
+    </div>
+    <div class="doc-card">
+      <h4>💻 Laptop</h4>
+      <p>Copy the <code>.conf</code> file from <code>/root/vpn-clients/</code> → import into WireGuard app → Activate.</p>
+    </div>
+    <div class="doc-card">
+      <h4>📦 Freebox Revolution</h4>
+      <p>Generate an OpenVPN config instead (or use the .conf with newer Freebox). Import into Client VPN → Ajouter → Upload → Save → ON.</p>
+    </div>
+
+    <h2>Verify</h2>
+    <p>After connecting, check <a href="https://whatismyip.com" target="_blank">whatismyip.com</a> — should show your VPS country's IP (e.g., Saudi Arabia 🇸🇦).</p>
+
+    <h2>Use Cases</h2>
+    <table>
+      <tr><th>Need</th><th>VPS Location</th><th>Provider</th></tr>
+      <tr><td>Saudi banking / gov services</td><td>🇸🇦 Jeddah or Riyadh</td><td>LightNode, Ultahost</td></tr>
+      <tr><td>UAE services</td><td>🇦🇪 Dubai / Bahrain</td><td>AWS Bahrain</td></tr>
+      <tr><td>Japanese content</td><td>🇯🇵 Tokyo</td><td>Vultr, Linode</td></tr>
+      <tr><td>US streaming</td><td>🇺🇸 New York / LA</td><td>DigitalOcean, Vultr</td></tr>
+      <tr><td>Cheapest option</td><td>🇪🇺 Germany</td><td>Hetzner €3.49/mo</td></tr>
+    </table>
+
+    <div class="doc-tip">💡 Use hourly billing (LightNode) to spin up a VPS only when you need it — destroy when done. Pay cents instead of dollars!</div>
+    <p>Full guide: <a href="docs/VPS-VPN-SETUP.md">VPS-VPN-SETUP.md</a></p>
   </div>
 
   <!-- LAUNCH SCRIPT -->
