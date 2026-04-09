@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — VPN Gate Browser</title>
+<meta name="description" content="Browse and download free VPN Gate servers from University of Tsukuba">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);--star-opacity:0;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:var(--accent);text-decoration:none}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);box-shadow:0 4px 16px var(--accent-glow);font-size:1.4rem;transition:transform .3s}
+.logo-icon:hover{transform:rotate(-5deg) scale(1.08)}
+.logo-text{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;background:var(--bg3);color:var(--text);border:1px solid var(--border);font-family:var(--font-body);cursor:pointer;outline:none}
+.hdr-select:hover{border-color:var(--accent)}
+.nav-link{font-size:.78rem;padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);text-decoration:none;font-family:var(--font-body);white-space:nowrap;transition:border-color .2s}
+.nav-link:hover{border-color:var(--accent);text-decoration:none}
+
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+.page-title{text-align:center;margin:24px 0 8px;font-family:var(--font-display);font-size:2rem;font-weight:700;background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+.page-sub{text-align:center;color:var(--text2);font-size:.95rem;margin-bottom:20px}
+
+.info-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;font-size:.82rem}
+.info-panel b{color:var(--accent)}
+.info-badge{padding:4px 12px;border-radius:var(--radius-pill);background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.78rem}
+.info-panel a{color:var(--accent2);text-decoration:underline}
+
+.freebox-tip{background:var(--card);border:1px solid var(--orange);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;font-size:.8rem;color:var(--text2);line-height:1.6}
+.freebox-tip b{color:var(--orange)}
+
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.filters select,.filters input{padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--font-body);font-size:.85rem;outline:none;transition:border-color .2s}
+.filters select:hover,.filters input:hover,.filters select:focus,.filters input:focus{border-color:var(--accent)}
+.filters input{flex:1;min-width:140px}
+.filters input::placeholder{color:var(--text3)}
+.btn{padding:8px 18px;border-radius:var(--radius-sm);border:none;font-family:var(--font-display);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-go{background:var(--gradient-btn);color:#fff;box-shadow:0 4px 16px var(--accent-glow)}
+.btn-go:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+.status-bar{text-align:center;padding:12px;color:var(--text2);font-size:.82rem}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.error-box{background:var(--card);border:1px solid var(--red);border-radius:var(--radius);padding:20px;margin:16px 0;text-align:center}
+.error-box h3{color:var(--red);font-family:var(--font-display);margin-bottom:8px}
+.error-box p{color:var(--text2);font-size:.85rem;margin:4px 0}
+.error-box .btn{margin-top:12px}
+
+.paste-area{display:none;margin:16px 0}
+.paste-area textarea{width:100%;height:120px;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:monospace;font-size:.75rem;resize:vertical;outline:none}
+.paste-area textarea:focus{border-color:var(--accent)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .25s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--border-hover);background:var(--card-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-flag{font-size:1.6rem}
+.card-country{font-family:var(--font-display);font-weight:600;font-size:.95rem}
+.card-ip{font-family:monospace;font-size:.78rem;color:var(--accent2);margin-left:auto}
+.card-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-bottom:12px;font-size:.78rem}
+.stat-label{color:var(--text3);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em}
+.stat-val{font-weight:700}
+.speed-bar{height:4px;background:var(--bg3);border-radius:2px;margin-top:2px;overflow:hidden}
+.speed-fill{height:100%;border-radius:2px;background:var(--gradient-btn);transition:width .5s}
+.ping-val{font-weight:700}
+.ping-green{color:#44e5a0}.ping-yellow{color:#ffe156}.ping-red{color:#ff5c6a}
+.card-msg{font-size:.72rem;color:var(--text3);margin-bottom:8px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-actions{display:flex;gap:8px}
+.card-actions .btn{flex:1;font-size:.78rem;padding:7px 10px;text-align:center}
+
+.stats-footer{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:center;font-size:.82rem;color:var(--text2)}
+.stats-footer b{color:var(--accent)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent);color:var(--bg);padding:10px 24px;border-radius:var(--radius-pill);font-family:var(--font-display);font-weight:700;font-size:.85rem;box-shadow:0 4px 20px var(--accent-glow);z-index:999;transition:transform .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:600px){.page-title{font-size:1.5rem}.grid{grid-template-columns:1fr}.filters{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<header class="header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">🌐</div>
+    <div><div class="logo-text"><span>VPN Gate Browser</span></div><div class="logo-sub">Rocket Shield</div></div>
+  </a>
+  <div class="hdr-right">
+    <select class="hdr-select" id="themeSelect"><option value="space">Space</option><option value="desert">Desert</option><option value="synthwave">Synthwave</option><option value="paper">Paper</option></select>
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="docs.html" class="nav-link">Docs</a>
+  </div>
+</header>
+
+<main class="app">
+  <h1 class="page-title">VPN Gate Server Browser</h1>
+  <p class="page-sub">Browse free public VPN relay servers from the VPN Gate Academic Experiment</p>
+
+  <div class="info-panel" id="infoPanel">
+    <span>VPN Gate is a free academic VPN project by <b>University of Tsukuba, Japan</b>.</span>
+    <span>Credentials: <b>vpn</b> / <b>vpn</b></span>
+    <span class="info-badge" id="serverCount">Loading...</span>
+    <a href="https://www.vpngate.net" target="_blank" rel="noopener">vpngate.net</a>
+  </div>
+
+  <div class="freebox-tip">
+    <b>Freebox Revolution tip:</b> Download the .ovpn config below, then go to <b>Freebox OS</b> &rarr; VPN Client &rarr; Add &rarr; Upload the .ovpn file &rarr; Username: <b>vpn</b> / Password: <b>vpn</b> &rarr; Activate. Done!
+  </div>
+
+  <div class="filters">
+    <select id="countryFilter"><option value="">All Countries</option></select>
+    <select id="protoFilter"><option value="all">All Protocols</option><option value="openvpn">OpenVPN</option><option value="l2tp">L2TP/IPsec</option></select>
+    <select id="sortBy"><option value="speed">Sort: Speed</option><option value="ping">Sort: Ping</option><option value="score">Sort: Score</option><option value="sessions">Sort: Sessions</option></select>
+    <input type="text" id="searchInput" placeholder="Search hostname...">
+    <button class="btn btn-go" onclick="fetchServers()">Refresh</button>
+  </div>
+
+  <div class="status-bar" id="statusBar"><span class="spinner"></span> Fetching servers from VPN Gate...</div>
+  <div class="error-box" id="errorBox" style="display:none">
+    <h3>Could not reach VPN Gate API</h3>
+    <p>The API may be blocked by CORS or network restrictions.</p>
+    <p><a href="https://www.vpngate.net" target="_blank" rel="noopener">Browse vpngate.net manually</a></p>
+    <button class="btn btn-outline" onclick="showPasteArea()">Paste CSV Data</button>
+    <button class="btn btn-go" onclick="loadDemoData()" style="margin-left:8px">Load Demo Servers</button>
+  </div>
+
+  <div class="paste-area" id="pasteArea">
+    <p style="color:var(--text2);font-size:.82rem;margin-bottom:8px">Visit <a href="https://www.vpngate.net/api/iphone/" target="_blank">vpngate.net/api/iphone/</a>, copy the CSV content, and paste it below:</p>
+    <textarea id="csvInput" placeholder="Paste CSV data here..."></textarea>
+    <button class="btn btn-go" style="margin-top:8px" onclick="parsePastedCSV()">Parse CSV</button>
+  </div>
+
+  <div class="grid" id="serverGrid"></div>
+
+  <div class="stats-footer" id="statsFooter" style="display:none">
+    <span>Servers: <b id="statTotal">0</b></span>
+    <span>Countries: <b id="statCountries">0</b></span>
+    <span>Avg Speed: <b id="statSpeed">0</b> Mbps</span>
+  </div>
+</main>
+
+<div class="toast" id="toast">Config downloaded!</div>
+
+<script>
+/* ── Theme ── */
+const ts=document.getElementById('themeSelect');
+ts.value=localStorage.getItem('rs-theme')||'space';
+document.documentElement.setAttribute('data-theme',ts.value);
+ts.onchange=()=>{document.documentElement.setAttribute('data-theme',ts.value);localStorage.setItem('rs-theme',ts.value)};
+
+/* ── Stars ── */
+(()=>{const c=document.getElementById('stars');for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;Object.assign(s.style,{width:sz+'px',height:sz+'px',left:Math.random()*100+'%',top:Math.random()*100+'%',animation:`twinkle ${2+Math.random()*4}s ${Math.random()*4}s infinite`});c.appendChild(s)}})();
+
+/* ── Country flag lookup ── */
+const flagEmoji=cc=>{if(!cc||cc.length!==2)return'🌍';const f=String.fromCodePoint(...[...cc.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65));return f};
+
+/* ── Globals ── */
+let allServers=[];
+const API_URL='https://www.vpngate.net/api/iphone/';
+const CORS_PROXY='https://api.allorigins.win/raw?url=';
+
+/* ── Fetch servers ── */
+async function fetchServers(){
+  showStatus(true);hideError();
+  try{
+    let csv;
+    try{const r=await fetch(API_URL);csv=await r.text()}
+    catch(_){const r=await fetch(CORS_PROXY+encodeURIComponent(API_URL));csv=await r.text()}
+    parseCSV(csv);
+  }catch(e){
+    showStatus(false);showError();
+  }
+}
+
+function parseCSV(csv){
+  const lines=csv.split('\n').filter(l=>l&&!l.startsWith('*'));
+  if(lines.length<2){showStatus(false);showError();return}
+  const headers=lines[0].split(',');
+  const servers=[];
+  for(let i=1;i<lines.length;i++){
+    const vals=lines[i].split(',');
+    if(vals.length<headers.length)continue;
+    const obj={};
+    headers.forEach((h,j)=>obj[h.trim()]=vals[j]);
+    /* rejoin any base64 data that may have been split */
+    if(headers.indexOf('OpenVPN_ConfigData_Base64')>=0){
+      const idx=headers.indexOf('OpenVPN_ConfigData_Base64');
+      obj['OpenVPN_ConfigData_Base64']=vals.slice(idx).join(',').replace(/\r/g,'');
+    }
+    servers.push({
+      host:obj['HostName']||'',ip:obj['IP']||'',
+      score:parseInt(obj['Score'])||0,ping:parseInt(obj['Ping'])||0,
+      speed:parseInt(obj['Speed'])||0,country:obj['CountryLong']||'',
+      cc:obj['CountryShort']||'',sessions:parseInt(obj['NumVpnSessions'])||0,
+      uptime:parseInt(obj['Uptime'])||0,totalUsers:parseInt(obj['TotalUsers'])||0,
+      operator:obj['Operator']||'',message:obj['Message']||'',
+      ovpn:obj['OpenVPN_ConfigData_Base64']||'',
+      l2tp:obj['L2TP/IPsec']?parseInt(obj['L2TP/IPsec']):0,
+    });
+  }
+  allServers=servers;
+  populateCountries();
+  renderServers();
+  showStatus(false);
+}
+
+function populateCountries(){
+  const sel=document.getElementById('countryFilter');
+  const countries=[...new Set(allServers.map(s=>s.country))].sort();
+  sel.innerHTML='<option value="">All Countries ('+countries.length+')</option>';
+  countries.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
+}
+
+function renderServers(){
+  const country=document.getElementById('countryFilter').value;
+  const proto=document.getElementById('protoFilter').value;
+  const sort=document.getElementById('sortBy').value;
+  const search=document.getElementById('searchInput').value.toLowerCase();
+
+  let list=[...allServers];
+  if(country)list=list.filter(s=>s.country===country);
+  if(proto==='openvpn')list=list.filter(s=>s.ovpn);
+  if(proto==='l2tp')list=list.filter(s=>s.l2tp);
+  if(search)list=list.filter(s=>s.host.toLowerCase().includes(search)||s.ip.includes(search));
+
+  list.sort((a,b)=>{
+    if(sort==='speed')return b.speed-a.speed;
+    if(sort==='ping')return(a.ping||999)-(b.ping||999);
+    if(sort==='score')return b.score-a.score;
+    if(sort==='sessions')return b.sessions-a.sessions;
+    return 0;
+  });
+
+  const grid=document.getElementById('serverGrid');
+  const maxSpeed=Math.max(...list.map(s=>s.speed),1);
+  grid.innerHTML=list.map(s=>{
+    const mbps=(s.speed/1e6).toFixed(1);
+    const pClass=s.ping<50?'ping-green':s.ping<100?'ping-yellow':'ping-red';
+    const maskedIP=s.ip.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/,'$1.$2.***.$4');
+    const uptimeH=Math.floor(s.uptime/1e3/3600);
+    const speedPct=Math.min((s.speed/maxSpeed)*100,100);
+    const hasOvpn=!!s.ovpn;
+    return`<div class="card">
+      <div class="card-header">
+        <span class="card-flag">${flagEmoji(s.cc)}</span>
+        <span class="card-country">${s.country}</span>
+        <span class="card-ip">${maskedIP}</span>
+      </div>
+      <div class="card-stats">
+        <div><div class="stat-label">Speed</div><div class="stat-val">${mbps} Mbps</div><div class="speed-bar"><div class="speed-fill" style="width:${speedPct}%"></div></div></div>
+        <div><div class="stat-label">Ping</div><div class="stat-val ${pClass}">${s.ping||'--'} ms</div></div>
+        <div><div class="stat-label">Score</div><div class="stat-val">${s.score.toLocaleString()}</div></div>
+        <div><div class="stat-label">Sessions</div><div class="stat-val">${s.sessions}</div></div>
+        <div><div class="stat-label">Uptime</div><div class="stat-val">${uptimeH}h</div></div>
+        <div><div class="stat-label">Host</div><div class="stat-val" style="font-size:.72rem">${s.host}</div></div>
+      </div>
+      ${s.message?`<div class="card-msg" title="${s.message.replace(/"/g,'&quot;')}">${s.message}</div>`:''}
+      <div class="card-actions">
+        ${hasOvpn?`<button class="btn btn-go" onclick="downloadConfig('${s.host}','${s.ovpn.substring(0,20)}',this)" data-ovpn="${s.ovpn}">Download .ovpn</button>`:`<button class="btn btn-outline" disabled>No OpenVPN</button>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  /* stats */
+  const countries=new Set(list.map(s=>s.country));
+  const avgSpeed=list.length?(list.reduce((a,s)=>a+s.speed,0)/list.length/1e6).toFixed(1):0;
+  document.getElementById('statTotal').textContent=list.length;
+  document.getElementById('statCountries').textContent=countries.size;
+  document.getElementById('statSpeed').textContent=avgSpeed;
+  document.getElementById('serverCount').textContent=list.length+' servers';
+  document.getElementById('statsFooter').style.display='flex';
+}
+
+/* ── Download config ── */
+function downloadConfig(host,_,btn){
+  const ovpn=btn.getAttribute('data-ovpn');
+  if(!ovpn)return;
+  try{
+    const decoded=atob(ovpn);
+    const blob=new Blob([decoded],{type:'application/x-openvpn-profile'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=host+'.ovpn';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Config downloaded: '+host+'.ovpn');
+  }catch(e){showToast('Error decoding config')}
+}
+
+/* ── UI helpers ── */
+function showStatus(vis){document.getElementById('statusBar').style.display=vis?'block':'none'}
+function showError(){document.getElementById('errorBox').style.display='block'}
+function hideError(){document.getElementById('errorBox').style.display='none'}
+function showPasteArea(){document.getElementById('pasteArea').style.display='block'}
+
+function parsePastedCSV(){
+  const csv=document.getElementById('csvInput').value.trim();
+  if(!csv){showToast('Paste CSV data first');return}
+  hideError();parseCSV(csv);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ── Filter listeners ── */
+['countryFilter','protoFilter','sortBy','searchInput'].forEach(id=>{
+  document.getElementById(id).addEventListener(id==='searchInput'?'input':'change',renderServers);
+});
+
+/* ── Demo data ── */
+function loadDemoData(){
+  hideError();
+  const countries=[
+    ['Japan','JP'],['Korea Republic','KR'],['United States','US'],['Germany','DE'],
+    ['France','FR'],['United Kingdom','GB'],['Canada','CA'],['Australia','AU'],
+    ['Netherlands','NL'],['Singapore','SG'],['Brazil','BR'],['India','IN'],
+    ['Thailand','TH'],['Vietnam','VN'],['Indonesia','ID'],['Taiwan','TW'],
+    ['Romania','RO'],['Russia','RU'],['Sweden','SE'],['Switzerland','CH'],
+  ];
+  allServers=countries.map(([country,cc],i)=>({
+    host:`vpn${100+i}.opengw.net`,ip:`${45+i*3}.${67+i*2}.${i*10}.${100+i}`,
+    score:Math.floor(Math.random()*1e6)+5e5,ping:Math.floor(Math.random()*180)+5,
+    speed:Math.floor(Math.random()*80e6)+2e6,country,cc,
+    sessions:Math.floor(Math.random()*40)+1,uptime:Math.floor(Math.random()*72e5)+36e5,
+    totalUsers:Math.floor(Math.random()*5000)+100,operator:'Demo Operator',
+    message:i%3===0?'Welcome to our VPN server!':'',
+    ovpn:btoa(`client\ndev tun\nproto udp\nremote vpn${100+i}.opengw.net 1194\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\nauth-user-pass\ncomp-lzo\nverb 3\n`),
+    l2tp:i%2,
+  }));
+  populateCountries();
+  renderServers();
+  showToast('Loaded 20 demo servers');
+}
+
+/* ── Init ── */
+fetchServers();
+</script>
+</body>
+</html>

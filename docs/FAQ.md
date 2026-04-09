@@ -371,7 +371,19 @@ If you have a newer Freebox (WireGuard) + a Revolution (OpenVPN only):
 🔴 Revolution (VPN Client) → ProtonVPN/NordVPN (optional, for privacy)
 ```
 
-### 42. What interactive tools are included in the project?
+### 42. What is VPN Gate and how do I use it?
+
+[VPN Gate](https://www.vpngate.net/) is a free academic VPN project from the University of Tsukuba (Japan) with ~5,000 volunteer servers worldwide. No signup needed!
+
+**How to use:**
+1. Go to [vpngate.net](https://www.vpngate.net/) → pick a server
+2. Download the **OpenVPN Config File** (.ovpn)
+3. Import into any OpenVPN client (including Freebox Revolution!)
+4. Credentials: Username `vpn` / Password `vpn`
+
+**Works with:** Freebox Revolution (VPN Client mode), OpenVPN Connect (phone/PC), Linux command line. Great for testing and learning — servers are volunteer-run so speeds vary.
+
+### 43. What interactive tools are included in the project?
 
 | Tool | File | Purpose |
 |------|------|---------|

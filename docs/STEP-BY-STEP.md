@@ -42,6 +42,7 @@ Good for trying out, with some limitations.
 | **ProtonVPN Free** | Unlimited | 3 countries | No ads, Swiss privacy, open source |
 | **Windscribe Free** | 10 GB/month | 10 countries | Good speeds, generous |
 | **hide.me Free** | 10 GB/month | 5 countries | No logs, reliable |
+| **VPN Gate** | Unlimited | ~5,000 servers worldwide | Free academic project (Univ. of Tsukuba, Japan). OpenVPN, L2TP, SoftEther. No signup! [vpngate.net](https://www.vpngate.net/) |
 
 > ⚠️ **Warning:** Avoid unknown free VPNs — many sell your data to advertisers! Stick to trusted names above.
 
@@ -142,10 +143,38 @@ Not sure which to choose? Follow this path:
 ```
 Want free & instant? → Opera VPN (browser only, no signup)
 Want free & full device? → ProtonVPN Free (unlimited data)
+Want free + many servers? → VPN Gate (5000 servers, academic, OpenVPN)
 Want maximum speed & features? → NordVPN or Mullvad (paid)
 Already have iCloud+? → Enable Private Relay (Safari only)
 Have a Freebox/Pi? → Host your own! (see Parts 4-5)
 ```
+
+### VPN Gate — Free Academic VPN (Special Mention)
+
+[VPN Gate](https://www.vpngate.net/) is a unique free VPN service run by the University of Tsukuba in Japan as an academic research project. It's worth highlighting because:
+
+- **~5,000 volunteer servers** in 50+ countries
+- **Completely free** — no signup, no email, no payment
+- **Supports OpenVPN** — works with Freebox Revolution VPN Client!
+- **Multiple protocols**: OpenVPN, L2TP/IPsec, SoftEther, MS-SSTP
+- **No app needed** — just download an OpenVPN config file and import
+
+**How to use VPN Gate:**
+1. Go to [vpngate.net](https://www.vpngate.net/)
+2. Browse the server list — pick a country/server with good speed
+3. Click **"OpenVPN Config File"** next to a server
+4. Download the `.ovpn` file (choose UDP for speed, TCP for reliability)
+5. Import into your VPN client:
+   - **Freebox Revolution**: VPN Client → Add → Upload .ovpn → Username: `vpn` / Password: `vpn`
+   - **Phone**: OpenVPN Connect app → import .ovpn → User: `vpn` / Pass: `vpn`
+   - **PC**: OpenVPN Connect → import → credentials: `vpn` / `vpn`
+   - **Linux**: `sudo openvpn --config vpngate.ovpn` (enter `vpn`/`vpn` when prompted)
+
+**Credentials for all VPN Gate servers:**
+- Username: `vpn`
+- Password: `vpn`
+
+> ⚠️ VPN Gate servers are volunteer-run — speeds vary, servers come and go. For consistent service, use ProtonVPN Free or a paid provider. VPN Gate is great for testing and learning!
 
 ---
 
