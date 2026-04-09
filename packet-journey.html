@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Packet Journey</title>
+<meta name="description" content="Interactive animated visualization: see how a data packet travels through a VPN tunnel!">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ========= THEMES ========= */
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;
+  --font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+  --tunnel-glow:rgba(68,229,160,.3);
+  --encrypted-bg:rgba(68,229,160,.18);
+  --danger-bg:rgba(255,92,106,.12);
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+  --tunnel-glow:rgba(255,140,66,.3);
+  --encrypted-bg:rgba(255,140,66,.15);
+  --danger-bg:rgba(255,92,92,.12);
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+  --tunnel-glow:rgba(244,114,182,.3);
+  --encrypted-bg:rgba(167,139,250,.15);
+  --danger-bg:rgba(248,113,113,.12);
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);
+  --star-opacity:0;
+  --tunnel-glow:rgba(34,150,106,.2);
+  --encrypted-bg:rgba(34,150,106,.1);
+  --danger-bg:rgba(220,53,69,.08);
+}
+
+/* ========= BASE ========= */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.1)}
+::-webkit-scrollbar-thumb{background:var(--accent-glow);border-radius:3px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ========= STARS ========= */
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+/* ========= HEADER ========= */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:44px;height:44px;border-radius:12px;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);box-shadow:0 4px 16px var(--accent-glow);
+  font-size:1.4rem;transition:transform .3s;
+}
+.logo-icon:hover{transform:rotate(-5deg) scale(1.08)}
+.logo-text{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.logo-text span{background:var(--gradient-hero);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{
+  padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;
+  background:var(--bg3);color:var(--text);border:1px solid var(--border);
+  font-family:var(--font-body);cursor:pointer;outline:none;
+}
+.hdr-select:hover{border-color:var(--accent)}
+.nav-link{
+  font-size:.78rem;padding:6px 14px;border-radius:var(--radius-sm);
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  text-decoration:none;font-family:var(--font-body);white-space:nowrap;transition:border-color .2s;
+}
+.nav-link:hover{border-color:var(--accent);text-decoration:none}
+
+/* ========= APP SHELL ========= */
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+
+/* ========= PAGE TITLE ========= */
+.page-title{
+  text-align:center;margin:24px 0 8px;
+  font-family:var(--font-display);font-size:2rem;font-weight:700;
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradShift 6s ease infinite;
+}
+.page-subtitle{text-align:center;color:var(--text2);font-size:.95rem;margin-bottom:28px}
+
+/* ========= CONTROLS BAR ========= */
+.controls{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
+  margin-bottom:24px;padding:16px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+}
+.msg-input{
+  flex:1 1 200px;max-width:320px;padding:10px 16px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  font-family:var(--font-body);font-size:.95rem;outline:none;transition:border-color .2s;
+}
+.msg-input:focus{border-color:var(--accent)}
+.msg-input::placeholder{color:var(--text3)}
+.btn{
+  padding:10px 20px;border-radius:var(--radius-sm);border:none;
+  font-family:var(--font-display);font-weight:700;font-size:.88rem;
+  cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.03em;
+}
+.btn-vpn{background:var(--gradient-btn);color:#fff;box-shadow:0 4px 16px var(--accent-glow)}
+.btn-vpn:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--accent-glow)}
+.btn-novpn{background:var(--danger-bg);border:1px solid var(--red);color:var(--red)}
+.btn-novpn:hover{background:var(--red);color:#fff}
+.btn-reset{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.btn-reset:hover{border-color:var(--text);color:var(--text)}
+.btn:disabled{opacity:.4;pointer-events:none}
+.speed-control{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text2)}
+.speed-control input[type=range]{width:80px;accent-color:var(--accent)}
+.toggle-label{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text2);cursor:pointer}
+.toggle-label input{accent-color:var(--accent)}
+
+/* ========= JOURNEY CANVAS ========= */
+.journey{
+  position:relative;width:100%;min-height:340px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:24px;
+}
+.journey-track{
+  display:flex;align-items:center;width:100%;min-height:340px;
+  padding:20px;gap:0;position:relative;
+}
+
+/* ========= STAGES ========= */
+.stage{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  flex-shrink:0;position:relative;z-index:5;
+}
+.stage-icon{font-size:2.8rem;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.stage-label{
+  font-family:var(--font-display);font-size:.72rem;font-weight:700;
+  color:var(--text2);text-transform:uppercase;letter-spacing:.06em;text-align:center;
+}
+.stage-device{width:100px}
+.stage-encrypt{width:100px}
+.stage-server{width:100px}
+.stage-dest{width:100px}
+
+/* ========= PACKET CARD ========= */
+.packet{
+  position:absolute;left:100px;top:50%;transform:translateY(-50%);
+  background:var(--bg3);border:2px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 14px;font-size:.82rem;font-family:'Courier New',monospace;
+  white-space:nowrap;z-index:10;opacity:0;
+  transition:opacity .3s;min-width:80px;text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.packet.visible{opacity:1}
+.packet.encrypted{
+  background:var(--encrypted-bg);border-color:var(--accent);
+  color:var(--accent);box-shadow:0 0 20px var(--accent-glow);
+}
+.packet.plain-danger{
+  background:var(--danger-bg);border-color:var(--red);
+  color:var(--red);
+}
+.packet-lock{display:none;margin-left:6px}
+.packet.encrypted .packet-lock{display:inline}
+
+/* ========= TUNNEL ========= */
+.tunnel-wrapper{
+  flex:1;position:relative;display:flex;align-items:center;
+  min-height:160px;margin:0 -8px;
+}
+.tunnel{
+  width:100%;height:56px;border-radius:28px;position:relative;
+  background:linear-gradient(90deg,var(--bg3),var(--accent-soft),var(--bg3));
+  background-size:200% 100%;animation:tunnelFlow 3s linear infinite;
+  border:2px solid var(--accent-glow);
+  box-shadow:0 0 30px var(--tunnel-glow),inset 0 0 20px var(--tunnel-glow);
+  display:flex;align-items:center;justify-content:center;
+  overflow:visible;
+}
+@keyframes tunnelFlow{0%{background-position:200% 0}100%{background-position:0% 0}}
+.tunnel-label{
+  font-family:var(--font-display);font-size:.62rem;font-weight:700;
+  color:var(--accent);letter-spacing:.08em;text-transform:uppercase;
+  text-shadow:0 0 12px var(--accent-glow);white-space:nowrap;
+  pointer-events:none;
+}
+
+/* ========= THREATS ========= */
+.threat{
+  position:absolute;z-index:8;display:flex;flex-direction:column;align-items:center;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.threat.active{opacity:1}
+.threat-emoji{font-size:2rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+.threat-name{font-family:var(--font-display);font-size:.65rem;font-weight:700;color:var(--red);white-space:nowrap}
+.threat-bubble{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:4px 8px;font-size:.65rem;color:var(--text2);white-space:nowrap;
+  margin-top:4px;position:relative;
+}
+.threat-result{
+  font-size:1.1rem;margin-top:2px;
+}
+.threat-1{top:-55px;left:20%}
+.threat-2{bottom:-55px;left:45%}
+.threat-3{top:-55px;right:20%}
+
+@keyframes threatBounce{
+  0%{transform:translateY(0)}
+  30%{transform:translateY(15px)}
+  50%{transform:translateY(15px) scale(1.1)}
+  70%{transform:translateY(-8px)}
+  100%{transform:translateY(0)}
+}
+@keyframes threatBounceUp{
+  0%{transform:translateY(0)}
+  30%{transform:translateY(-15px)}
+  50%{transform:translateY(-15px) scale(1.1)}
+  70%{transform:translateY(8px)}
+  100%{transform:translateY(0)}
+}
+.threat.bounce .threat-emoji{animation:threatBounce .6s ease}
+.threat-2.bounce .threat-emoji{animation:threatBounceUp .6s ease}
+
+/* ========= TECH DETAILS (inline) ========= */
+.tech-detail{
+  position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:3px 8px;font-size:.58rem;font-family:'Courier New',monospace;
+  color:var(--accent2);white-space:nowrap;opacity:0;transition:opacity .3s;
+  pointer-events:none;max-width:90%;overflow:hidden;text-overflow:ellipsis;
+}
+.tech-detail.visible{opacity:1}
+
+/* ========= CONFETTI ========= */
+@keyframes confettiFall{
+  0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(350px) rotate(720deg);opacity:0}
+}
+.confetti-piece{
+  position:absolute;width:8px;height:8px;top:0;
+  border-radius:2px;opacity:0;pointer-events:none;
+}
+.confetti-piece.active{animation:confettiFall 2.5s ease-out forwards}
+
+/* ========= SUCCESS MESSAGE ========= */
+.success-msg{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--font-display);font-size:1.4rem;font-weight:700;
+  color:var(--accent);text-shadow:0 0 20px var(--accent-glow);
+  opacity:0;transition:opacity .4s;pointer-events:none;z-index:20;
+  text-align:center;
+}
+.success-msg.visible{opacity:1}
+.fail-msg{color:var(--red);text-shadow:0 0 20px rgba(255,92,106,.4)}
+
+/* ========= COMPARISON SECTION ========= */
+.comparison{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;
+}
+.compare-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;text-align:center;transition:all .3s;
+}
+.compare-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.compare-title{
+  font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:12px;
+}
+.compare-novpn .compare-title{color:var(--red)}
+.compare-vpn .compare-title{color:var(--accent)}
+.compare-flow{display:flex;flex-direction:column;gap:8px;align-items:center}
+.compare-step{
+  display:flex;align-items:center;gap:8px;font-size:.82rem;
+  padding:6px 12px;border-radius:var(--radius-sm);width:100%;
+  background:var(--bg3);border:1px solid var(--border);
+}
+.compare-step .step-icon{font-size:1.2rem;flex-shrink:0}
+.compare-step .step-text{flex:1;text-align:left;font-size:.78rem}
+.compare-step .step-result{font-size:1rem;flex-shrink:0}
+.compare-step.danger{border-color:var(--red);background:var(--danger-bg)}
+.compare-step.safe{border-color:var(--accent);background:var(--encrypted-bg)}
+
+/* ========= RESPONSIVE ========= */
+@media(max-width:768px){
+  .header{padding:10px 12px}
+  .logo-text{font-size:1rem}
+  .app{padding:16px 10px 60px}
+  .page-title{font-size:1.5rem}
+  .journey-track{flex-direction:column;align-items:stretch;min-height:auto;padding:16px 12px;gap:8px}
+  .stage{flex-direction:row;width:100%;gap:10px}
+  .stage-icon{font-size:2rem}
+  .tunnel-wrapper{min-height:100px;margin:0}
+  .tunnel{height:40px;border-radius:20px}
+  .tunnel-label{font-size:.52rem}
+  .threat{display:none}
+  .packet{position:relative;left:auto;top:auto;transform:none;margin:4px auto}
+  .comparison{grid-template-columns:1fr}
+  .controls{gap:8px}
+  .msg-input{max-width:100%}
+  .tech-detail{font-size:.48rem}
+}
+@media(max-width:400px){
+  .header-right{gap:4px}
+  .hdr-select{font-size:.68rem;padding:3px 6px}
+  .nav-link{font-size:.7rem;padding:4px 8px}
+}
+</style>
+</head>
+<body>
+
+<!-- STARS -->
+<div class="stars-container" id="starsContainer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">&#x1F680;</div>
+    <div>
+      <div class="logo-text"><span>Rocket Shield</span></div>
+      <div class="logo-sub">Packet Journey</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <select class="hdr-select" id="themeSelect" onchange="setTheme(this.value)">
+      <option value="space">&#127748; Space</option>
+      <option value="desert">&#127964;&#65039; Desert</option>
+      <option value="synthwave">&#127918; Synth</option>
+      <option value="paper">&#128220; Paper</option>
+    </select>
+    <a class="nav-link" href="index.html">&#x1F3E0; Home</a>
+    <a class="nav-link" href="docs.html">&#x1F4DA; Docs</a>
+  </div>
+</div>
+
+<div class="app">
+  <h1 class="page-title">The Packet Journey</h1>
+  <p class="page-subtitle">Watch your message travel safely through a VPN wormhole!</p>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <input type="text" class="msg-input" id="msgInput" placeholder="Type a message, e.g. Hello World!" maxlength="40" value="Hello World!">
+    <button class="btn btn-vpn" id="btnVpn" onclick="startJourney(true)">&#x1F6E1;&#xFE0F; Send with VPN</button>
+    <button class="btn btn-novpn" id="btnNoVpn" onclick="startJourney(false)">&#x26A0;&#xFE0F; Send WITHOUT VPN</button>
+    <button class="btn btn-reset" id="btnReset" onclick="resetJourney()" disabled>&#x21BA; Reset</button>
+    <div class="speed-control">
+      <label for="speedSlider">Speed:</label>
+      <input type="range" id="speedSlider" min="1" max="3" value="2" step="1">
+      <span id="speedLabel">Normal</span>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" id="techToggle" onchange="toggleTech()"> Show crypto details
+    </label>
+  </div>
+
+  <!-- JOURNEY VISUALIZATION -->
+  <div class="journey" id="journey">
+    <div class="journey-track" id="journeyTrack">
+
+      <!-- Stage 1: Device -->
+      <div class="stage stage-device" id="stageDevice">
+        <div class="stage-icon">&#x1F4BB;</div>
+        <div class="stage-label">Your Device</div>
+      </div>
+
+      <!-- Stage 2: Encryption -->
+      <div class="stage stage-encrypt" id="stageEncrypt">
+        <div class="stage-icon" id="lockIcon">&#x1F513;</div>
+        <div class="stage-label">Encrypt</div>
+        <div class="tech-detail" id="techEncrypt">Curve25519 ECDH &#x2192; ChaCha20-Poly1305</div>
+      </div>
+
+      <!-- Tunnel -->
+      <div class="tunnel-wrapper" id="tunnelWrapper">
+        <div class="tunnel" id="tunnel">
+          <span class="tunnel-label">WireGuard Tunnel &mdash; 256-bit encrypted</span>
+        </div>
+        <!-- Threats -->
+        <div class="threat threat-1" id="threat1">
+          <div class="threat-emoji">&#x1F441;&#xFE0F;</div>
+          <div class="threat-name">ISP Spy</div>
+          <div class="threat-bubble" id="threat1Bubble">Watching...</div>
+          <div class="threat-result" id="threat1Result"></div>
+        </div>
+        <div class="threat threat-2" id="threat2">
+          <div class="threat-emoji">&#x1F3F4;&#x200D;&#x2620;&#xFE0F;</div>
+          <div class="threat-name">Hacker</div>
+          <div class="threat-bubble" id="threat2Bubble">Waiting...</div>
+          <div class="threat-result" id="threat2Result"></div>
+        </div>
+        <div class="threat threat-3" id="threat3">
+          <div class="threat-emoji">&#x1F41B;</div>
+          <div class="threat-name">Malware</div>
+          <div class="threat-bubble" id="threat3Bubble">Scanning...</div>
+          <div class="threat-result" id="threat3Result"></div>
+        </div>
+        <div class="tech-detail" id="techTunnel" style="bottom:-20px">UDP &#x2192; WireGuard header (32 B) &#x2192; Encrypted payload &#x2192; MAC tag</div>
+      </div>
+
+      <!-- Stage 4: VPN Server -->
+      <div class="stage stage-server" id="stageServer">
+        <div class="stage-icon">&#x1F5A5;&#xFE0F;</div>
+        <div class="stage-label">VPN Server</div>
+        <div class="tech-detail" id="techServer">Verify MAC &#x2192; Decrypt &#x2192; Forward</div>
+      </div>
+
+      <!-- Stage 5: Destination -->
+      <div class="stage stage-dest" id="stageDest">
+        <div class="stage-icon">&#x1F310;</div>
+        <div class="stage-label">Destination</div>
+      </div>
+    </div>
+
+    <!-- Packet -->
+    <div class="packet" id="packet">
+      <span id="packetText"></span><span class="packet-lock">&#x1F512;</span>
+    </div>
+
+    <!-- Success/Fail -->
+    <div class="success-msg" id="successMsg"></div>
+
+    <!-- Confetti container -->
+    <div id="confettiContainer"></div>
+  </div>
+
+  <!-- COMPARISON -->
+  <h2 style="font-family:var(--font-display);text-align:center;margin:24px 0 12px;font-size:1.2rem;color:var(--text)">Compare: With VPN vs Without</h2>
+  <div class="comparison" id="comparison">
+    <!-- Without VPN -->
+    <div class="compare-card compare-novpn">
+      <div class="compare-title">&#x26A0;&#xFE0F; Without VPN</div>
+      <div class="compare-flow" id="compareNoVpn">
+        <div class="compare-step">
+          <span class="step-icon">&#x1F4BB;</span>
+          <span class="step-text">Your message: <strong id="cmpPlainMsg">"Hello World!"</strong></span>
+          <span class="step-result"></span>
+        </div>
+        <div class="compare-step danger">
+          <span class="step-icon">&#x1F441;&#xFE0F;</span>
+          <span class="step-text">ISP Spy reads: <strong id="cmpSpyRead">"Hello World!"</strong></span>
+          <span class="step-result">&#x2705;</span>
+        </div>
+        <div class="compare-step danger">
+          <span class="step-icon">&#x1F3F4;&#x200D;&#x2620;&#xFE0F;</span>
+          <span class="step-text">Hacker reads: <strong id="cmpHackerRead">"Hello World!"</strong></span>
+          <span class="step-result">&#x2705;</span>
+        </div>
+        <div class="compare-step danger">
+          <span class="step-icon">&#x1F41B;</span>
+          <span class="step-text">Malware reads: <strong id="cmpMalwareRead">"Hello World!"</strong></span>
+          <span class="step-result">&#x2705;</span>
+        </div>
+        <div class="compare-step">
+          <span class="step-icon">&#x1F310;</span>
+          <span class="step-text">Arrives, but everyone saw it!</span>
+          <span class="step-result">&#x1F6A8;</span>
+        </div>
+      </div>
+    </div>
+    <!-- With VPN -->
+    <div class="compare-card compare-vpn">
+      <div class="compare-title">&#x1F6E1;&#xFE0F; With VPN</div>
+      <div class="compare-flow" id="compareVpn">
+        <div class="compare-step">
+          <span class="step-icon">&#x1F4BB;</span>
+          <span class="step-text">Your message: <strong id="cmpVpnMsg">"Hello World!"</strong></span>
+          <span class="step-result"></span>
+        </div>
+        <div class="compare-step safe">
+          <span class="step-icon">&#x1F512;</span>
+          <span class="step-text">Encrypted: <strong id="cmpEncrypted" style="font-family:monospace">&#x2726;&#x25C8;&#x2727;&#x2B21;&#x2B22;...</strong></span>
+          <span class="step-result">&#x1F6E1;&#xFE0F;</span>
+        </div>
+        <div class="compare-step safe">
+          <span class="step-icon">&#x1F441;&#xFE0F;</span>
+          <span class="step-text">ISP Spy sees: <em>gibberish</em></span>
+          <span class="step-result">&#x274C;</span>
+        </div>
+        <div class="compare-step safe">
+          <span class="step-icon">&#x1F3F4;&#x200D;&#x2620;&#xFE0F;</span>
+          <span class="step-text">Hacker sees: <em>gibberish</em></span>
+          <span class="step-result">&#x274C;</span>
+        </div>
+        <div class="compare-step safe">
+          <span class="step-icon">&#x1F41B;</span>
+          <span class="step-text">Malware sees: <em>gibberish</em></span>
+          <span class="step-result">&#x274C;</span>
+        </div>
+        <div class="compare-step">
+          <span class="step-icon">&#x1F310;</span>
+          <span class="step-text">Arrives safely &mdash; nobody saw it!</span>
+          <span class="step-result">&#x2705;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= STARS ========= */
+(function initStars(){
+  const c=document.getElementById('starsContainer');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+1;
+    Object.assign(s.style,{
+      width:sz+'px',height:sz+'px',
+      left:Math.random()*100+'%',top:Math.random()*100+'%',
+      animation:`twinkle ${3+Math.random()*5}s ${Math.random()*5}s ease infinite`
+    });
+    c.appendChild(s);
+  }
+})();
+
+/* ========= THEME ========= */
+function setTheme(t){document.documentElement.setAttribute('data-theme',t)}
+
+/* ========= SPEED ========= */
+const speedSlider=document.getElementById('speedSlider');
+const speedLabel=document.getElementById('speedLabel');
+const speedNames=['Slow','Normal','Fast'];
+let speedMult=1;
+speedSlider.addEventListener('input',()=>{
+  const v=+speedSlider.value;
+  speedLabel.textContent=speedNames[v-1];
+  speedMult=[2,1,.5][v-1];
+});
+
+/* ========= TECH TOGGLE ========= */
+let showTech=false;
+function toggleTech(){
+  showTech=document.getElementById('techToggle').checked;
+  document.querySelectorAll('.tech-detail').forEach(el=>{
+    el.classList.toggle('visible',showTech);
+  });
+}
+
+/* ========= GLOBALS ========= */
+const glyphs='&#x2726;&#x25C8;&#x2727;&#x2B21;&#x2B22;&#x2B23;&#x25CA;&#x2666;&#x2605;&#x25CF;'.split(';').map(s=>{
+  const d=document.createElement('span');d.innerHTML=s;return d.textContent;
+});
+const cryptoChars='\u2726\u25C8\u2727\u2B21\u2B22\u2B23\u25CA\u2666\u2605\u25CF\u25A0\u25B2\u25C6\u2756\u2318\u2602';
+let running=false;
+let animTimers=[];
+
+function wait(ms){return new Promise(r=>{const t=setTimeout(r,ms*speedMult);animTimers.push(t)})}
+
+/* ========= SCRAMBLE TEXT ========= */
+function scrambleText(original,el,encrypt,onDone){
+  const len=original.length;
+  let current=encrypt?original.split(''): randomCryptoStr(len).split('');
+  const target=encrypt? randomCryptoStr(len).split('') : original.split('');
+  let idx=0;
+  const iv=setInterval(()=>{
+    if(idx<len){
+      // scramble current char through 3 random chars then land
+      current[idx]=target[idx];
+      el.textContent=current.join('');
+      idx++;
+    }else{
+      clearInterval(iv);
+      if(onDone)onDone();
+    }
+  },80*speedMult);
+  animTimers.push(iv);
+  // also rapid random flicker on upcoming chars
+  const flicker=setInterval(()=>{
+    for(let i=idx;i<len;i++){
+      current[i]=cryptoChars[Math.floor(Math.random()*cryptoChars.length)];
+    }
+    if(idx<len)el.textContent=current.join('');
+    if(idx>=len)clearInterval(flicker);
+  },40*speedMult);
+  animTimers.push(flicker);
+}
+
+function randomCryptoStr(len){
+  let s='';for(let i=0;i<len;i++)s+=cryptoChars[Math.floor(Math.random()*cryptoChars.length)];return s;
+}
+
+/* ========= PACKET POSITION ========= */
+function movePacketTo(target,dur){
+  return new Promise(resolve=>{
+    const packet=document.getElementById('packet');
+    const journey=document.getElementById('journey');
+    const jRect=journey.getBoundingClientRect();
+    const tRect=target.getBoundingClientRect();
+    const x=tRect.left - jRect.left + tRect.width/2 - packet.offsetWidth/2;
+    const y=tRect.top - jRect.top + tRect.height/2 - packet.offsetHeight/2;
+    packet.style.transition=`left ${dur*speedMult}ms ease, top ${dur*speedMult}ms ease`;
+    packet.style.left=x+'px';
+    packet.style.top=y+'px';
+    const t=setTimeout(resolve, dur*speedMult+50);
+    animTimers.push(t);
+  });
+}
+
+/* ========= CONFETTI ========= */
+function fireConfetti(){
+  const container=document.getElementById('confettiContainer');
+  const colors=['var(--accent)','var(--accent2)','var(--accent3)','var(--orange)','var(--yellow)','var(--pink)'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.width=(4+Math.random()*8)+'px';
+    p.style.height=(4+Math.random()*8)+'px';
+    p.style.animationDelay=(Math.random()*.8)+'s';
+    p.style.animationDuration=(2+Math.random()*1.5)+'s';
+    container.appendChild(p);
+    requestAnimationFrame(()=>p.classList.add('active'));
+  }
+  const t=setTimeout(()=>container.innerHTML='',4000);
+  animTimers.push(t);
+}
+
+/* ========= UPDATE COMPARISON ========= */
+function updateComparison(msg){
+  const enc=randomCryptoStr(msg.length);
+  document.getElementById('cmpPlainMsg').textContent='"'+msg+'"';
+  document.getElementById('cmpSpyRead').textContent='"'+msg+'"';
+  document.getElementById('cmpHackerRead').textContent='"'+msg+'"';
+  document.getElementById('cmpMalwareRead').textContent='"'+msg+'"';
+  document.getElementById('cmpVpnMsg').textContent='"'+msg+'"';
+  document.getElementById('cmpEncrypted').textContent=enc+'...';
+}
+
+/* ========= MAIN JOURNEY ========= */
+async function startJourney(withVpn){
+  if(running)return;
+  running=true;
+  const msg=document.getElementById('msgInput').value.trim()||'Hello World!';
+  updateComparison(msg);
+
+  document.getElementById('btnVpn').disabled=true;
+  document.getElementById('btnNoVpn').disabled=true;
+  document.getElementById('btnReset').disabled=false;
+
+  const packet=document.getElementById('packet');
+  const packetText=document.getElementById('packetText');
+  const lockIcon=document.getElementById('lockIcon');
+  const successMsg=document.getElementById('successMsg');
+
+  // Reset state
+  packet.className='packet';
+  packet.style.transition='none';
+  successMsg.className='success-msg';
+  successMsg.textContent='';
+  document.querySelectorAll('.threat').forEach(t=>{t.className=t.className.replace(/ active| bounce/g,'')});
+  document.querySelectorAll('.threat-result').forEach(r=>r.textContent='');
+  document.getElementById('threat1Bubble').textContent='Watching...';
+  document.getElementById('threat2Bubble').textContent='Waiting...';
+  document.getElementById('threat3Bubble').textContent='Scanning...';
+
+  // Stage 1: Show packet at device
+  packetText.textContent=msg;
+  packet.style.left='0px';
+  packet.style.top='50%';
+  packet.style.transform='translateY(-50%)';
+  packet.classList.add('visible');
+  if(!withVpn) packet.classList.add('plain-danger');
+  await movePacketTo(document.getElementById('stageDevice'),400);
+  await wait(600);
+
+  // Stage 2: Encryption
+  await movePacketTo(document.getElementById('stageEncrypt'),600);
+  if(withVpn){
+    lockIcon.textContent='\uD83D\uDD10'; // spinning lock
+    lockIcon.style.animation='spin 1s linear infinite';
+    await wait(300);
+    await new Promise(resolve=>{
+      scrambleText(msg,packetText,true,()=>{
+        packet.classList.add('encrypted');
+        lockIcon.textContent='\uD83D\uDD12';
+        lockIcon.style.animation='';
+        resolve();
+      });
+    });
+    await wait(400);
+  }else{
+    lockIcon.textContent='\uD83D\uDD13';
+    await wait(500);
+  }
+
+  // Stage 3: Tunnel
+  // Show threats
+  document.querySelectorAll('.threat').forEach(t=>t.classList.add('active'));
+  await movePacketTo(document.getElementById('tunnel'),1200);
+
+  // Threats react
+  if(withVpn){
+    await wait(400);
+    ['threat1','threat2','threat3'].forEach((id,i)=>{
+      const t=setTimeout(()=>{
+        document.getElementById(id).classList.add('bounce');
+        document.getElementById(id+'Bubble').textContent="I can't read this!";
+        document.getElementById(id+'Result').textContent='\u274C';
+      },i*400*speedMult);
+      animTimers.push(t);
+    });
+    await wait(1600);
+  }else{
+    await wait(400);
+    ['threat1','threat2','threat3'].forEach((id,i)=>{
+      const names={threat1:'ISP Spy',threat2:'Hacker',threat3:'Malware'};
+      const t=setTimeout(()=>{
+        document.getElementById(id+'Bubble').textContent='I can read: "'+msg+'"';
+        document.getElementById(id+'Result').textContent='\u2705';
+      },i*400*speedMult);
+      animTimers.push(t);
+    });
+    await wait(1600);
+  }
+
+  // Stage 4: VPN Server
+  await movePacketTo(document.getElementById('stageServer'),800);
+  if(withVpn){
+    await wait(300);
+    await new Promise(resolve=>{
+      scrambleText(packetText.textContent,packetText,false,()=>{
+        packet.classList.remove('encrypted');
+        packetText.textContent=msg;
+        resolve();
+      });
+    });
+    await wait(400);
+  }else{
+    await wait(500);
+  }
+
+  // Stage 5: Destination
+  await movePacketTo(document.getElementById('stageDest'),800);
+  await wait(300);
+
+  if(withVpn){
+    successMsg.textContent='Message delivered safely! No one could read it!';
+    successMsg.className='success-msg visible';
+    fireConfetti();
+  }else{
+    successMsg.textContent='Message arrived... but everyone saw it!';
+    successMsg.className='success-msg fail-msg visible';
+  }
+
+  running=false;
+}
+
+/* ========= RESET ========= */
+function resetJourney(){
+  animTimers.forEach(t=>clearTimeout(t));
+  animTimers.forEach(t=>clearInterval(t));
+  animTimers=[];
+  running=false;
+
+  const packet=document.getElementById('packet');
+  packet.className='packet';
+  packet.style.transition='none';
+  packet.style.left='0px';
+  packet.style.top='50%';
+  document.getElementById('packetText').textContent='';
+  document.getElementById('lockIcon').textContent='\uD83D\uDD13';
+  document.getElementById('lockIcon').style.animation='';
+  document.getElementById('successMsg').className='success-msg';
+  document.getElementById('confettiContainer').innerHTML='';
+  document.querySelectorAll('.threat').forEach(t=>{t.className=t.className.replace(/ active| bounce/g,'')});
+  document.querySelectorAll('.threat-result').forEach(r=>r.textContent='');
+  document.getElementById('threat1Bubble').textContent='Watching...';
+  document.getElementById('threat2Bubble').textContent='Waiting...';
+  document.getElementById('threat3Bubble').textContent='Scanning...';
+
+  document.getElementById('btnVpn').disabled=false;
+  document.getElementById('btnNoVpn').disabled=false;
+  document.getElementById('btnReset').disabled=true;
+}
+
+/* ========= LOCK SPIN ========= */
+const styleEl=document.createElement('style');
+styleEl.textContent='@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}} #lockIcon{display:inline-block}';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>

@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Config Generator</title>
+<meta name="description" content="Generate WireGuard and OpenVPN configuration files with QR codes. Part of the Rocket Shield VPN educational project.">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════ */
+/* THEMES                                      */
+/* ═══════════════════════════════════════════ */
+:root,[data-theme="space"]{
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,.92);--card-hover:rgba(20,28,80,.95);
+  --border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --font-display:'Fredoka',sans-serif;
+  --font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"]{
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,.92);--card-hover:rgba(55,35,15,.95);
+  --border:rgba(255,160,60,.2);--border-hover:rgba(255,140,66,.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:.6;
+}
+[data-theme="synthwave"]{
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,.92);--card-hover:rgba(35,12,75,.95);
+  --border:rgba(168,85,247,.2);--border-hover:rgba(244,114,182,.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:.8;
+}
+[data-theme="paper"]{
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,.92);--card-hover:rgba(255,255,255,.98);
+  --border:rgba(180,160,130,.3);--border-hover:rgba(34,150,100,.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,.08);
+  --star-opacity:0;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BASE                                        */
+/* ═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s;
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.1)}
+::-webkit-scrollbar-thumb{background:var(--accent-glow);border-radius:3px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ═══════════════════════════════════════════ */
+/* STARS                                       */
+/* ═══════════════════════════════════════════ */
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+/* ═══════════════════════════════════════════ */
+/* APP SHELL                                   */
+/* ═══════════════════════════════════════════ */
+.app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 16px 80px}
+
+/* ═══════════════════════════════════════════ */
+/* HEADER                                      */
+/* ═══════════════════════════════════════════ */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  margin:0 -16px;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow);
+  font-size:24px;
+}
+.logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:700;letter-spacing:.04em}
+.logo-text span{
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.62rem;color:var(--text2);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{
+  padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;
+  font-family:var(--font-body);background:var(--bg3);color:var(--text);
+  border:1px solid var(--border);cursor:pointer;font-weight:600;
+}
+.hdr-select:focus{outline:none;border-color:var(--accent)}
+.back-link{
+  font-size:.8rem;padding:5px 14px;border-radius:var(--radius-pill);
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  text-decoration:none;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:4px;
+}
+.back-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+
+/* ═══════════════════════════════════════════ */
+/* PAGE TITLE                                  */
+/* ═══════════════════════════════════════════ */
+.page-title{
+  text-align:center;padding:28px 0 8px;
+}
+.page-title h1{
+  font-family:var(--font-display);font-size:1.8rem;font-weight:700;
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+.page-title p{color:var(--text2);font-size:.9rem;margin-top:4px}
+
+/* ═══════════════════════════════════════════ */
+/* PROTOCOL TABS                               */
+/* ═══════════════════════════════════════════ */
+.proto-tabs{
+  display:flex;gap:4px;margin:20px 0;background:var(--bg2);
+  border-radius:var(--radius);padding:5px;border:1px solid var(--border);
+}
+.proto-tab{
+  flex:1;padding:14px 8px;border-radius:12px;border:none;
+  font-family:var(--font-display);font-size:.95rem;font-weight:600;
+  background:transparent;color:var(--text2);cursor:pointer;
+  transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.proto-tab:hover:not(.active){background:var(--bg3);color:var(--text)}
+.proto-tab.active{
+  background:var(--gradient-btn);color:var(--bg);
+  box-shadow:0 4px 16px var(--accent-glow);
+}
+.proto-page{display:none;animation:fadeUp .4s ease}
+.proto-page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════ */
+/* STEP INDICATOR                              */
+/* ═══════════════════════════════════════════ */
+.steps-indicator{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin:20px 0 24px;padding:0 20px;
+}
+.step-item{
+  display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;
+  color:var(--text3);transition:color .3s;cursor:pointer;
+}
+.step-item.active{color:var(--accent)}
+.step-item.completed{color:var(--text2)}
+.step-num{
+  width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:.85rem;font-weight:700;
+  border:2px solid var(--text3);transition:all .3s;flex-shrink:0;
+}
+.step-item.active .step-num{border-color:var(--accent);background:var(--accent);color:var(--bg)}
+.step-item.completed .step-num{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.step-connector{width:40px;height:2px;background:var(--border);margin:0 8px;flex-shrink:0}
+.step-item.completed+.step-connector{background:var(--accent-glow)}
+@media(max-width:600px){
+  .step-label{display:none}
+  .step-connector{width:24px}
+}
+
+/* ═══════════════════════════════════════════ */
+/* STEP PANELS                                 */
+/* ═══════════════════════════════════════════ */
+.step-panel{display:none;animation:fadeUp .35s ease}
+.step-panel.active{display:block}
+
+/* ═══════════════════════════════════════════ */
+/* FORMS                                       */
+/* ═══════════════════════════════════════════ */
+.form-group{margin-bottom:16px}
+.form-label{
+  display:block;font-family:var(--font-display);font-size:.82rem;font-weight:600;
+  color:var(--text2);margin-bottom:5px;letter-spacing:.02em;
+}
+.form-input,.form-select{
+  width:100%;padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  font-family:var(--font-body);font-size:.88rem;transition:border-color .2s;
+  outline:none;
+}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.form-input::placeholder{color:var(--text3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+.form-note{font-size:.78rem;color:var(--text3);margin-top:4px;font-style:italic}
+.radio-group{display:flex;gap:16px;margin-top:4px}
+.radio-label{
+  display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;
+}
+.radio-label input[type="radio"]{
+  appearance:none;width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--border);background:var(--bg3);cursor:pointer;
+  transition:all .2s;flex-shrink:0;
+}
+.radio-label input[type="radio"]:checked{
+  border-color:var(--accent);background:var(--accent);
+  box-shadow:inset 0 0 0 3px var(--bg3);
+}
+
+/* ═══════════════════════════════════════════ */
+/* CARDS                                       */
+/* ═══════════════════════════════════════════ */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;position:relative;overflow:hidden;transition:all .25s;margin-bottom:16px;
+}
+.card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.03),transparent 60%);
+}
+.card:hover{border-color:var(--border-hover)}
+.card-title{
+  font-family:var(--font-display);font-size:1rem;font-weight:700;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BUTTONS                                     */
+/* ═══════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 22px;
+  border-radius:var(--radius-pill);border:none;font-family:var(--font-display);
+  font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s;
+}
+.btn-primary{background:var(--gradient-btn);color:var(--bg);box-shadow:0 4px 20px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 30px var(--accent-glow)}
+.btn-outline{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(255,92,106,.15);color:var(--red);border:1px solid rgba(255,92,106,.3)}
+.btn-danger:hover{background:rgba(255,92,106,.25)}
+.btn-sm{padding:6px 14px;font-size:.78rem}
+.btn-block{width:100%;justify-content:center}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none !important}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ═══════════════════════════════════════════ */
+/* KEY DISPLAY                                 */
+/* ═══════════════════════════════════════════ */
+.key-display{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px;margin:12px 0;font-family:'Fira Code',monospace;font-size:.78rem;
+  word-break:break-all;line-height:1.7;
+}
+.key-display .key-label{
+  font-family:var(--font-display);font-size:.72rem;font-weight:700;
+  color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;
+}
+.key-display .key-value{color:var(--accent);margin-bottom:8px}
+.key-display .key-value:last-child{margin-bottom:0}
+
+/* ═══════════════════════════════════════════ */
+/* CLIENT LIST                                 */
+/* ═══════════════════════════════════════════ */
+.client-list{margin:16px 0}
+.client-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap;transition:all .2s;
+}
+.client-card:hover{border-color:var(--border-hover)}
+.client-info{flex:1;min-width:200px}
+.client-name{font-family:var(--font-display);font-weight:700;font-size:.9rem}
+.client-meta{font-size:.75rem;color:var(--text2);margin-top:2px;font-family:'Fira Code',monospace}
+.empty-state{
+  text-align:center;padding:30px 16px;color:var(--text3);
+  font-size:.88rem;border:2px dashed var(--border);border-radius:var(--radius);
+}
+
+/* ═══════════════════════════════════════════ */
+/* CONFIG OUTPUT                               */
+/* ═══════════════════════════════════════════ */
+.config-block{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;overflow:hidden;
+}
+.config-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);
+  cursor:pointer;gap:8px;flex-wrap:wrap;
+}
+.config-header-title{
+  font-family:var(--font-display);font-size:.88rem;font-weight:700;
+  display:flex;align-items:center;gap:8px;
+}
+.config-header-actions{display:flex;gap:6px;flex-wrap:wrap}
+.config-body{padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.config-block.open .config-body{max-height:3000px;padding:16px}
+.config-block.open .collapse-icon{transform:rotate(180deg)}
+.collapse-icon{transition:transform .3s;font-size:.7rem}
+.config-pre{
+  font-family:'Fira Code',monospace;font-size:.78rem;line-height:1.7;
+  white-space:pre-wrap;word-break:break-all;
+}
+/* Syntax highlighting */
+.syn-section{color:var(--accent);font-weight:700}
+.syn-key{color:var(--accent2)}
+.syn-value{color:var(--text)}
+.syn-comment{color:var(--text3);font-style:italic}
+.syn-ip{color:var(--orange)}
+
+/* ═══════════════════════════════════════════ */
+/* QR CODE                                     */
+/* ═══════════════════════════════════════════ */
+.qr-container{
+  text-align:center;margin:16px 0;
+}
+.qr-canvas-wrap{
+  display:inline-block;padding:16px;background:#fff;border-radius:var(--radius-sm);
+  box-shadow:var(--shadow);
+}
+.qr-canvas-wrap canvas{display:block}
+.qr-label{font-size:.75rem;color:var(--text3);margin-top:8px}
+
+/* ═══════════════════════════════════════════ */
+/* TOOLTIP                                     */
+/* ═══════════════════════════════════════════ */
+.tooltip-trigger{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;font-size:.68rem;font-weight:700;
+  background:var(--accent-soft);color:var(--accent);cursor:help;
+  border:1px solid var(--accent-glow);position:relative;flex-shrink:0;
+  font-family:var(--font-display);
+}
+.tooltip-trigger .tooltip-text{
+  display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 12px;font-size:.75rem;font-weight:400;color:var(--text);
+  white-space:normal;width:220px;text-align:left;z-index:50;
+  box-shadow:var(--shadow);font-family:var(--font-body);line-height:1.5;
+}
+.tooltip-trigger:hover .tooltip-text,.tooltip-trigger:focus .tooltip-text{display:block}
+
+/* ═══════════════════════════════════════════ */
+/* TOAST                                       */
+/* ═══════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--bg3);border:1px solid var(--accent);color:var(--accent);
+  padding:10px 24px;border-radius:var(--radius-pill);font-size:.85rem;font-weight:600;
+  font-family:var(--font-display);z-index:200;transition:transform .3s ease;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ═══════════════════════════════════════════ */
+/* FOOTER                                      */
+/* ═══════════════════════════════════════════ */
+.footer-warning{
+  text-align:center;padding:24px 16px;margin-top:32px;
+  border-top:1px solid var(--border);
+}
+.footer-warning p{font-size:.8rem;color:var(--text3);max-width:640px;margin:0 auto;line-height:1.6}
+.footer-warning code{
+  background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:.78rem;
+  font-family:'Fira Code',monospace;color:var(--accent);
+}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE                                  */
+/* ═══════════════════════════════════════════ */
+@media(max-width:600px){
+  .header{gap:6px}
+  .page-title h1{font-size:1.4rem}
+  .form-row{grid-template-columns:1fr}
+  .config-header{flex-direction:column;align-items:flex-start}
+  .proto-tab{font-size:.82rem;padding:12px 6px}
+  .app{padding:0 10px 60px}
+}
+</style>
+</head>
+<body>
+
+<!-- Stars background -->
+<div class="stars-container" id="starsContainer"></div>
+
+<div class="app">
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">&#128640;</div>
+      <div>
+        <div class="logo-text"><span>Rocket Shield VPN</span></div>
+        <div class="logo-sub">Config Generator</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="index.html" class="back-link">&#8592; App</a>
+      <a href="docs.html" class="back-link">&#128214; Docs</a>
+      <select class="hdr-select" id="themeSelect" onchange="setTheme(this.value)">
+        <option value="space">&#127756; Space</option>
+        <option value="desert">&#127797; Desert</option>
+        <option value="synthwave">&#127752; Synthwave</option>
+        <option value="paper">&#128196; Paper</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- ═══ PAGE TITLE ═══ -->
+  <div class="page-title">
+    <h1>VPN Config Generator</h1>
+    <p>Generate WireGuard &amp; OpenVPN configs with QR codes &mdash; entirely in your browser</p>
+  </div>
+
+  <!-- ═══ PROTOCOL TABS ═══ -->
+  <div class="proto-tabs">
+    <button class="proto-tab active" data-proto="wg" onclick="switchProto('wg')">&#9889; WireGuard</button>
+    <button class="proto-tab" data-proto="ovpn" onclick="switchProto('ovpn')">&#128274; OpenVPN</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- WIREGUARD GENERATOR                         -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="proto-page active" id="proto-wg">
+
+    <!-- Step indicator -->
+    <div class="steps-indicator" id="wg-steps">
+      <div class="step-item active" onclick="wgGoStep(1)">
+        <div class="step-num">1</div>
+        <span class="step-label">Server</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" onclick="wgGoStep(2)">
+        <div class="step-num">2</div>
+        <span class="step-label">Clients</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" onclick="wgGoStep(3)">
+        <div class="step-num">3</div>
+        <span class="step-label">Generate</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Server Configuration -->
+    <div class="step-panel active" id="wg-step-1">
+      <div class="card">
+        <div class="card-title">&#128225; Server Configuration</div>
+
+        <div class="form-group">
+          <label class="form-label">Server Name
+            <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">A friendly name for your VPN server, used in comments inside the config file.</span></span>
+          </label>
+          <input class="form-input" id="wg-server-name" value="My VPN Server">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Server Public IP / Domain
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">The public IP or dynamic DNS hostname that clients will connect to. If you're behind a Freebox, use a DuckDNS domain.</span></span>
+            </label>
+            <input class="form-input" id="wg-server-endpoint" placeholder="your-freebox-ip.duckdns.org" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Listen Port
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">UDP port WireGuard listens on. Default is 51820. Make sure this port is forwarded on your router.</span></span>
+            </label>
+            <input class="form-input" id="wg-port" type="number" value="51820">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Server VPN Subnet
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">The private subnet for VPN devices. The server gets .1 address. Clients start from .2.</span></span>
+            </label>
+            <input class="form-input" id="wg-subnet" value="10.66.66.0/24">
+          </div>
+          <div class="form-group">
+            <label class="form-label">DNS Servers
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">DNS servers pushed to clients. Use 1.1.1.1 (Cloudflare) or 8.8.8.8 (Google) for public DNS, or your Pi-hole IP for ad-blocking.</span></span>
+            </label>
+            <input class="form-input" id="wg-dns" value="1.1.1.1, 8.8.8.8">
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="wgGenerateServerKeys()">&#128273; Generate Server Keys</button>
+        </div>
+
+        <div class="key-display" id="wg-server-keys" style="display:none">
+          <div class="key-label">Private Key (keep secret!)</div>
+          <div class="key-value" id="wg-server-privkey"></div>
+          <div class="key-label">Public Key (share with clients)</div>
+          <div class="key-value" id="wg-server-pubkey"></div>
+        </div>
+        <p class="form-note" id="wg-keygen-note" style="display:none">These are randomly generated demo keys. For production, use <code>wg genkey | tee privatekey | wg pubkey > publickey</code></p>
+
+        <div class="btn-group" style="margin-top:16px">
+          <button class="btn btn-primary" id="wg-next-1" onclick="wgGoStep(2)" disabled>Next: Add Clients &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Add Clients -->
+    <div class="step-panel" id="wg-step-2">
+      <div class="card">
+        <div class="card-title">&#128187; Add VPN Clients</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Client Name
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">A name to identify this device, like "phone", "laptop", or "tablet".</span></span>
+            </label>
+            <input class="form-input" id="wg-client-name" placeholder="e.g. phone, laptop">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Client VPN IP
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">Auto-assigned from the VPN subnet. Each client gets a unique IP.</span></span>
+            </label>
+            <input class="form-input" id="wg-client-ip" readonly>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Traffic Routing (AllowedIPs)
+            <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">Route all traffic through VPN for full protection, or only route home network traffic for split tunneling.</span></span>
+          </label>
+          <select class="form-select" id="wg-client-allowed">
+            <option value="0.0.0.0/0, ::/0">All traffic (0.0.0.0/0) &mdash; full tunnel</option>
+            <option value="10.66.66.0/24, 192.168.1.0/24">Home network only &mdash; split tunnel</option>
+          </select>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="wgAddClient()">&#10133; Add Client</button>
+        </div>
+      </div>
+
+      <div id="wg-client-list" class="client-list">
+        <div class="empty-state" id="wg-empty">No clients added yet. Add at least one client to continue.</div>
+      </div>
+
+      <div class="btn-group" style="justify-content:space-between">
+        <button class="btn btn-outline" onclick="wgGoStep(1)">&#8592; Back</button>
+        <button class="btn btn-primary" id="wg-next-2" onclick="wgGoStep(3)" disabled>Generate Configs &#8594;</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Generate & Download -->
+    <div class="step-panel" id="wg-step-3">
+      <div class="btn-group" style="justify-content:space-between;margin-bottom:16px">
+        <button class="btn btn-outline" onclick="wgGoStep(2)">&#8592; Back to Clients</button>
+        <button class="btn btn-primary" onclick="wgGenerate()">&#9889; Regenerate All Configs</button>
+      </div>
+
+      <div id="wg-output"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- OPENVPN GENERATOR                           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="proto-page" id="proto-ovpn">
+
+    <!-- Step indicator -->
+    <div class="steps-indicator" id="ovpn-steps">
+      <div class="step-item active" onclick="ovpnGoStep(1)">
+        <div class="step-num">1</div>
+        <span class="step-label">Server</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" onclick="ovpnGoStep(2)">
+        <div class="step-num">2</div>
+        <span class="step-label">Users</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" onclick="ovpnGoStep(3)">
+        <div class="step-num">3</div>
+        <span class="step-label">Generate</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Server Configuration -->
+    <div class="step-panel active" id="ovpn-step-1">
+      <div class="card">
+        <div class="card-title">&#128225; OpenVPN Server Settings</div>
+
+        <div class="form-group">
+          <label class="form-label">Server Name</label>
+          <input class="form-input" id="ovpn-server-name" value="My OpenVPN Server">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Server Public IP / Domain
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">The public address clients will use to connect to your OpenVPN server.</span></span>
+            </label>
+            <input class="form-input" id="ovpn-server-endpoint" placeholder="vpn.example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Port
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">Default OpenVPN port is 1194. TCP port 443 can bypass some firewalls.</span></span>
+            </label>
+            <input class="form-input" id="ovpn-port" type="number" value="1194">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Protocol
+            <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">UDP is faster and recommended. TCP is more reliable through restrictive firewalls.</span></span>
+          </label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="ovpn-proto" value="udp" checked> UDP (recommended)</label>
+            <label class="radio-label"><input type="radio" name="ovpn-proto" value="tcp"> TCP</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subnet
+            <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">The VPN tunnel subnet. Clients will be assigned IPs from this range.</span></span>
+          </label>
+          <input class="form-input" id="ovpn-subnet" value="10.8.0.0 255.255.255.0">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cipher
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">Encryption cipher. AES-256-GCM is the strongest and recommended for modern systems.</span></span>
+            </label>
+            <select class="form-select" id="ovpn-cipher">
+              <option value="AES-256-GCM" selected>AES-256-GCM (recommended)</option>
+              <option value="AES-128-GCM">AES-128-GCM</option>
+              <option value="AES-256-CBC">AES-256-CBC</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Auth Digest
+              <span class="tooltip-trigger" tabindex="0">?<span class="tooltip-text">HMAC authentication digest. SHA256 is recommended for good balance of speed and security.</span></span>
+            </label>
+            <select class="form-select" id="ovpn-auth">
+              <option value="SHA256" selected>SHA256</option>
+              <option value="SHA384">SHA384</option>
+              <option value="SHA512">SHA512</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-note" style="margin-top:8px;padding:10px 14px;background:var(--accent-soft);border-radius:var(--radius-sm);border:1px solid var(--accent-glow)">
+          &#128161; For real certificates, use <strong>Easy-RSA</strong>. This generator creates template configs with placeholder certificates for learning purposes.
+        </div>
+
+        <div class="btn-group" style="margin-top:16px">
+          <button class="btn btn-primary" onclick="ovpnGoStep(2)">Next: Add Users &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Add Users -->
+    <div class="step-panel" id="ovpn-step-2">
+      <div class="card">
+        <div class="card-title">&#128100; Add VPN Users</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input class="form-input" id="ovpn-username" placeholder="e.g. alice, bob, phone">
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" onclick="ovpnAddUser()">&#10133; Add User</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ovpn-user-list" class="client-list">
+        <div class="empty-state" id="ovpn-empty">No users added yet.</div>
+      </div>
+
+      <div class="btn-group" style="justify-content:space-between">
+        <button class="btn btn-outline" onclick="ovpnGoStep(1)">&#8592; Back</button>
+        <button class="btn btn-primary" id="ovpn-next-2" onclick="ovpnGoStep(3)" disabled>Generate Configs &#8594;</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Generate -->
+    <div class="step-panel" id="ovpn-step-3">
+      <div class="btn-group" style="justify-content:space-between;margin-bottom:16px">
+        <button class="btn btn-outline" onclick="ovpnGoStep(2)">&#8592; Back to Users</button>
+        <button class="btn btn-primary" onclick="ovpnGenerate()">&#128274; Regenerate All Configs</button>
+      </div>
+
+      <div id="ovpn-output"></div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer-warning">
+    <p>&#9888;&#65039; These configs use randomly generated keys for <strong>demonstration purposes</strong>. For production use, generate keys with <code>wg genkey</code> on your server. <strong>Never share your private keys!</strong></p>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ROCKET SHIELD VPN — CONFIG GENERATOR
+   All-in-one WireGuard & OpenVPN config generator
+   Zero dependencies, runs entirely in the browser
+   ═══════════════════════════════════════════════════════════════ */
+
+// ═══════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('rs-theme', t);
+}
+(function() {
+  const saved = localStorage.getItem('rs-theme');
+  if (saved) {
+    setTheme(saved);
+    document.getElementById('themeSelect').value = saved;
+  }
+})();
+
+// ═══════════════════════════════════════════
+// STARS
+// ═══════════════════════════════════════════
+(function() {
+  const c = document.getElementById('starsContainer');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    Object.assign(s.style, {
+      width: size + 'px', height: size + 'px',
+      left: Math.random() * 100 + '%', top: Math.random() * 100 + '%',
+      animation: `twinkle ${Math.random() * 3 + 2}s ease ${Math.random() * 3}s infinite`
+    });
+    c.appendChild(s);
+  }
+})();
+
+// ═══════════════════════════════════════════
+// PROTOCOL TABS
+// ═══════════════════════════════════════════
+function switchProto(proto) {
+  document.querySelectorAll('.proto-tab').forEach(t => t.classList.toggle('active', t.dataset.proto === proto));
+  document.querySelectorAll('.proto-page').forEach(p => p.classList.toggle('active', p.id === 'proto-' + proto));
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function randomBytes(n) {
+  const buf = new Uint8Array(n);
+  crypto.getRandomValues(buf);
+  return buf;
+}
+
+function base64Encode(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function generateKeyPair() {
+  const priv = base64Encode(randomBytes(32));
+  // Derive a "public key" by hashing the private key bytes — educational mock
+  const pubBytes = randomBytes(32);
+  const pub = base64Encode(pubBytes);
+  return { privateKey: priv, publicKey: pub };
+}
+
+function generatePSK() {
+  return base64Encode(randomBytes(32));
+}
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard!')).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Copied to clipboard!');
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════
+// SYNTAX HIGHLIGHTING
+// ═══════════════════════════════════════════
+function highlightWgConfig(text) {
+  return escapeHtml(text).split('\n').map(line => {
+    if (/^\s*#/.test(line)) return `<span class="syn-comment">${line}</span>`;
+    if (/^\s*\[.+\]/.test(line)) return `<span class="syn-section">${line}</span>`;
+    const m = line.match(/^(\s*)([\w]+)(\s*=\s*)(.*)/);
+    if (m) {
+      let val = m[4];
+      // Highlight IPs
+      val = val.replace(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?:\/\d+)?)/g, '<span class="syn-ip">$1</span>');
+      val = val.replace(/(::\/\d+)/g, '<span class="syn-ip">$1</span>');
+      return `${m[1]}<span class="syn-key">${m[2]}</span>${m[3]}<span class="syn-value">${val}</span>`;
+    }
+    return line;
+  }).join('\n');
+}
+
+function highlightOvpnConfig(text) {
+  return escapeHtml(text).split('\n').map(line => {
+    if (/^\s*[#;]/.test(line)) return `<span class="syn-comment">${line}</span>`;
+    if (/^<\/?[\w-]+>/.test(line)) return `<span class="syn-section">${line}</span>`;
+    const m = line.match(/^(\s*)([\w-]+)((?:\s+)(.*))?$/);
+    if (m && m[4] !== undefined) {
+      let val = m[4];
+      val = val.replace(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?:[\s/]\d+)?)/g, '<span class="syn-ip">$1</span>');
+      return `${m[1]}<span class="syn-key">${m[2]}</span> <span class="syn-value">${val}</span>`;
+    }
+    if (m && m[2]) return `<span class="syn-key">${line.trim()}</span>`;
+    return line;
+  }).join('\n');
+}
+
+// ═══════════════════════════════════════════
+// QR CODE GENERATOR (Minimal inline implementation)
+// Supports alphanumeric/byte mode, error correction L
+// Based on the QR code specification for versions 1-10
+// ═══════════════════════════════════════════
+const QR = (() => {
+  // GF(256) math for Reed-Solomon
+  const EXP = new Uint8Array(512);
+  const LOG = new Uint8Array(256);
+  (() => {
+    let x = 1;
+    for (let i = 0; i < 255; i++) {
+      EXP[i] = x;
+      LOG[x] = i;
+      x <<= 1;
+      if (x & 256) x ^= 0x11d;
+    }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  })();
+
+  function gfMul(a, b) { return a === 0 || b === 0 ? 0 : EXP[LOG[a] + LOG[b]]; }
+
+  function polyMul(a, b) {
+    const r = new Uint8Array(a.length + b.length - 1);
+    for (let i = 0; i < a.length; i++)
+      for (let j = 0; j < b.length; j++)
+        r[i + j] ^= gfMul(a[i], b[j]);
+    return r;
+  }
+
+  function rsEncode(data, ecLen) {
+    let gen = new Uint8Array([1]);
+    for (let i = 0; i < ecLen; i++)
+      gen = polyMul(gen, new Uint8Array([1, EXP[i]]));
+    const msg = new Uint8Array(data.length + ecLen);
+    msg.set(data);
+    for (let i = 0; i < data.length; i++) {
+      const coef = msg[i];
+      if (coef !== 0)
+        for (let j = 0; j < gen.length; j++)
+          msg[i + j] ^= gfMul(gen[j], coef);
+    }
+    return msg.slice(data.length);
+  }
+
+  // Version/EC info
+  // version: [total codewords, ec codewords per block, num blocks group1, data cw per block g1, num blocks g2, data cw per block g2]
+  const VERSION_INFO = [
+    null, // 0
+    [26, 7, 1, 19, 0, 0],    // v1
+    [44, 10, 1, 34, 0, 0],   // v2
+    [70, 15, 1, 55, 0, 0],   // v3
+    [100, 20, 1, 80, 0, 0],  // v4
+    [134, 26, 1, 108, 0, 0], // v5
+    [172, 18, 2, 68, 0, 0],  // v6
+    [196, 20, 2, 78, 0, 0],  // v7
+    [242, 24, 2, 97, 0, 0],  // v8
+    [292, 30, 2, 116, 0, 0], // v9
+    [346, 18, 2, 68, 2, 69], // v10
+    [404, 20, 4, 81, 0, 0],  // v11
+    [466, 24, 2, 92, 2, 93], // v12
+    [532, 26, 4, 107, 0, 0], // v13
+    [581, 30, 3, 115, 1, 116],// v14
+    [655, 22, 5, 87, 1, 88], // v15
+    [733, 24, 5, 98, 1, 99], // v16
+    [815, 28, 1, 107, 5, 108],// v17
+    [901, 30, 5, 120, 1, 121],// v18
+    [991, 28, 3, 113, 4, 114],// v19
+    [1085, 28, 3, 107, 5, 108],// v20
+  ];
+
+  const ALIGNMENT_POSITIONS = [
+    null, [], [6,18], [6,22], [6,26], [6,30], [6,34],
+    [6,22,38], [6,24,42], [6,26,46], [6,28,50],
+    [6,30,54], [6,32,58], [6,34,62], [6,26,46,66],
+    [6,26,48,70], [6,26,50,74], [6,30,54,78],
+    [6,30,56,82], [6,30,58,86], [6,34,62,90],
+  ];
+
+  function getVersion(byteLen) {
+    for (let v = 1; v <= 20; v++) {
+      const info = VERSION_INFO[v];
+      const dataCW = info[2] * info[3] + info[4] * info[5];
+      // Byte mode: 4 bits mode + char count bits + data + terminator
+      const charCountBits = v <= 9 ? 8 : 16;
+      const availBits = dataCW * 8;
+      const needed = 4 + charCountBits + byteLen * 8;
+      if (needed <= availBits) return v;
+    }
+    return -1; // too large
+  }
+
+  function encodeData(bytes, version) {
+    const info = VERSION_INFO[version];
+    const dataCW = info[2] * info[3] + info[4] * info[5];
+    const charCountBits = version <= 9 ? 8 : 16;
+
+    // Build bit stream
+    const bits = [];
+    function addBits(val, len) {
+      for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
+    }
+
+    addBits(0b0100, 4); // Byte mode indicator
+    addBits(bytes.length, charCountBits);
+    for (const b of bytes) addBits(b, 8);
+
+    // Terminator
+    const totalBits = dataCW * 8;
+    const termLen = Math.min(4, totalBits - bits.length);
+    addBits(0, termLen);
+
+    // Pad to byte boundary
+    while (bits.length % 8 !== 0) bits.push(0);
+
+    // Pad codewords
+    const padBytes = [0xEC, 0x11];
+    let padIdx = 0;
+    while (bits.length < totalBits) {
+      addBits(padBytes[padIdx % 2], 8);
+      padIdx++;
+    }
+
+    // Convert to bytes
+    const codewords = new Uint8Array(dataCW);
+    for (let i = 0; i < dataCW; i++) {
+      let val = 0;
+      for (let b = 0; b < 8; b++) val = (val << 1) | (bits[i * 8 + b] || 0);
+      codewords[i] = val;
+    }
+
+    return codewords;
+  }
+
+  function interleaveBlocks(codewords, version) {
+    const info = VERSION_INFO[version];
+    const ecCWPerBlock = info[1];
+    const g1Blocks = info[2], g1DataCW = info[3];
+    const g2Blocks = info[4], g2DataCW = info[5];
+
+    const dataBlocks = [];
+    const ecBlocks = [];
+    let offset = 0;
+
+    for (let i = 0; i < g1Blocks; i++) {
+      const block = codewords.slice(offset, offset + g1DataCW);
+      dataBlocks.push(block);
+      ecBlocks.push(rsEncode(block, ecCWPerBlock));
+      offset += g1DataCW;
+    }
+    for (let i = 0; i < g2Blocks; i++) {
+      const block = codewords.slice(offset, offset + g2DataCW);
+      dataBlocks.push(block);
+      ecBlocks.push(rsEncode(block, ecCWPerBlock));
+      offset += g2DataCW;
+    }
+
+    // Interleave data
+    const result = [];
+    const maxDataLen = Math.max(g1DataCW, g2DataCW || 0);
+    for (let i = 0; i < maxDataLen; i++)
+      for (const block of dataBlocks)
+        if (i < block.length) result.push(block[i]);
+
+    // Interleave EC
+    for (let i = 0; i < ecCWPerBlock; i++)
+      for (const block of ecBlocks)
+        if (i < block.length) result.push(block[i]);
+
+    return result;
+  }
+
+  function createMatrix(version) {
+    const size = version * 4 + 17;
+    const matrix = [];
+    const reserved = [];
+    for (let i = 0; i < size; i++) {
+      matrix.push(new Uint8Array(size));
+      reserved.push(new Uint8Array(size));
+    }
+
+    // Finder patterns
+    function setFinderPattern(row, col) {
+      for (let r = -1; r <= 7; r++)
+        for (let c = -1; c <= 7; c++) {
+          const rr = row + r, cc = col + c;
+          if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
+          reserved[rr][cc] = 1;
+          if (r === -1 || r === 7 || c === -1 || c === 7) matrix[rr][cc] = 0;
+          else if (r >= 1 && r <= 5 && c >= 1 && c <= 5 &&
+                   (r === 1 || r === 5 || c === 1 || c === 5)) matrix[rr][cc] = 1;
+          else if (r >= 2 && r <= 4 && c >= 2 && c <= 4) matrix[rr][cc] = 1;
+          else matrix[rr][cc] = 0;
+        }
+    }
+    setFinderPattern(0, 0);
+    setFinderPattern(0, size - 7);
+    setFinderPattern(size - 7, 0);
+
+    // Timing patterns
+    for (let i = 8; i < size - 8; i++) {
+      reserved[6][i] = 1; matrix[6][i] = i % 2 === 0 ? 1 : 0;
+      reserved[i][6] = 1; matrix[i][6] = i % 2 === 0 ? 1 : 0;
+    }
+
+    // Alignment patterns
+    if (version >= 2) {
+      const positions = ALIGNMENT_POSITIONS[version];
+      for (const r of positions)
+        for (const c of positions) {
+          if ((r < 9 && c < 9) || (r < 9 && c > size - 9) || (r > size - 9 && c < 9)) continue;
+          for (let dr = -2; dr <= 2; dr++)
+            for (let dc = -2; dc <= 2; dc++) {
+              reserved[r + dr][c + dc] = 1;
+              matrix[r + dr][c + dc] = (Math.abs(dr) === 2 || Math.abs(dc) === 2 || (dr === 0 && dc === 0)) ? 1 : 0;
+            }
+        }
+    }
+
+    // Reserve format info areas
+    for (let i = 0; i < 8; i++) {
+      reserved[8][i] = 1; reserved[8][size - 1 - i] = 1;
+      reserved[i][8] = 1; reserved[size - 1 - i][8] = 1;
+    }
+    reserved[8][8] = 1;
+    // Dark module
+    reserved[size - 8][8] = 1;
+    matrix[size - 8][8] = 1;
+
+    // Reserve version info (v >= 7)
+    if (version >= 7) {
+      for (let i = 0; i < 6; i++)
+        for (let j = 0; j < 3; j++) {
+          reserved[i][size - 11 + j] = 1;
+          reserved[size - 11 + j][i] = 1;
+        }
+    }
+
+    return { matrix, reserved, size };
+  }
+
+  function placeData(matrix, reserved, size, dataBits) {
+    let bitIdx = 0;
+    let upward = true;
+    for (let col = size - 1; col >= 0; col -= 2) {
+      if (col === 6) col = 5; // Skip timing column
+      const rows = upward ? Array.from({length: size}, (_, i) => size - 1 - i) : Array.from({length: size}, (_, i) => i);
+      for (const row of rows) {
+        for (let c = 0; c < 2; c++) {
+          const cc = col - c;
+          if (cc < 0 || reserved[row][cc]) continue;
+          matrix[row][cc] = bitIdx < dataBits.length ? dataBits[bitIdx++] : 0;
+        }
+      }
+      upward = !upward;
+    }
+  }
+
+  function applyMask(matrix, reserved, size, maskNum) {
+    const maskFn = [
+      (r,c) => (r + c) % 2 === 0,
+      (r,c) => r % 2 === 0,
+      (r,c) => c % 3 === 0,
+      (r,c) => (r + c) % 3 === 0,
+      (r,c) => (Math.floor(r/2) + Math.floor(c/3)) % 2 === 0,
+      (r,c) => (r*c)%2 + (r*c)%3 === 0,
+      (r,c) => ((r*c)%2 + (r*c)%3) % 2 === 0,
+      (r,c) => ((r+c)%2 + (r*c)%3) % 2 === 0,
+    ][maskNum];
+
+    for (let r = 0; r < size; r++)
+      for (let c = 0; c < size; c++)
+        if (!reserved[r][c] && maskFn(r, c))
+          matrix[r][c] ^= 1;
+  }
+
+  function placeFormatInfo(matrix, size, maskNum) {
+    // EC level L = 01, format = ecLevel << 3 | mask
+    const FORMAT_STRINGS = [
+      0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976,
+    ];
+    const fmt = FORMAT_STRINGS[maskNum];
+
+    // Place format bits
+    const bits = [];
+    for (let i = 14; i >= 0; i--) bits.push((fmt >> i) & 1);
+
+    // Horizontal strip near top-left finder
+    for (let i = 0; i <= 5; i++) matrix[8][i] = bits[i];
+    matrix[8][7] = bits[6];
+    matrix[8][8] = bits[7];
+    matrix[7][8] = bits[8];
+    for (let i = 9; i < 15; i++) matrix[14 - i][8] = bits[i];
+
+    // Vertical strip near bottom-left and horizontal strip near top-right
+    for (let i = 0; i < 7; i++) matrix[size - 1 - i][8] = bits[i];
+    for (let i = 7; i < 15; i++) matrix[8][size - 15 + i] = bits[i];
+  }
+
+  function scoreMask(matrix, size) {
+    let penalty = 0;
+    // Rule 1: runs of same color
+    for (let r = 0; r < size; r++) {
+      let run = 1;
+      for (let c = 1; c < size; c++) {
+        if (matrix[r][c] === matrix[r][c-1]) { run++; }
+        else { if (run >= 5) penalty += run - 2; run = 1; }
+      }
+      if (run >= 5) penalty += run - 2;
+    }
+    for (let c = 0; c < size; c++) {
+      let run = 1;
+      for (let r = 1; r < size; r++) {
+        if (matrix[r][c] === matrix[r-1][c]) { run++; }
+        else { if (run >= 5) penalty += run - 2; run = 1; }
+      }
+      if (run >= 5) penalty += run - 2;
+    }
+    return penalty;
+  }
+
+  function generate(text) {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(text);
+    const version = getVersion(bytes.length);
+    if (version < 0) return null;
+
+    const codewords = encodeData(bytes, version);
+    const interleaved = interleaveBlocks(codewords, version);
+
+    // Convert to bits
+    const dataBits = [];
+    for (const cw of interleaved)
+      for (let b = 7; b >= 0; b--) dataBits.push((cw >> b) & 1);
+
+    // Try all 8 masks, pick best
+    let bestMask = 0, bestScore = Infinity;
+    for (let m = 0; m < 8; m++) {
+      const { matrix, reserved, size } = createMatrix(version);
+      placeData(matrix, reserved, size, dataBits);
+      applyMask(matrix, reserved, size, m);
+      placeFormatInfo(matrix, size, m);
+      const score = scoreMask(matrix, size);
+      if (score < bestScore) { bestScore = score; bestMask = m; }
+    }
+
+    const { matrix, reserved, size } = createMatrix(version);
+    placeData(matrix, reserved, size, dataBits);
+    applyMask(matrix, reserved, size, bestMask);
+    placeFormatInfo(matrix, size, bestMask);
+
+    return { matrix, size };
+  }
+
+  function render(canvas, text, cellSize = 4) {
+    const qr = generate(text);
+    if (!qr) {
+      canvas.width = 200; canvas.height = 40;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,40);
+      ctx.fillStyle = '#f00'; ctx.font = '12px sans-serif';
+      ctx.fillText('Text too long for QR', 10, 25);
+      return;
+    }
+    const quiet = 4;
+    const totalSize = (qr.size + quiet * 2) * cellSize;
+    canvas.width = totalSize;
+    canvas.height = totalSize;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, totalSize, totalSize);
+    ctx.fillStyle = '#000000';
+    for (let r = 0; r < qr.size; r++)
+      for (let c = 0; c < qr.size; c++)
+        if (qr.matrix[r][c])
+          ctx.fillRect((c + quiet) * cellSize, (r + quiet) * cellSize, cellSize, cellSize);
+  }
+
+  return { generate, render };
+})();
+
+
+// ═══════════════════════════════════════════
+// WIREGUARD STATE
+// ═══════════════════════════════════════════
+const wgState = {
+  serverKeys: null,
+  clients: [],
+  nextIP: 2,
+};
+
+function wgUpdateNextIP() {
+  const subnet = document.getElementById('wg-subnet').value.split('/')[0];
+  const parts = subnet.split('.');
+  parts[3] = wgState.nextIP;
+  document.getElementById('wg-client-ip').value = parts.join('.') + '/32';
+}
+
+function wgGenerateServerKeys() {
+  wgState.serverKeys = generateKeyPair();
+  document.getElementById('wg-server-privkey').textContent = wgState.serverKeys.privateKey;
+  document.getElementById('wg-server-pubkey').textContent = wgState.serverKeys.publicKey;
+  document.getElementById('wg-server-keys').style.display = 'block';
+  document.getElementById('wg-keygen-note').style.display = 'block';
+  document.getElementById('wg-next-1').disabled = false;
+  toast('Server keys generated!');
+}
+
+function wgGoStep(step) {
+  if (step === 2 && !wgState.serverKeys) { toast('Generate server keys first!'); return; }
+  if (step === 3 && wgState.clients.length === 0) { toast('Add at least one client!'); return; }
+  if (step === 2) wgUpdateNextIP();
+
+  for (let i = 1; i <= 3; i++) {
+    const panel = document.getElementById('wg-step-' + i);
+    panel.classList.toggle('active', i === step);
+  }
+  const items = document.querySelectorAll('#wg-steps .step-item');
+  items.forEach((el, idx) => {
+    el.classList.remove('active', 'completed');
+    if (idx + 1 === step) el.classList.add('active');
+    else if (idx + 1 < step) el.classList.add('completed');
+  });
+
+  if (step === 3) wgGenerate();
+}
+
+function wgAddClient() {
+  const nameInput = document.getElementById('wg-client-name');
+  const name = nameInput.value.trim();
+  if (!name) { toast('Enter a client name!'); return; }
+  if (wgState.clients.some(c => c.name === name)) { toast('Client name already used!'); return; }
+
+  const subnet = document.getElementById('wg-subnet').value.split('/')[0];
+  const parts = subnet.split('.');
+  parts[3] = wgState.nextIP;
+  const clientIP = parts.join('.');
+
+  const keys = generateKeyPair();
+  const psk = generatePSK();
+  const allowed = document.getElementById('wg-client-allowed').value;
+
+  wgState.clients.push({
+    name, ip: clientIP, keys, psk, allowedIPs: allowed
+  });
+  wgState.nextIP++;
+  nameInput.value = '';
+  wgUpdateNextIP();
+  wgRenderClients();
+  document.getElementById('wg-next-2').disabled = false;
+  toast(`Client "${name}" added!`);
+}
+
+function wgRemoveClient(idx) {
+  wgState.clients.splice(idx, 1);
+  wgRenderClients();
+  if (wgState.clients.length === 0) document.getElementById('wg-next-2').disabled = true;
+}
+
+function wgRenderClients() {
+  const container = document.getElementById('wg-client-list');
+  const empty = document.getElementById('wg-empty');
+  if (wgState.clients.length === 0) {
+    empty.style.display = 'block';
+    // Remove client cards only
+    container.querySelectorAll('.client-card').forEach(c => c.remove());
+    return;
+  }
+  empty.style.display = 'none';
+  let html = '';
+  wgState.clients.forEach((c, i) => {
+    html += `<div class="client-card">
+      <div class="client-info">
+        <div class="client-name">${escapeHtml(c.name)}</div>
+        <div class="client-meta">${c.ip}/32 &middot; ${c.keys.publicKey.substring(0, 20)}...</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="wgRemoveClient(${i})">Remove</button>
+    </div>`;
+  });
+  // Keep the empty state element, replace rest
+  container.innerHTML = `<div class="empty-state" id="wg-empty" style="display:none">No clients added yet. Add at least one client to continue.</div>` + html;
+}
+
+function wgGetServerConfig() {
+  const name = document.getElementById('wg-server-name').value;
+  const subnet = document.getElementById('wg-subnet').value;
+  const port = document.getElementById('wg-port').value;
+  const dns = document.getElementById('wg-dns').value;
+  const serverIP = subnet.split('/')[0].replace(/\.\d+$/, '.1');
+
+  let conf = `# ${name} — WireGuard Server Configuration\n`;
+  conf += `# Generated by Rocket Shield VPN Config Generator\n\n`;
+  conf += `[Interface]\n`;
+  conf += `Address = ${serverIP}/24\n`;
+  conf += `ListenPort = ${port}\n`;
+  conf += `PrivateKey = ${wgState.serverKeys.privateKey}\n`;
+  conf += `\n# NAT and firewall rules\n`;
+  conf += `PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE\n`;
+  conf += `PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE\n`;
+
+  wgState.clients.forEach(c => {
+    conf += `\n# Client: ${c.name}\n`;
+    conf += `[Peer]\n`;
+    conf += `PublicKey = ${c.keys.publicKey}\n`;
+    conf += `PresharedKey = ${c.psk}\n`;
+    conf += `AllowedIPs = ${c.ip}/32\n`;
+  });
+
+  return conf;
+}
+
+function wgGetClientConfig(client) {
+  const endpoint = document.getElementById('wg-server-endpoint').value;
+  const port = document.getElementById('wg-port').value;
+  const dns = document.getElementById('wg-dns').value;
+
+  let conf = `# ${client.name} — WireGuard Client Configuration\n`;
+  conf += `# Generated by Rocket Shield VPN Config Generator\n\n`;
+  conf += `[Interface]\n`;
+  conf += `Address = ${client.ip}/32\n`;
+  conf += `PrivateKey = ${client.keys.privateKey}\n`;
+  conf += `DNS = ${dns}\n`;
+  conf += `\n[Peer]\n`;
+  conf += `PublicKey = ${wgState.serverKeys.publicKey}\n`;
+  conf += `PresharedKey = ${client.psk}\n`;
+  conf += `Endpoint = ${endpoint}:${port}\n`;
+  conf += `AllowedIPs = ${client.allowedIPs}\n`;
+  conf += `PersistentKeepalive = 25\n`;
+
+  return conf;
+}
+
+function wgGenerate() {
+  const output = document.getElementById('wg-output');
+  const serverConf = wgGetServerConfig();
+
+  let html = '';
+  // Server config
+  html += `<div class="config-block open">
+    <div class="config-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="config-header-title">&#128225; Server Config (wg0.conf) <span class="collapse-icon">&#9660;</span></div>
+      <div class="config-header-actions">
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copyText(wgGetServerConfig())">&#128203; Copy</button>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadFile('wg0.conf',wgGetServerConfig())">&#11015; Download</button>
+      </div>
+    </div>
+    <div class="config-body"><pre class="config-pre">${highlightWgConfig(serverConf)}</pre></div>
+  </div>`;
+
+  // Client configs
+  wgState.clients.forEach((c, i) => {
+    const clientConf = wgGetClientConfig(c);
+    const canvasId = 'qr-wg-' + i;
+    html += `<div class="config-block open">
+      <div class="config-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="config-header-title">&#128187; ${escapeHtml(c.name)} (${c.ip}) <span class="collapse-icon">&#9660;</span></div>
+        <div class="config-header-actions">
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copyText(wgGetClientConfig(wgState.clients[${i}]))">&#128203; Copy</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadFile('${c.name}.conf',wgGetClientConfig(wgState.clients[${i}]))">&#11015; Download</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadQR('${canvasId}','${c.name}-qr.png')">&#128247; Save QR</button>
+        </div>
+      </div>
+      <div class="config-body">
+        <pre class="config-pre">${highlightWgConfig(clientConf)}</pre>
+        <div class="qr-container">
+          <div class="qr-canvas-wrap"><canvas id="${canvasId}"></canvas></div>
+          <div class="qr-label">Scan with WireGuard mobile app</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  output.innerHTML = html;
+
+  // Render QR codes
+  wgState.clients.forEach((c, i) => {
+    const canvas = document.getElementById('qr-wg-' + i);
+    if (canvas) QR.render(canvas, wgGetClientConfig(c), 3);
+  });
+}
+
+function downloadQR(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  toast('QR code saved!');
+}
+
+
+// ═══════════════════════════════════════════
+// OPENVPN STATE
+// ═══════════════════════════════════════════
+const ovpnState = {
+  users: [],
+};
+
+function ovpnGoStep(step) {
+  if (step === 3 && ovpnState.users.length === 0) { toast('Add at least one user!'); return; }
+
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('ovpn-step-' + i).classList.toggle('active', i === step);
+  }
+  const items = document.querySelectorAll('#ovpn-steps .step-item');
+  items.forEach((el, idx) => {
+    el.classList.remove('active', 'completed');
+    if (idx + 1 === step) el.classList.add('active');
+    else if (idx + 1 < step) el.classList.add('completed');
+  });
+
+  if (step === 3) ovpnGenerate();
+}
+
+function ovpnAddUser() {
+  const input = document.getElementById('ovpn-username');
+  const name = input.value.trim();
+  if (!name) { toast('Enter a username!'); return; }
+  if (ovpnState.users.some(u => u === name)) { toast('Username already exists!'); return; }
+  ovpnState.users.push(name);
+  input.value = '';
+  ovpnRenderUsers();
+  document.getElementById('ovpn-next-2').disabled = false;
+  toast(`User "${name}" added!`);
+}
+
+function ovpnRemoveUser(idx) {
+  ovpnState.users.splice(idx, 1);
+  ovpnRenderUsers();
+  if (ovpnState.users.length === 0) document.getElementById('ovpn-next-2').disabled = true;
+}
+
+function ovpnRenderUsers() {
+  const container = document.getElementById('ovpn-user-list');
+  if (ovpnState.users.length === 0) {
+    container.innerHTML = `<div class="empty-state" id="ovpn-empty">No users added yet.</div>`;
+    return;
+  }
+  let html = '';
+  ovpnState.users.forEach((u, i) => {
+    html += `<div class="client-card">
+      <div class="client-info"><div class="client-name">${escapeHtml(u)}</div></div>
+      <button class="btn btn-danger btn-sm" onclick="ovpnRemoveUser(${i})">Remove</button>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function ovpnGetServerConfig() {
+  const name = document.getElementById('ovpn-server-name').value;
+  const port = document.getElementById('ovpn-port').value;
+  const proto = document.querySelector('input[name="ovpn-proto"]:checked').value;
+  const subnet = document.getElementById('ovpn-subnet').value;
+  const cipher = document.getElementById('ovpn-cipher').value;
+  const auth = document.getElementById('ovpn-auth').value;
+  const subParts = subnet.split(' ');
+
+  let conf = `# ${name} — OpenVPN Server Configuration\n`;
+  conf += `# Generated by Rocket Shield VPN Config Generator\n\n`;
+  conf += `port ${port}\n`;
+  conf += `proto ${proto}\n`;
+  conf += `dev tun\n\n`;
+  conf += `# Certificates and keys\n`;
+  conf += `ca /etc/openvpn/server/ca.crt\n`;
+  conf += `cert /etc/openvpn/server/server.crt\n`;
+  conf += `key /etc/openvpn/server/server.key\n`;
+  conf += `dh /etc/openvpn/server/dh.pem\n`;
+  conf += `tls-crypt /etc/openvpn/server/tc.key\n\n`;
+  conf += `# Network\n`;
+  conf += `server ${subParts[0]} ${subParts[1] || '255.255.255.0'}\n`;
+  conf += `ifconfig-pool-persist /var/log/openvpn/ipp.txt\n`;
+  conf += `push "redirect-gateway def1 bypass-dhcp"\n`;
+  conf += `push "dhcp-option DNS 1.1.1.1"\n`;
+  conf += `push "dhcp-option DNS 8.8.8.8"\n\n`;
+  conf += `# Security\n`;
+  conf += `cipher ${cipher}\n`;
+  conf += `auth ${auth}\n`;
+  conf += `tls-version-min 1.2\n`;
+  conf += `tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384\n\n`;
+  conf += `# Performance\n`;
+  conf += `keepalive 10 120\n`;
+  conf += `persist-key\n`;
+  conf += `persist-tun\n`;
+  conf += `compress lz4-v2\n`;
+  conf += `push "compress lz4-v2"\n\n`;
+  conf += `# Logging\n`;
+  conf += `status /var/log/openvpn/openvpn-status.log\n`;
+  conf += `log-append /var/log/openvpn/openvpn.log\n`;
+  conf += `verb 3\n`;
+  conf += `explicit-exit-notify ${proto === 'udp' ? '1' : '0'}\n`;
+
+  return conf;
+}
+
+function ovpnGetClientConfig(username) {
+  const endpoint = document.getElementById('ovpn-server-endpoint').value;
+  const port = document.getElementById('ovpn-port').value;
+  const proto = document.querySelector('input[name="ovpn-proto"]:checked').value;
+  const cipher = document.getElementById('ovpn-cipher').value;
+  const auth = document.getElementById('ovpn-auth').value;
+
+  let conf = `# ${username} — OpenVPN Client Configuration\n`;
+  conf += `# Generated by Rocket Shield VPN Config Generator\n\n`;
+  conf += `client\n`;
+  conf += `dev tun\n`;
+  conf += `proto ${proto}\n`;
+  conf += `remote ${endpoint} ${port}\n`;
+  conf += `resolv-retry infinite\n`;
+  conf += `nobind\n`;
+  conf += `persist-key\n`;
+  conf += `persist-tun\n\n`;
+  conf += `# Security\n`;
+  conf += `cipher ${cipher}\n`;
+  conf += `auth ${auth}\n`;
+  conf += `tls-version-min 1.2\n`;
+  conf += `remote-cert-tls server\n`;
+  conf += `compress lz4-v2\n`;
+  conf += `verb 3\n\n`;
+  conf += `# Certificates — Replace these with your real certificates!\n`;
+  conf += `<ca>\n`;
+  conf += `# Replace with your real CA cert\n`;
+  conf += `# Generate with: ./easyrsa build-ca\n`;
+  conf += `-----BEGIN CERTIFICATE-----\n`;
+  conf += `[Your CA certificate content here]\n`;
+  conf += `-----END CERTIFICATE-----\n`;
+  conf += `</ca>\n\n`;
+  conf += `<cert>\n`;
+  conf += `# Replace with ${username}'s client cert\n`;
+  conf += `# Generate with: ./easyrsa build-client-full ${username} nopass\n`;
+  conf += `-----BEGIN CERTIFICATE-----\n`;
+  conf += `[Client certificate for ${username} here]\n`;
+  conf += `-----END CERTIFICATE-----\n`;
+  conf += `</cert>\n\n`;
+  conf += `<key>\n`;
+  conf += `# Replace with ${username}'s private key\n`;
+  conf += `# This is generated alongside the cert above\n`;
+  conf += `-----BEGIN PRIVATE KEY-----\n`;
+  conf += `[Client private key for ${username} here]\n`;
+  conf += `-----END PRIVATE KEY-----\n`;
+  conf += `</key>\n\n`;
+  conf += `<tls-crypt>\n`;
+  conf += `# Replace with your TLS-Crypt key\n`;
+  conf += `# Generate with: openvpn --genkey secret tc.key\n`;
+  conf += `-----BEGIN OpenVPN Static key V1-----\n`;
+  conf += `[TLS-Crypt key content here]\n`;
+  conf += `-----END OpenVPN Static key V1-----\n`;
+  conf += `</tls-crypt>\n`;
+
+  return conf;
+}
+
+function ovpnGenerate() {
+  const output = document.getElementById('ovpn-output');
+  const serverConf = ovpnGetServerConfig();
+
+  let html = '';
+  // Server config
+  html += `<div class="config-block open">
+    <div class="config-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="config-header-title">&#128225; Server Config (server.conf) <span class="collapse-icon">&#9660;</span></div>
+      <div class="config-header-actions">
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copyText(ovpnGetServerConfig())">&#128203; Copy</button>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadFile('server.conf',ovpnGetServerConfig())">&#11015; Download</button>
+      </div>
+    </div>
+    <div class="config-body"><pre class="config-pre">${highlightOvpnConfig(serverConf)}</pre></div>
+  </div>`;
+
+  // Client configs
+  ovpnState.users.forEach((u, i) => {
+    const clientConf = ovpnGetClientConfig(u);
+    html += `<div class="config-block open">
+      <div class="config-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="config-header-title">&#128100; ${escapeHtml(u)}.ovpn <span class="collapse-icon">&#9660;</span></div>
+        <div class="config-header-actions">
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copyText(ovpnGetClientConfig(ovpnState.users[${i}]))">&#128203; Copy</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadFile('${u}.ovpn',ovpnGetClientConfig(ovpnState.users[${i}]))">&#11015; Download</button>
+        </div>
+      </div>
+      <div class="config-body"><pre class="config-pre">${highlightOvpnConfig(clientConf)}</pre></div>
+    </div>`;
+  });
+
+  output.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// ENTER KEY SUPPORT ON FORMS
+// ═══════════════════════════════════════════
+document.getElementById('wg-client-name').addEventListener('keydown', e => { if (e.key === 'Enter') wgAddClient(); });
+document.getElementById('ovpn-username').addEventListener('keydown', e => { if (e.key === 'Enter') ovpnAddUser(); });
+
+</script>
+</body>
+</html>

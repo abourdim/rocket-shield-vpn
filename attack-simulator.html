@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attack Simulator - Rocket Shield VPN</title>
+<meta name="description" content="Defend your space station from cyber attacks! An interactive mini-game to learn about VPN shields and cybersecurity.">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════ */
+/* THEMES                                      */
+/* ═══════════════════════════════════════════ */
+:root, [data-theme="space"] {
+  --bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;
+  --card:rgba(15,20,60,0.92);--card-hover:rgba(20,28,80,0.95);
+  --border:rgba(100,140,255,0.15);--border-hover:rgba(68,229,160,0.5);
+  --text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;
+  --accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;
+  --accent-soft:rgba(68,229,160,0.12);--accent-glow:rgba(68,229,160,0.4);
+  --orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;
+  --gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);
+  --gradient-btn:linear-gradient(135deg,#44e5a0,#36d98c);
+  --radius:16px;--radius-sm:10px;--radius-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --font-display:'Fredoka',sans-serif;
+  --font-body:'Nunito',sans-serif;
+  --star-opacity:1;
+}
+[data-theme="desert"] {
+  --bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;
+  --card:rgba(40,25,10,0.92);--card-hover:rgba(55,35,15,0.95);
+  --border:rgba(255,160,60,0.2);--border-hover:rgba(255,140,66,0.5);
+  --text:#fde8d0;--text2:#b08a60;--text3:#6b5030;
+  --accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;
+  --accent-soft:rgba(255,140,66,0.12);--accent-glow:rgba(255,140,66,0.4);
+  --orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--pink:#ff9a8b;
+  --gradient-hero:linear-gradient(135deg,#ff8c42,#ffc857,#ff6b6b,#ff9a8b);
+  --gradient-btn:linear-gradient(135deg,#ff8c42,#ff7a2e);
+  --star-opacity:0.6;
+}
+[data-theme="synthwave"] {
+  --bg:#0d0221;--bg2:#150530;--bg3:#1f0845;
+  --card:rgba(25,8,55,0.92);--card-hover:rgba(35,12,75,0.95);
+  --border:rgba(168,85,247,0.2);--border-hover:rgba(244,114,182,0.5);
+  --text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;
+  --accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;
+  --accent-soft:rgba(244,114,182,0.12);--accent-glow:rgba(244,114,182,0.4);
+  --orange:#fb923c;--red:#f87171;--yellow:#fde047;--pink:#f472b6;
+  --gradient-hero:linear-gradient(135deg,#f472b6,#a78bfa,#22d3ee,#fde047);
+  --gradient-btn:linear-gradient(135deg,#f472b6,#e044a0);
+  --star-opacity:0.8;
+}
+[data-theme="paper"] {
+  --bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;
+  --card:rgba(255,255,255,0.92);--card-hover:rgba(255,255,255,0.98);
+  --border:rgba(180,160,130,0.3);--border-hover:rgba(34,150,100,0.4);
+  --text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;
+  --accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;
+  --accent-soft:rgba(34,150,106,0.1);--accent-glow:rgba(34,150,106,0.3);
+  --orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--pink:#d63384;
+  --gradient-hero:linear-gradient(135deg,#22966a,#2563eb,#9333ea,#d63384);
+  --gradient-btn:linear-gradient(135deg,#22966a,#1a7a55);
+  --shadow:0 4px 20px rgba(0,0,0,0.08);
+  --star-opacity:0;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BASE                                        */
+/* ═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s;
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,0.1)}
+::-webkit-scrollbar-thumb{background:var(--accent-glow);border-radius:3px}
+
+/* ═══════════════════════════════════════════ */
+/* STARS                                       */
+/* ═══════════════════════════════════════════ */
+.stars-container{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--star-opacity);transition:opacity .4s}
+.star{position:absolute;border-radius:50%;background:#fff}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
+
+/* ═══════════════════════════════════════════ */
+/* HEADER                                      */
+/* ═══════════════════════════════════════════ */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+  position:sticky;top:0;z-index:100;
+  background:
+    radial-gradient(circle at top left,rgba(68,229,160,0.06),transparent 55%),
+    radial-gradient(circle at bottom right,rgba(77,201,246,0.08),transparent 60%),
+    var(--bg);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);box-shadow:0 4px 20px var(--accent-glow),0 0 0 1px rgba(0,0,0,0.2);
+  transition:transform .3s,box-shadow .3s;font-size:28px;
+}
+.logo-icon:hover{transform:rotate(-5deg) scale(1.08);box-shadow:0 8px 30px var(--accent-glow)}
+.logo-text{font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.logo-text span{
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.logo-sub{font-size:.65rem;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-select{
+  padding:5px 10px;border-radius:var(--radius-pill);font-size:.75rem;
+  font-family:var(--font-body);background:var(--bg3);color:var(--text);
+  border:1px solid var(--border);cursor:pointer;font-weight:600;
+}
+.hdr-select:focus{outline:none;border-color:var(--accent)}
+.hdr-link{
+  font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  text-decoration:none;font-family:var(--font-body);white-space:nowrap;
+  transition:border-color .25s;
+}
+.hdr-link:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ═══════════════════════════════════════════ */
+/* GAME CONTAINER                              */
+/* ═══════════════════════════════════════════ */
+.game-wrap{
+  position:relative;z-index:1;max-width:1000px;margin:0 auto;
+  padding:0 8px;user-select:none;
+}
+
+/* ═══════════════════════════════════════════ */
+/* TOP HUD                                     */
+/* ═══════════════════════════════════════════ */
+.hud{
+  display:flex;gap:12px;padding:12px 4px;flex-wrap:wrap;align-items:center;
+  justify-content:center;
+}
+.hud-item{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:var(--radius-pill);
+  background:var(--card);border:1px solid var(--border);
+  font-family:var(--font-display);font-size:.85rem;font-weight:600;
+}
+.hud-bar-wrap{
+  width:100px;height:10px;border-radius:5px;background:var(--bg3);
+  overflow:hidden;border:1px solid var(--border);
+}
+.hud-bar{
+  height:100%;border-radius:5px;transition:width .3s;
+}
+.hud-bar.health{background:linear-gradient(90deg,var(--red),var(--accent))}
+.hud-bar.energy{background:linear-gradient(90deg,var(--yellow),var(--orange))}
+.hud-hint{
+  position:absolute;top:80px;left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--accent);
+  color:var(--accent);padding:8px 20px;border-radius:var(--radius-pill);
+  font-family:var(--font-display);font-size:.85rem;
+  z-index:20;pointer-events:none;
+  animation:hintBounce 1.5s ease infinite;
+  white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
+}
+@keyframes hintBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+/* ═══════════════════════════════════════════ */
+/* ARENA                                       */
+/* ═══════════════════════════════════════════ */
+.arena{
+  position:relative;width:100%;aspect-ratio:4/3;max-height:60vh;
+  margin:0 auto;overflow:hidden;
+  background:radial-gradient(circle at center,var(--bg3) 0%,var(--bg2) 40%,var(--bg) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+}
+
+/* Station */
+.station{
+  position:absolute;left:50%;top:50%;
+  width:80px;height:80px;
+  transform:translate(-50%,-50%);
+  z-index:10;
+}
+.station-core{
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-soft),var(--bg3));
+  border:3px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+  box-shadow:0 0 30px var(--accent-glow);
+  transition:box-shadow .3s;
+}
+.station.damaged .station-core{
+  animation:stationShake .3s ease;
+  box-shadow:0 0 40px rgba(255,92,106,0.6);
+}
+@keyframes stationShake{
+  0%,100%{transform:translate(0)}
+  20%{transform:translate(-6px,4px)}
+  40%{transform:translate(6px,-4px)}
+  60%{transform:translate(-4px,-6px)}
+  80%{transform:translate(4px,6px)}
+}
+
+/* Shield Rings */
+.shield-ring{
+  position:absolute;border-radius:50%;
+  border:2px solid transparent;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  transition:border-color .3s, box-shadow .3s, opacity .3s;
+  opacity:0.2;
+}
+.shield-ring.active{
+  opacity:1;
+  animation:ringPulse 2s ease infinite;
+}
+@keyframes ringPulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.8}
+  50%{transform:translate(-50%,-50%) scale(1.04);opacity:1}
+}
+.shield-ring.r1{width:140px;height:140px;border-color:var(--accent);box-shadow:0 0 15px var(--accent-glow)}
+.shield-ring.r2{width:180px;height:180px;border-color:var(--accent2);box-shadow:0 0 15px rgba(77,201,246,0.3)}
+.shield-ring.r3{width:220px;height:220px;border-color:var(--accent3);box-shadow:0 0 15px rgba(176,102,255,0.3)}
+.shield-ring.r1:not(.active){border-color:rgba(68,229,160,0.1);box-shadow:none}
+.shield-ring.r2:not(.active){border-color:rgba(77,201,246,0.1);box-shadow:none}
+.shield-ring.r3:not(.active){border-color:rgba(176,102,255,0.1);box-shadow:none}
+
+/* Threats */
+.threat{
+  position:absolute;z-index:5;
+  font-size:28px;
+  pointer-events:none;
+  transition:none;
+  filter:drop-shadow(0 0 6px rgba(255,92,106,0.5));
+}
+.threat-label{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  font-size:.55rem;font-family:var(--font-display);color:var(--red);
+  white-space:nowrap;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* Blocked effect */
+.blocked-text{
+  position:absolute;z-index:15;
+  font-family:var(--font-display);font-size:.9rem;font-weight:700;
+  color:var(--accent);text-shadow:0 0 8px var(--accent-glow);
+  pointer-events:none;
+  animation:blockedFade .8s ease forwards;
+}
+@keyframes blockedFade{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-80px) scale(1.3)}
+}
+
+/* Hit flash */
+.arena.hit-flash{animation:arenaFlash .2s ease}
+@keyframes arenaFlash{
+  0%,100%{box-shadow:inset 0 0 0 transparent}
+  50%{box-shadow:inset 0 0 60px rgba(255,92,106,0.4)}
+}
+
+/* ═══════════════════════════════════════════ */
+/* DEFENSE CONTROLS                            */
+/* ═══════════════════════════════════════════ */
+.controls{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding:12px 4px;max-width:600px;margin:0 auto;
+}
+.def-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:10px 6px;border-radius:var(--radius-sm);
+  background:var(--card);border:2px solid var(--border);
+  cursor:pointer;font-family:var(--font-display);
+  transition:all .2s;position:relative;
+}
+.def-btn:hover{border-color:var(--border-hover);background:var(--card-hover)}
+.def-btn.active{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.def-btn.disabled{opacity:0.4;pointer-events:none}
+.def-icon{font-size:1.6rem}
+.def-name{font-size:.7rem;font-weight:700;color:var(--text);text-align:center;line-height:1.2}
+.def-cost{font-size:.6rem;color:var(--text2)}
+.def-btn.active .def-name{color:var(--accent)}
+
+/* ═══════════════════════════════════════════ */
+/* OVERLAYS                                    */
+/* ═══════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(8px);
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.overlay.hidden{display:none}
+.overlay-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:32px;
+  max-width:480px;width:90%;text-align:center;
+  animation:slideUp .4s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.overlay-title{
+  font-family:var(--font-display);font-size:1.8rem;font-weight:700;
+  margin-bottom:8px;
+  background:var(--gradient-hero);background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+.overlay-sub{color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.overlay-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 36px;border-radius:var(--radius-pill);border:none;
+  font-family:var(--font-display);font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .25s;
+  background:var(--gradient-btn);color:var(--bg);
+  box-shadow:0 4px 20px var(--accent-glow);
+}
+.overlay-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 30px var(--accent-glow)}
+.overlay-btn.secondary{
+  background:var(--bg3);color:var(--text);border:1px solid var(--border);
+  box-shadow:none;margin-left:8px;
+}
+.overlay-btn.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Difficulty selector */
+.diff-group{display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+.diff-btn{
+  padding:10px 20px;border-radius:var(--radius-pill);border:2px solid var(--border);
+  background:var(--bg3);color:var(--text);font-family:var(--font-display);
+  font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.diff-btn:hover{border-color:var(--accent)}
+.diff-btn.selected{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+/* Star rating */
+.stars-rating{font-size:2rem;margin:12px 0;letter-spacing:4px}
+
+/* Stats grid */
+.stats-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin:16px 0;text-align:left;
+}
+.stat-item{
+  padding:8px 12px;border-radius:var(--radius-sm);
+  background:var(--bg3);border:1px solid var(--border);
+}
+.stat-label{font-size:.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--accent)}
+
+/* Learn card */
+.learn-card{
+  margin:16px 0;padding:16px;border-radius:var(--radius-sm);
+  background:var(--accent-soft);border:1px solid var(--accent);
+  text-align:left;
+}
+.learn-card h3{font-family:var(--font-display);font-size:.95rem;color:var(--accent);margin-bottom:6px}
+.learn-card p{font-size:.85rem;color:var(--text);line-height:1.5}
+
+/* Confetti */
+.confetti{
+  position:fixed;top:-10px;z-index:300;
+  width:10px;height:10px;border-radius:2px;
+  pointer-events:none;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* Countdown */
+.countdown{
+  font-family:var(--font-display);font-size:3rem;font-weight:700;
+  color:var(--accent);margin:16px 0;
+  animation:countPulse .5s ease;
+}
+@keyframes countPulse{0%{transform:scale(1.5);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE                                  */
+/* ═══════════════════════════════════════════ */
+@media(max-width:600px){
+  .header{padding:10px 12px}
+  .logo-text{font-size:1rem}
+  .logo-icon{width:38px;height:38px;font-size:22px}
+  .arena{aspect-ratio:3/4}
+  .controls{grid-template-columns:repeat(3,1fr);gap:6px}
+  .def-btn{padding:8px 4px}
+  .def-icon{font-size:1.3rem}
+  .def-name{font-size:.6rem}
+  .hud{gap:6px}
+  .hud-item{padding:4px 8px;font-size:.72rem}
+  .hud-bar-wrap{width:60px}
+  .station-core{width:60px;height:60px;font-size:28px}
+  .station{width:60px;height:60px}
+  .shield-ring.r1{width:100px;height:100px}
+  .shield-ring.r2{width:130px;height:130px}
+  .shield-ring.r3{width:160px;height:160px}
+  .threat{font-size:22px}
+  .overlay-box{padding:20px}
+  .overlay-title{font-size:1.4rem}
+}
+@media(max-width:380px){
+  .controls{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- STARS -->
+<div class="stars-container" id="starsContainer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🚀</div>
+    <div>
+      <div class="logo-text"><span>Attack Simulator</span></div>
+      <div class="logo-sub">Rocket Shield VPN</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <select class="hdr-select" id="themeSelect" onchange="setTheme(this.value)">
+      <option value="space">🌌 Space</option>
+      <option value="desert">🏜️ Desert</option>
+      <option value="synthwave">🎮 Synth</option>
+      <option value="paper">📜 Paper</option>
+    </select>
+    <a href="index.html" class="hdr-link">🏠 Home</a>
+    <a href="docs.html" class="hdr-link">📚 Docs</a>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="game-wrap" id="gameWrap">
+
+  <!-- HUD -->
+  <div class="hud" id="hud" style="visibility:hidden">
+    <div class="hud-item">❤️ <div class="hud-bar-wrap"><div class="hud-bar health" id="healthBar" style="width:100%"></div></div> <span id="healthText">100</span></div>
+    <div class="hud-item">⚡ <div class="hud-bar-wrap"><div class="hud-bar energy" id="energyBar" style="width:100%"></div></div> <span id="energyText">100</span></div>
+    <div class="hud-item">⭐ <span id="scoreText">0</span></div>
+    <div class="hud-item">📡 Lv <span id="levelText">1</span></div>
+  </div>
+
+  <!-- ARENA -->
+  <div class="arena" id="arena" style="display:none">
+    <div class="shield-ring r3" id="ring3"></div>
+    <div class="shield-ring r2" id="ring2"></div>
+    <div class="shield-ring r1" id="ring1"></div>
+    <div class="station" id="station">
+      <div class="station-core">🛰️</div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls" id="controls" style="display:none">
+    <div class="def-btn" data-def="vpn" onclick="toggleDefense('vpn')">
+      <span class="def-icon">🔒</span>
+      <span class="def-name">VPN Shield</span>
+      <span class="def-cost">15 ⚡ | 2/s</span>
+    </div>
+    <div class="def-btn" data-def="firewall" onclick="toggleDefense('firewall')">
+      <span class="def-icon">🛡️</span>
+      <span class="def-name">Firewall</span>
+      <span class="def-cost">12 ⚡ | 2/s</span>
+    </div>
+    <div class="def-btn" data-def="encryption" onclick="toggleDefense('encryption')">
+      <span class="def-icon">🔐</span>
+      <span class="def-name">Encryption</span>
+      <span class="def-cost">15 ⚡ | 2/s</span>
+    </div>
+    <div class="def-btn" data-def="adblocker" onclick="toggleDefense('adblocker')">
+      <span class="def-icon">🚫</span>
+      <span class="def-name">Ad Blocker</span>
+      <span class="def-cost">10 ⚡ | 1/s</span>
+    </div>
+    <div class="def-btn" data-def="twofa" onclick="toggleDefense('twofa')">
+      <span class="def-icon">🔑</span>
+      <span class="def-name">2FA</span>
+      <span class="def-cost">10 ⚡ | 1/s</span>
+    </div>
+    <div class="def-btn" data-def="killswitch" onclick="toggleDefense('killswitch')">
+      <span class="def-icon">⚡</span>
+      <span class="def-name">Kill Switch</span>
+      <span class="def-cost">20 ⚡ | 3/s</span>
+    </div>
+  </div>
+</div>
+
+<!-- START OVERLAY -->
+<div class="overlay" id="startOverlay">
+  <div class="overlay-box">
+    <div class="overlay-title">Defend Your Station</div>
+    <div class="overlay-sub">Activate VPN shields to block cyber attacks before they reach your space station!</div>
+    <div class="diff-group">
+      <button class="diff-btn selected" data-diff="easy" onclick="selectDiff(this)">🎖️ Cadet</button>
+      <button class="diff-btn" data-diff="normal" onclick="selectDiff(this)">✈️ Pilot</button>
+      <button class="diff-btn" data-diff="hard" onclick="selectDiff(this)">🎯 Commander</button>
+    </div>
+    <div id="countdown" style="display:none" class="countdown"></div>
+    <button class="overlay-btn" id="startBtn" onclick="startMission()">🚀 Start Mission</button>
+  </div>
+</div>
+
+<!-- LEVEL COMPLETE OVERLAY -->
+<div class="overlay hidden" id="levelOverlay">
+  <div class="overlay-box">
+    <div class="overlay-title" id="levelTitle">Level 1 Complete!</div>
+    <div class="learn-card">
+      <h3>🧠 What You Learned</h3>
+      <p id="learnText"></p>
+    </div>
+    <button class="overlay-btn" onclick="nextLevel()">Next Level ➡️</button>
+  </div>
+</div>
+
+<!-- GAME OVER OVERLAY -->
+<div class="overlay hidden" id="gameOverOverlay">
+  <div class="overlay-box">
+    <div class="overlay-title" id="goTitle">Mission Failed</div>
+    <div class="overlay-sub" id="goSub"></div>
+    <div class="stars-rating" id="goStars"></div>
+    <div class="stats-grid" id="goStats"></div>
+    <button class="overlay-btn" onclick="restartGame()">🔄 Try Again</button>
+    <button class="overlay-btn secondary" onclick="goHome()">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════ */
+/* STARS BACKGROUND                            */
+/* ═══════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('starsContainer');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+0.5;
+    Object.assign(s.style,{
+      width:sz+'px',height:sz+'px',
+      left:Math.random()*100+'%',top:Math.random()*100+'%',
+      animation:`twinkle ${Math.random()*4+2}s ${Math.random()*4}s ease infinite`
+    });
+    c.appendChild(s);
+  }
+})();
+
+/* ═══════════════════════════════════════════ */
+/* THEME                                       */
+/* ═══════════════════════════════════════════ */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('rsvpn-theme',t);
+}
+(function(){
+  const t=localStorage.getItem('rsvpn-theme')||'space';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeSelect').value=t;
+})();
+
+/* ═══════════════════════════════════════════ */
+/* GAME STATE                                  */
+/* ═══════════════════════════════════════════ */
+const DEFS={
+  vpn:{name:'VPN Shield',icon:'🔒',cost:15,drain:2},
+  firewall:{name:'Firewall',icon:'🛡️',cost:12,drain:2},
+  encryption:{name:'Encryption',icon:'🔐',cost:15,drain:2},
+  adblocker:{name:'Ad Blocker',icon:'🚫',cost:10,drain:1},
+  twofa:{name:'2FA',icon:'🔑',cost:10,drain:1},
+  killswitch:{name:'Kill Switch',icon:'⚡',cost:20,drain:3}
+};
+
+const THREATS=[
+  {id:'isp',     emoji:'👁️', name:'ISP Spy',       speed:0.6, damage:8,  points:10, blockedBy:['vpn','encryption'],       size:28},
+  {id:'hacker',  emoji:'🏴‍☠️',name:'Hacker',        speed:0.9, damage:12, points:15, blockedBy:['firewall','vpn'],          size:28},
+  {id:'malware', emoji:'🐛', name:'Malware',       speed:1.4, damage:10, points:12, blockedBy:['firewall','adblocker'],    size:22},
+  {id:'phishing',emoji:'🎣', name:'Phishing',      speed:0.7, damage:15, points:18, blockedBy:['twofa'],                  size:28},
+  {id:'sniffer', emoji:'📡', name:'Pkt Sniffer',   speed:0.8, damage:10, points:14, blockedBy:['encryption','vpn'],        size:26},
+  {id:'ddos',    emoji:'💀', name:'DDoS',          speed:0.4, damage:20, points:25, blockedBy:['firewall'],                size:36},
+  {id:'mitm',    emoji:'🕵️', name:'MITM',          speed:0.8, damage:15, points:20, blockedBy:['vpn','encryption'],        size:28},
+  {id:'cookie',  emoji:'🍪', name:'Tracker',       speed:1.5, damage:5,  points:8,  blockedBy:['adblocker'],               size:20},
+  {id:'dnsleak', emoji:'💧', name:'DNS Leak',      speed:1.0, damage:12, points:22, blockedBy:['killswitch'],              size:24},
+  {id:'brute',   emoji:'🔓', name:'Brute Force',   speed:1.1, damage:14, points:16, blockedBy:['twofa'],                   size:26},
+];
+
+const LEVEL_THREATS=[
+  ['isp'],
+  ['isp','hacker'],
+  ['isp','hacker','malware'],
+  ['isp','hacker','malware','phishing'],
+  ['isp','hacker','malware','phishing','sniffer'],
+  ['isp','hacker','malware','phishing','sniffer','ddos'],
+  ['isp','hacker','malware','phishing','sniffer','ddos','mitm'],
+  ['isp','hacker','malware','phishing','sniffer','ddos','mitm','cookie'],
+  ['isp','hacker','malware','phishing','sniffer','ddos','mitm','cookie','dnsleak'],
+  ['isp','hacker','malware','phishing','sniffer','ddos','mitm','cookie','dnsleak','brute'],
+];
+
+const HINTS=[
+  "Activate VPN Shield to block the ISP Spy!",
+  "Turn on the Firewall to stop hackers!",
+  "Ad Blocker catches malware from ads!",
+  "2FA stops phishing attacks cold!",
+  "Public WiFi? Use Encryption + VPN!",
+  "DDoS incoming! Firewall is your best bet!",
+  "Man-in-the-Middle needs VPN + Encryption!",
+  "Cookie swarm! Ad Blocker cleans them up!",
+  "DNS Leak! Enable Kill Switch now!",
+  "Final wave! Use everything you've learned!",
+];
+
+const LEARN=[
+  "A VPN hides your internet traffic from your ISP (Internet Service Provider). They can't see what websites you visit!",
+  "A firewall is like a security guard that blocks unauthorized visitors from entering your network.",
+  "Ad blockers don't just hide ads -- they also prevent sneaky malware hidden in advertisements from infecting your device.",
+  "Two-Factor Authentication (2FA) adds a second lock to your accounts. Even if someone steals your password, they can't get in!",
+  "On public WiFi (cafes, airports), your data is exposed. Encryption scrambles it so snoopers see only gibberish.",
+  "A DDoS attack floods your connection with fake traffic. Firewalls help filter out the bad traffic.",
+  "A Man-in-the-Middle attacker secretly sits between you and a website. VPN + Encryption stops them from reading anything.",
+  "Tracker cookies follow you across websites to build a profile. Ad blockers prevent them from being installed.",
+  "When your VPN drops, a DNS Leak reveals your real location. A Kill Switch cuts ALL internet until the VPN reconnects.",
+  "Real cybersecurity uses multiple layers! No single tool protects you from everything -- combine defenses for the best protection.",
+];
+
+let difficulty='easy';
+let diffMultipliers={easy:{speed:0.7,spawn:1.4,regen:2.5},normal:{speed:1,spawn:1,regen:2},hard:{speed:1.3,spawn:0.7,regen:1.5}};
+
+let state={
+  running:false, paused:false,
+  health:100, energy:100, score:0, level:1,
+  defenses:{vpn:false,firewall:false,encryption:false,adblocker:false,twofa:false,killswitch:false},
+  threats:[], // {id,type,x,y,dx,dy,el,alive}
+  threatsBlocked:0, threatsTotal:0, threatsHit:0,
+  defenseStats:{vpn:0,firewall:0,encryption:0,adblocker:0,twofa:0,killswitch:0},
+  levelThreatsLeft:0,
+  startTime:0,
+  lastFrame:0,
+  spawnTimer:0,
+  energyTimer:0,
+  animFrame:null,
+};
+
+/* ═══════════════════════════════════════════ */
+/* DOM REFS                                    */
+/* ═══════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+const arena=$('arena');
+const hud=$('hud');
+const controls=$('controls');
+const station=$('station');
+const healthBar=$('healthBar');
+const energyBar=$('energyBar');
+const healthText=$('healthText');
+const energyText=$('energyText');
+const scoreText=$('scoreText');
+const levelText=$('levelText');
+const startOverlay=$('startOverlay');
+const levelOverlay=$('levelOverlay');
+const gameOverOverlay=$('gameOverOverlay');
+const ring1=$('ring1');
+const ring2=$('ring2');
+const ring3=$('ring3');
+
+let arenaRect=null;
+let centerX=0,centerY=0;
+let shieldRadius=70; // px from center -- block radius
+
+function updateArenaRect(){
+  arenaRect=arena.getBoundingClientRect();
+  centerX=arenaRect.width/2;
+  centerY=arenaRect.height/2;
+  // shield radius scales with arena
+  shieldRadius=Math.min(arenaRect.width,arenaRect.height)*0.14;
+}
+
+/* ═══════════════════════════════════════════ */
+/* DIFFICULTY                                  */
+/* ═══════════════════════════════════════════ */
+function selectDiff(el){
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  difficulty=el.dataset.diff;
+}
+
+/* ═══════════════════════════════════════════ */
+/* START                                       */
+/* ═══════════════════════════════════════════ */
+function startMission(){
+  const btn=$('startBtn');
+  btn.style.display='none';
+  const cd=$('countdown');
+  cd.style.display='block';
+  let n=3;
+  cd.textContent=n;
+  const iv=setInterval(()=>{
+    n--;
+    if(n>0){cd.textContent=n;cd.style.animation='none';void cd.offsetWidth;cd.style.animation='countPulse .5s ease';}
+    else{
+      clearInterval(iv);
+      cd.style.display='none';
+      btn.style.display='';
+      startOverlay.classList.add('hidden');
+      initGame();
+    }
+  },700);
+}
+
+function initGame(){
+  state.running=true;state.paused=false;
+  state.health=100;state.energy=100;state.score=0;state.level=1;
+  state.threatsBlocked=0;state.threatsTotal=0;state.threatsHit=0;
+  state.defenseStats={vpn:0,firewall:0,encryption:0,adblocker:0,twofa:0,killswitch:0};
+  Object.keys(state.defenses).forEach(k=>state.defenses[k]=false);
+  state.threats=[];state.spawnTimer=0;state.energyTimer=0;
+  state.startTime=performance.now();state.lastFrame=state.startTime;
+  state.levelThreatsLeft=threatsForLevel(1);
+
+  // clear old threats
+  arena.querySelectorAll('.threat,.blocked-text').forEach(e=>e.remove());
+
+  hud.style.visibility='visible';
+  arena.style.display='block';
+  controls.style.display='grid';
+
+  updateArenaRect();
+  updateHUD();
+  updateDefButtons();
+  updateRings();
+  showHint(HINTS[0]);
+
+  state.animFrame=requestAnimationFrame(gameLoop);
+}
+
+function threatsForLevel(lv){
+  const base=5+lv*3;
+  return Math.floor(base*(difficulty==='hard'?1.5:difficulty==='easy'?0.8:1));
+}
+
+/* ═══════════════════════════════════════════ */
+/* GAME LOOP                                   */
+/* ═══════════════════════════════════════════ */
+function gameLoop(ts){
+  if(!state.running)return;
+  const dt=(ts-state.lastFrame)/1000;
+  state.lastFrame=ts;
+  if(dt>0.2){state.animFrame=requestAnimationFrame(gameLoop);return;} // tab hidden guard
+
+  // Energy regen
+  state.energyTimer+=dt;
+  const regen=diffMultipliers[difficulty].regen;
+  if(state.energyTimer>=0.5){
+    state.energyTimer=0;
+    let drain=0;
+    Object.keys(state.defenses).forEach(k=>{if(state.defenses[k])drain+=DEFS[k].drain;});
+    state.energy=Math.min(100,Math.max(0,state.energy+regen-drain));
+    // auto-deactivate if no energy
+    if(state.energy<=0){
+      Object.keys(state.defenses).forEach(k=>{state.defenses[k]=false;});
+      updateDefButtons();updateRings();
+    }
+  }
+
+  // Spawn threats
+  const spawnInterval=Math.max(0.5,(3-state.level*0.2)*diffMultipliers[difficulty].spawn);
+  state.spawnTimer+=dt;
+  if(state.spawnTimer>=spawnInterval && state.levelThreatsLeft>0){
+    state.spawnTimer=0;
+    spawnThreat();
+    state.levelThreatsLeft--;
+  }
+
+  // Move threats
+  const speedMul=diffMultipliers[difficulty].speed*(1+state.level*0.05);
+  for(let i=state.threats.length-1;i>=0;i--){
+    const t=state.threats[i];
+    if(!t.alive)continue;
+    t.x+=t.dx*t.type.speed*speedMul*dt*60;
+    t.y+=t.dy*t.type.speed*speedMul*dt*60;
+    t.el.style.left=t.x+'px';
+    t.el.style.top=t.y+'px';
+
+    // Check if reached center
+    const distX=t.x-centerX;
+    const distY=t.y-centerY;
+    const dist=Math.sqrt(distX*distX+distY*distY);
+
+    if(dist<shieldRadius+10){
+      // Check defenses
+      if(isThreatBlocked(t)){
+        blockThreat(t,i);
+      }else{
+        hitStation(t,i);
+      }
+    }
+  }
+
+  // Check level complete
+  if(state.levelThreatsLeft<=0 && state.threats.every(t=>!t.alive)){
+    completeLevel();
+    return;
+  }
+
+  updateHUD();
+  state.animFrame=requestAnimationFrame(gameLoop);
+}
+
+/* ═══════════════════════════════════════════ */
+/* THREATS                                     */
+/* ═══════════════════════════════════════════ */
+function spawnThreat(){
+  updateArenaRect();
+  const available=LEVEL_THREATS[state.level-1];
+
+  // DNS Leak special: only if VPN on and kill switch off
+  let pool=available.filter(id=>{
+    if(id==='dnsleak')return state.defenses.vpn && !state.defenses.killswitch;
+    return true;
+  });
+  if(pool.length===0)pool=available.filter(id=>id!=='dnsleak');
+  if(pool.length===0)pool=['isp'];
+
+  const tid=pool[Math.floor(Math.random()*pool.length)];
+  const type=THREATS.find(t=>t.id===tid);
+
+  // Spawn from edge
+  const edge=Math.floor(Math.random()*4);
+  const w=arenaRect.width;
+  const h=arenaRect.height;
+  let x,y;
+  switch(edge){
+    case 0:x=Math.random()*w;y=-30;break;
+    case 1:x=w+30;y=Math.random()*h;break;
+    case 2:x=Math.random()*w;y=h+30;break;
+    case 3:x=-30;y=Math.random()*h;break;
+  }
+  // Direction toward center with slight randomness
+  const ang=Math.atan2(centerY-y,centerX-x);
+  const spread=(Math.random()-0.5)*0.3;
+  const dx=Math.cos(ang+spread);
+  const dy=Math.sin(ang+spread);
+
+  const el=document.createElement('div');
+  el.className='threat';
+  el.innerHTML=type.emoji+'<span class="threat-label">'+type.name+'</span>';
+  el.style.fontSize=type.size+'px';
+  el.style.left=x+'px';
+  el.style.top=y+'px';
+  arena.appendChild(el);
+
+  state.threats.push({id:tid,type,x,y,dx,dy,el,alive:true});
+  state.threatsTotal++;
+}
+
+function isThreatBlocked(t){
+  return t.type.blockedBy.some(def=>state.defenses[def]);
+}
+
+function blockThreat(t,idx){
+  t.alive=false;
+  state.threatsBlocked++;
+  state.score+=t.type.points*state.level;
+
+  // Track which defense blocked it
+  t.type.blockedBy.forEach(d=>{if(state.defenses[d])state.defenseStats[d]++;});
+
+  // Visual: blocked text
+  const txt=document.createElement('div');
+  txt.className='blocked-text';
+  txt.textContent='BLOCKED!';
+  txt.style.left=t.x+'px';
+  txt.style.top=t.y+'px';
+  arena.appendChild(txt);
+  setTimeout(()=>txt.remove(),800);
+
+  // Bounce away
+  t.el.style.transition='all .3s ease';
+  t.el.style.transform='scale(0)';
+  t.el.style.opacity='0';
+  setTimeout(()=>t.el.remove(),300);
+}
+
+function hitStation(t,idx){
+  t.alive=false;
+  state.threatsHit++;
+  state.health=Math.max(0,state.health-t.type.damage);
+
+  // Visual: station damage
+  station.classList.add('damaged');
+  arena.classList.add('hit-flash');
+  setTimeout(()=>{station.classList.remove('damaged');arena.classList.remove('hit-flash');},300);
+
+  // Remove threat
+  t.el.style.transition='all .2s';
+  t.el.style.transform='scale(1.5)';
+  t.el.style.opacity='0';
+  setTimeout(()=>t.el.remove(),200);
+
+  if(state.health<=0){
+    gameOver(false);
+  }
+}
+
+/* ═══════════════════════════════════════════ */
+/* DEFENSES                                    */
+/* ═══════════════════════════════════════════ */
+function toggleDefense(key){
+  if(!state.running||state.paused)return;
+  if(state.defenses[key]){
+    state.defenses[key]=false;
+  }else{
+    if(state.energy<DEFS[key].cost)return;
+    state.energy-=DEFS[key].cost;
+    state.defenses[key]=true;
+  }
+  updateDefButtons();
+  updateRings();
+}
+
+function updateDefButtons(){
+  document.querySelectorAll('.def-btn').forEach(btn=>{
+    const k=btn.dataset.def;
+    btn.classList.toggle('active',state.defenses[k]);
+    btn.classList.toggle('disabled',!state.defenses[k]&&state.energy<DEFS[k].cost);
+  });
+}
+
+function updateRings(){
+  const active=Object.values(state.defenses).filter(Boolean).length;
+  ring1.classList.toggle('active',active>=1);
+  ring2.classList.toggle('active',active>=3);
+  ring3.classList.toggle('active',active>=5);
+}
+
+/* ═══════════════════════════════════════════ */
+/* HUD                                         */
+/* ═══════════════════════════════════════════ */
+function updateHUD(){
+  healthBar.style.width=state.health+'%';
+  energyBar.style.width=state.energy+'%';
+  healthText.textContent=Math.round(state.health);
+  energyText.textContent=Math.round(state.energy);
+  scoreText.textContent=state.score;
+  levelText.textContent=state.level;
+  updateDefButtons();
+}
+
+let hintEl=null;
+function showHint(text){
+  if(hintEl)hintEl.remove();
+  hintEl=document.createElement('div');
+  hintEl.className='hud-hint';
+  hintEl.textContent='💡 '+text;
+  document.querySelector('.game-wrap').appendChild(hintEl);
+  setTimeout(()=>{if(hintEl)hintEl.remove();hintEl=null;},5000);
+}
+
+/* ═══════════════════════════════════════════ */
+/* LEVEL COMPLETE                              */
+/* ═══════════════════════════════════════════ */
+function completeLevel(){
+  state.running=false;
+  cancelAnimationFrame(state.animFrame);
+
+  if(state.level>=10){
+    gameOver(true);
+    return;
+  }
+
+  spawnConfetti(30);
+
+  $('levelTitle').textContent='Level '+state.level+' Complete!';
+  $('learnText').textContent=LEARN[state.level-1];
+  levelOverlay.classList.remove('hidden');
+}
+
+function nextLevel(){
+  levelOverlay.classList.add('hidden');
+  state.level++;
+  state.levelThreatsLeft=threatsForLevel(state.level);
+  state.spawnTimer=0;
+  state.energy=Math.min(100,state.energy+30);
+  state.running=true;
+  state.lastFrame=performance.now();
+
+  // Clear old threats
+  arena.querySelectorAll('.threat,.blocked-text').forEach(e=>e.remove());
+  state.threats=[];
+
+  showHint(HINTS[state.level-1]||'Stay alert, Commander!');
+  updateArenaRect();
+  state.animFrame=requestAnimationFrame(gameLoop);
+}
+
+/* ═══════════════════════════════════════════ */
+/* GAME OVER                                   */
+/* ═══════════════════════════════════════════ */
+function gameOver(victory){
+  state.running=false;
+  cancelAnimationFrame(state.animFrame);
+
+  const elapsed=Math.round((performance.now()-state.startTime)/1000);
+  const mins=Math.floor(elapsed/60);
+  const secs=elapsed%60;
+
+  if(victory){
+    $('goTitle').textContent='Galaxy Commander!';
+    $('goSub').textContent='You defended the station from all 10 waves of cyber attacks!';
+    spawnConfetti(80);
+  }else{
+    $('goTitle').textContent='Mission Failed';
+    $('goSub').textContent='Your station was breached at Level '+state.level+'. Try again, cadet!';
+  }
+
+  // Star rating
+  const pct=state.threatsTotal>0?state.threatsBlocked/state.threatsTotal:0;
+  const stars=pct>=0.9?3:pct>=0.6?2:1;
+  $('goStars').textContent=(victory?'⭐':'☆').repeat(0)+'⭐'.repeat(stars)+'☆'.repeat(3-stars);
+
+  // Best defense
+  let bestDef='None';let bestCount=0;
+  Object.entries(state.defenseStats).forEach(([k,v])=>{if(v>bestCount){bestCount=v;bestDef=DEFS[k].icon+' '+DEFS[k].name;}});
+
+  // Weakest point
+  const missed=THREATS.filter(t=>state.threats.some(st=>st.id===t.id&&!st.alive));
+
+  $('goStats').innerHTML=`
+    <div class="stat-item"><div class="stat-label">Threats Blocked</div><div class="stat-value">${state.threatsBlocked} / ${state.threatsTotal}</div></div>
+    <div class="stat-item"><div class="stat-label">Score</div><div class="stat-value">${state.score}</div></div>
+    <div class="stat-item"><div class="stat-label">Best Defense</div><div class="stat-value">${bestDef}</div></div>
+    <div class="stat-item"><div class="stat-label">Time Survived</div><div class="stat-value">${mins}m ${secs}s</div></div>
+    <div class="stat-item"><div class="stat-label">Level Reached</div><div class="stat-value">${state.level} / 10</div></div>
+    <div class="stat-item"><div class="stat-label">Rating</div><div class="stat-value">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div></div>
+  `;
+
+  gameOverOverlay.classList.remove('hidden');
+}
+
+function restartGame(){
+  gameOverOverlay.classList.add('hidden');
+  arena.querySelectorAll('.threat,.blocked-text').forEach(e=>e.remove());
+  state.threats=[];
+  hud.style.visibility='hidden';
+  arena.style.display='none';
+  controls.style.display='none';
+  if(hintEl){hintEl.remove();hintEl=null;}
+  startOverlay.classList.remove('hidden');
+}
+
+function goHome(){
+  window.location.href='index.html';
+}
+
+/* ═══════════════════════════════════════════ */
+/* CONFETTI                                    */
+/* ═══════════════════════════════════════════ */
+function spawnConfetti(count){
+  const colors=['var(--accent)','var(--accent2)','var(--accent3)','var(--orange)','var(--yellow)','var(--pink)'];
+  for(let i=0;i<count;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    const clr=colors[Math.floor(Math.random()*colors.length)];
+    const sz=Math.random()*8+6;
+    const dur=Math.random()*2+2;
+    Object.assign(c.style,{
+      left:Math.random()*100+'vw',
+      width:sz+'px',height:sz*(Math.random()*0.5+0.5)+'px',
+      background:clr,
+      borderRadius:Math.random()>0.5?'50%':'2px',
+      animationDuration:dur+'s',
+      animationDelay:Math.random()*0.5+'s',
+    });
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),(dur+0.5)*1000);
+  }
+}
+
+/* ═══════════════════════════════════════════ */
+/* RESIZE HANDLER                              */
+/* ═══════════════════════════════════════════ */
+window.addEventListener('resize',()=>{if(state.running)updateArenaRect();});
+
+/* ═══════════════════════════════════════════ */
+/* KEYBOARD SHORTCUTS                          */
+/* ═══════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(!state.running)return;
+  const map={1:'vpn',2:'firewall',3:'encryption',4:'adblocker',5:'twofa',6:'killswitch'};
+  if(map[e.key])toggleDefense(map[e.key]);
+});
+</script>
+</body>
+</html>
