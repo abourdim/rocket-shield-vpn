@@ -349,10 +349,49 @@ a:hover{text-decoration:underline}
 
     <h2>Freebox</h2>
     <h3>Which Freebox models support VPN?</h3>
-    <p>Freebox Revolution, Mini 4K, One, Delta, Pop, and Ultra all support VPN. Newer models (Delta, Pop, Ultra) have WireGuard support. All support OpenVPN.</p>
+    <table>
+      <tr><th>Model</th><th>OpenVPN</th><th>WireGuard</th><th>IPsec</th></tr>
+      <tr><td><strong>Revolution</strong></td><td>Yes</td><td style="color:var(--red)"><strong>No</strong></td><td>No</td></tr>
+      <tr><td>Mini 4K</td><td>Yes</td><td style="color:var(--red)">No</td><td>No</td></tr>
+      <tr><td>One</td><td>Yes</td><td style="color:var(--accent)">Yes</td><td>Yes</td></tr>
+      <tr><td>Delta</td><td>Yes</td><td style="color:var(--accent)">Yes</td><td>Yes</td></tr>
+      <tr><td>Pop</td><td>Yes</td><td style="color:var(--accent)">Yes</td><td>Yes</td></tr>
+      <tr><td>Ultra</td><td>Yes</td><td style="color:var(--accent)">Yes</td><td>Yes</td></tr>
+    </table>
 
     <h3>How do I access Freebox OS?</h3>
-    <p>Open a browser and go to <code>mafreebox.freebox.fr</code> while connected to your Freebox network. You'll need the admin password (set it up on first access).</p>
+    <ol>
+      <li>Connect to Freebox WiFi/Ethernet</li>
+      <li>Open <code>http://mafreebox.freebox.fr</code> or <code>192.168.1.254</code></li>
+      <li>First time: confirm on Freebox LCD, set admin password</li>
+      <li>Go to <strong>Paramètres → Mode Avancé → VPN</strong></li>
+    </ol>
+
+    <h3>How to set up WireGuard Server? (confirmed working)</h3>
+    <ol>
+      <li>Freebox OS → <strong>Paramètres → Serveur VPN → WireGuard</strong></li>
+      <li>Check <strong>"Activer"</strong>, set Port (e.g., <code>62088</code>), MTU <code>1360</code></li>
+      <li>Click <strong>"Appliquer"</strong></li>
+      <li>Go to <strong>Utilisateurs → Ajouter</strong> → Type: <strong>WireGuard</strong></li>
+      <li>Set <strong>Keepalive: 25</strong>, check <strong>Clé pré-partagée</strong></li>
+      <li><strong>Sauvegarder</strong> → Download .conf or scan QR code</li>
+    </ol>
+    <div class="doc-tip">💡 The VPN tunnel uses a separate subnet (192.168.27.x). This is normal — your home LAN (192.168.1.x) is still accessible through the tunnel.</div>
+
+    <h3>Can't change user type to WireGuard?</h3>
+    <p>If you created a user as "IPsec/OpenVPN/PPTP", you can't change the type. <strong>Delete</strong> the user (🗑️) and <strong>recreate</strong> it with <strong>Type: WireGuard</strong>.</p>
+
+    <h3>The Ultimate Phone Test</h3>
+    <ol>
+      <li>Turn OFF WiFi → use <strong>4G/5G</strong></li>
+      <li>Connect VPN in WireGuard app</li>
+      <li>Open browser → type <code>192.168.1.254</code></li>
+      <li><strong>If Freebox OS loads → VPN works!</strong></li>
+      <li>Disconnect VPN → try again → should fail (proves VPN was working)</li>
+    </ol>
+
+    <h3>Start with Server or Client?</h3>
+    <p><strong>Server first.</strong> You own a Freebox — it's a free VPN server! Set up the server, generate configs, connect your devices. No subscription needed.</p>
 
     <h2>Docker</h2>
     <h3>How do I deploy with Docker?</h3>

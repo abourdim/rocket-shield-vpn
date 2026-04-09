@@ -139,25 +139,127 @@ Yes, if configured properly. WireGuard uses modern cryptography (ChaCha20, Curve
 
 ### 22. Which Freebox models support VPN?
 
-Freebox Delta, Freebox Pop, Freebox Ultra, and Freebox Revolution support VPN features. The Freebox Mini 4K has limited support. Check your Freebox OS version -- VPN features require a recent firmware.
+| Model | OpenVPN | WireGuard | IPsec IKEv2 | PPTP |
+|-------|---------|-----------|-------------|------|
+| **Revolution** | Yes | **No** | No | Yes |
+| **Mini 4K** | Yes | **No** | No | Yes |
+| **One** | Yes | **Yes** | Yes | Yes |
+| **Delta** | Yes | **Yes** | Yes | Yes |
+| **Pop** | Yes | **Yes** | Yes | Yes |
+| **Ultra** | Yes | **Yes** | Yes | Yes |
+
+All models support VPN Server + VPN Client modes. Newer models (One/Delta/Pop/Ultra) support WireGuard natively. Revolution and Mini 4K are OpenVPN only.
 
 ### 23. How do I access Freebox OS?
 
-Open a browser and go to `http://mafreebox.freebox.fr` or `http://192.168.1.254`. Log in with your admin password. If you have never set a password, the Freebox will prompt you to create one on the LCD screen.
+1. Connect to your Freebox network (WiFi or Ethernet)
+2. Open browser → `http://mafreebox.freebox.fr` or `http://192.168.1.254`
+3. First time: confirm on the Freebox LCD screen, then set admin password
+4. Navigate to **Paramètres → Mode Avancé → VPN** (Settings → Advanced → VPN)
+
+**Freebox OS version 4.9** is confirmed working with WireGuard server.
 
 ### 24. Can I use the Freebox as both VPN client and server?
 
-It depends on the model. Some Freebox models support running a VPN server (to connect to your home network remotely) and configuring VPN client mode (to route all traffic through an external VPN). Check Freebox OS under Settings > VPN for available options.
+Yes! Both modes work simultaneously on all supported models:
+- **VPN Client**: Routes all home traffic through an external VPN provider (NordVPN, ProtonVPN, etc.)
+- **VPN Server**: Lets you connect BACK to your home network when you're away
 
 ### 25. What VPN protocols does the Freebox support?
 
-The Freebox natively supports:
-
-- **OpenVPN** (most common for Freebox VPN server)
+Newer models (One, Delta, Pop, Ultra) support:
+- **WireGuard** (recommended — faster, modern, QR code import)
+- **OpenVPN Routé** (Layer 3 routed mode)
+- **OpenVPN Bridgé** (Layer 2 bridged mode)
+- **IPsec IKEv2**
 - **PPTP** (legacy, not recommended)
-- **L2TP/IPsec** (available on some models)
 
-WireGuard is not natively supported on the Freebox, but you can run a WireGuard server on a device behind the Freebox and use port forwarding.
+Revolution and Mini 4K support:
+- **OpenVPN** (both Routé and Bridgé)
+- **PPTP** (legacy)
+
+### 26. How do I set up WireGuard Server on my Freebox?
+
+Step-by-step (confirmed working on Freebox OS 4.9):
+
+1. Open Freebox OS → **Paramètres → Serveur VPN → WireGuard**
+2. Check **"Activer"** (Enable)
+3. **Port**: default or custom (e.g., `62088`) — non-standard ports work fine
+4. **MTU**: `1360` (default, works well)
+5. Click **"Appliquer"** (Apply)
+6. Go to **Utilisateurs** → **"Ajouter un utilisateur"**
+7. Set **Login** (e.g., `phone`), **Type: WireGuard**, **Keepalive: 25**, check **Clé pré-partagée**
+8. Click **"Sauvegarder"**
+9. Go back to **WireGuard** page → download config file or scan QR code
+
+### 27. The VPN IP is 192.168.27.x — is that normal?
+
+Yes! The Freebox assigns WireGuard peers to a separate subnet (`192.168.27.0/24`), different from your home LAN (`192.168.1.0/24`). This is by design:
+- `192.168.27.65` = your device's VPN tunnel IP
+- `192.168.1.x` = your home network (still accessible through the tunnel)
+
+### 28. I created a user as IPsec/OpenVPN but want WireGuard. How to switch?
+
+You cannot change the "Type de serveur VPN" after creation. You must:
+1. **Delete** the user (click the trash icon 🗑️)
+2. **Recreate** with the same name, selecting **"WireGuard"** as the type
+3. Don't forget: **Keepalive: 25**, **Clé pré-partagée: checked**
+
+### 29. How do I test that my VPN actually works?
+
+The **Ultimate Phone Test**:
+1. Turn **OFF WiFi** on your phone → use **4G/5G** (mobile data)
+2. Open WireGuard app → toggle your tunnel **ON**
+3. Open browser → type `192.168.1.254`
+4. **If you see Freebox OS → VPN is working!** You're accessing your home router from mobile data through the encrypted tunnel
+5. Disconnect VPN → try again → should **fail** (proves VPN was doing the work)
+
+Also check:
+- [whatismyip.com](https://whatismyip.com) → should show your Freebox's public IP
+- [dnsleaktest.com](https://dnsleaktest.com) → Extended Test → no leaks
+
+### 30. Should I start with VPN Server or Client?
+
+**Start with the Server.** Here's why:
+- You own a Freebox — it's a **free VPN server** (no subscription needed)
+- You learn more — understanding the server makes client setup trivial
+- You control everything — your keys, your logs, your rules
+
+Recommended order:
+1. Set up WireGuard Server on Freebox (5 min)
+2. Create client configs for phone/laptop
+3. Connect phone from 4G — verify it works
+4. Then optionally: set up VPN Client on Revolution to route home traffic through a provider
+
+### 31. What settings should I use for WireGuard peers?
+
+Confirmed working configuration:
+- **Keepalive: 25** — essential for mobile (keeps connection alive behind NAT)
+- **Clé pré-partagée: Yes** — adds post-quantum security layer
+- **IP Fixe**: let Freebox auto-assign (192.168.27.x range)
+- **Port**: any works (default 51820 or custom like 62088)
+- **MTU**: 1360 (Freebox default, works well)
+
+### 32. How do I import the config on my phone?
+
+**Fastest method — QR Code:**
+1. Install WireGuard app (App Store / Play Store)
+2. In Freebox OS → WireGuard page → click **QR Code** icon next to your user
+3. In WireGuard app → tap **"+"** → **"Create from QR code"** → scan → done!
+
+**File method:**
+1. Download the `.conf` file from Freebox OS
+2. Send to phone (email, AirDrop, cloud)
+3. Tap the file → "Open in WireGuard?" → Allow
+
+### 33. Can I see connected devices in the web app?
+
+Yes! Open `vpn-dashboard.html` — it has 3 modes:
+- **🎮 Demo**: simulated devices to see what it looks like
+- **📋 Paste**: paste `sudo wg show` output → visualizes as device cards
+- **📡 Freebox Live**: connects to Freebox API at `mafreebox.freebox.fr` for real-time data
+
+The Freebox "Connexions" page (Serveur VPN → État → Connexions) also shows connected peers with IP, data transferred, and connection time.
 
 ---
 
@@ -236,12 +338,52 @@ Visit [dnsleaktest.com](https://www.dnsleaktest.com) or [ipleak.net](https://ipl
 - Some ISPs block certain ports -- try a non-standard port like `51821` if `51820` does not work.
 - On Freebox, go to Freebox OS > Port Management > Add a redirection.
 
-### 35. How do I check if my VPN is working?
+### 39. How do I check if my VPN is working?
 
-Three quick tests:
+**Quick tests from any device:**
+1. **IP test** — Visit [whatismyip.com](https://www.whatismyip.com). Should show VPN server IP, not your ISP.
+2. **DNS test** — Visit [dnsleaktest.com](https://www.dnsleaktest.com) → Extended Test. Should not show your ISP's DNS.
+3. **Home access test** — Browse to `192.168.1.254` — if Freebox OS loads, your tunnel works!
+4. **Command line** — `curl ifconfig.me` (Linux/macOS) or `Invoke-RestMethod ifconfig.me` (PowerShell).
 
-1. **IP test** -- Visit [whatismyip.com](https://www.whatismyip.com). Your IP should match the VPN server, not your ISP.
-2. **DNS test** -- Visit [dnsleaktest.com](https://www.dnsleaktest.com). Run the extended test. You should not see your ISP's DNS servers.
-3. **Command line** -- Run `curl ifconfig.me` (Linux/macOS) or `Invoke-RestMethod ifconfig.me` (PowerShell). Compare the result with and without VPN.
+**The Ultimate Phone Test:**
+1. Disconnect WiFi → use 4G
+2. Connect VPN
+3. Open `192.168.1.254` in browser
+4. If Freebox OS loads → VPN works perfectly
+5. Disconnect VPN → try again → should fail
 
-The launch script also has a "Status & Diagnostics" option that checks your public IP, DNS, and VPN status automatically.
+The launch script option 4 (Status & Diagnostics) also checks IP, DNS, and VPN status automatically.
+
+### 40. Where can I see connected VPN devices?
+
+Three ways:
+1. **Freebox OS** → Serveur VPN → État → Connexions — shows user, data transferred, IP source, IP locale, connection date
+2. **vpn-dashboard.html** — our web dashboard with live Freebox API, paste mode, or demo mode
+3. **Command line** — `sudo wg show` on Linux shows all peers with handshake times and data
+
+### 41. What's the recommended architecture with two Freebox routers?
+
+If you have a newer Freebox (WireGuard) + a Revolution (OpenVPN only):
+```
+📱 Phone (away)  → ⚡ Newer Freebox (WireGuard Server) → 🏠 Home
+💻 Laptop (café) → ⚡ Newer Freebox (WireGuard Server) → 🏠 Home
+🔴 Revolution (VPN Client) → ProtonVPN/NordVPN (optional, for privacy)
+```
+
+### 42. What interactive tools are included in the project?
+
+| Tool | File | Purpose |
+|------|------|---------|
+| Packet Journey | `packet-journey.html` | Watch encryption/tunneling animated |
+| Attack Simulator | `attack-simulator.html` | 10-level cyber defense game |
+| Config Generator | `config-generator.html` | Generate WireGuard/OpenVPN configs + QR |
+| Speed Test | `speed-test.html` | Before/after VPN speed comparison |
+| VPN Status | `vpn-status.html` | Live IP, location, WebRTC leak check |
+| Password Generator | `password-generator.html` | Passwords, passphrases, WireGuard PSKs |
+| DNS Explorer | `dns-explorer.html` | Animated DNS resolution |
+| Encryption Playground | `encryption-playground.html` | Caesar/XOR/AES-256 with crack demos |
+| Crypto Quiz | `crypto-quiz.html` | 50-question timed quiz |
+| Phishing Detector | `phishing-detector.html` | Spot-the-phishing email game |
+| Firewall Builder | `firewall-builder.html` | Build rules, test with packets |
+| VPN Dashboard | `vpn-dashboard.html` | See connected devices live |
