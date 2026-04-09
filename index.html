@@ -620,7 +620,20 @@ body{
 .fbx-ring-icons span{opacity:.3;transition:all .3s;filter:grayscale(1)}
 .fbx-ring-icons span.lit{opacity:1;filter:none;transform:scale(1.15)}
 
+/* Launch Pad expandable cards */
+.lp-expand{cursor:pointer;transition:all .3s}
+.lp-expand:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.lp-expand-detail{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s,margin .4s;font-size:.8rem;line-height:1.6;color:var(--text2);margin-top:0;padding-top:0}
+.lp-expand.active .lp-expand-detail{max-height:600px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)}
+.lp-expand::after{content:'▼';float:right;font-size:.6rem;color:var(--text3);transition:transform .3s}
+.lp-expand.active::after{transform:rotate(180deg)}
+.lp-builtin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.lp-server{padding:8px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);text-align:center;font-size:.8rem;cursor:pointer;transition:all .2s;opacity:.5}
+.lp-server:hover{border-color:var(--accent);transform:scale(1.03)}
+.lp-server.selected{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+
 @media(max-width:640px){
+  .lp-builtin-grid{grid-template-columns:1fr}
   .fbx-vs-lanes{grid-template-columns:1fr}
   .fbx-journey{flex-direction:column;gap:8px}
   .fbx-j-tunnel{max-width:100%;padding:8px 0}
@@ -877,20 +890,51 @@ const i18n = {
     correct:"🎉 Correct! ByteBot approves!",wrong:"❌ Try again, Commander!",
     badgeEarned:"🎖️ Badge Earned!",
     badgeNewbie:"Newbie Cadet Badge",badgeExplorer:"Explorer Pilot Badge",badgeAdvanced:"Galaxy Commander Badge",
-    step1title:"Choose Your VPN",step1text:"First, pick your spaceship! Ask a parent to help choose a VPN app.",
-    step1free:"<strong>Free VPNs</strong> — Good for trying, limited data",
-    step1paid:"<strong>Paid VPNs</strong> — Full power, faster, safer",
-    step1builtin:"<strong>Built-in VPNs</strong> — Some browsers have one!",
-    step1warn:"⚠️ Always ask a parent before downloading!",
-    step2title:"Download & Install",step2text:"Download the app from your app store:",
-    step2ios:"🍎 App Store (iPhone/iPad)",step2android:"🤖 Google Play (Android)",step2pc:"💻 Website (Windows/Mac)",
-    step3title:"Create Account & Connect",step3text:"Open the app, create an account (ask a parent for help), pick a server, and hit <strong>Connect</strong>!",
-    step4title:"Test Your VPN",step4text:"Let's make sure it's working! Complete each check:",
-    step4check1:"🕵️ Go to whatismyip.com — is your IP different?",
-    step4check2:"📍 Connect to Japan — does it show Japan?",
-    step4check3:"⚡ Go to fast.com — test your speed",
-    step4check4:"🔒 Go to dnsleaktest.com — no leaks?",
+    step1title:"Choose Your VPN",step1text:"First, pick your spaceship! There are 3 types of VPN — tap each card to explore:",
+    step1free:"<strong>🆓 Free VPNs</strong> — Good for trying out",
+    step1freeDetail:"<strong>ProtonVPN Free</strong> — Unlimited data, 3 countries, no ads<br><strong>Windscribe Free</strong> — 10 GB/month, 10 countries<br><strong>hide.me Free</strong> — 10 GB/month, 5 countries<br><br>⚠️ <em>Avoid unknown free VPNs — many sell your data to advertisers! Stick to trusted names above.</em>",
+    step1paid:"<strong>💎 Paid VPNs</strong> — Full power, faster, safer",
+    step1paidDetail:"<strong>NordVPN</strong> — 6,000+ servers, 60 countries, ~$3/mo<br><strong>ProtonVPN Plus</strong> — Swiss privacy, open source, ~$5/mo<br><strong>Mullvad</strong> — No email needed, €5/mo flat, privacy champion<br><strong>Surfshark</strong> — Unlimited devices, ~$2/mo<br><br>✅ <em>Look for: no-log policy, WireGuard support, kill switch, independent audit.</em>",
+    step1builtin:"<strong>🌐 Built-in VPNs</strong> — Already on your device!",
+    step1builtinDetail:"Some browsers and operating systems have VPN features <strong>built right in</strong> — no download needed!",
+    step1opera:"<strong>🔴 Opera Browser</strong> — FREE built-in VPN! Open Opera → Settings → Privacy → <strong>Enable VPN</strong>. A blue VPN badge appears in the address bar. Click it to pick a region (Americas, Europe, Asia). No account needed!",
+    step1brave:"<strong>🦁 Brave Browser</strong> — Brave VPN (Firewall + VPN). Subscription ~$10/mo. Protects the whole device, not just the browser. Built on WireGuard protocol.",
+    step1firefox:"<strong>🦊 Mozilla VPN</strong> — Separate app (not in browser). ~$5/mo. Made by the Firefox team. Uses WireGuard. Available on Windows, macOS, Linux, Android, iOS.",
+    step1icloud:"<strong>🍎 iCloud Private Relay</strong> — Built into Safari on iPhone/iPad/Mac with iCloud+ ($1/mo). Not a full VPN — it hides your IP and encrypts Safari traffic only. Two-hop architecture for extra privacy.",
+    step1androidvpn:"<strong>🤖 Android Built-in</strong> — Settings → Network → VPN → <strong>\"+\"</strong> → Enter server details manually. Supports PPTP, L2TP/IPSec, IKEv2. No app needed, but you need server info from a provider.",
+    step1iosvpn:"<strong>📱 iOS Built-in</strong> — Settings → General → VPN & Device Management → <strong>Add VPN Configuration</strong>. Supports IKEv2, IPSec, L2TP. Enter server, username, password from your provider.",
+    step1compare:"<strong>🆚 Comparison:</strong>",
+    step1warn:"⚠️ Always ask a parent before downloading or subscribing!",
+    step1decision:"💡 <strong>Not sure?</strong> Start with <strong>Opera VPN</strong> (free, instant) or <strong>ProtonVPN Free</strong> (more features). Upgrade to paid when you need more speed/servers.",
+    step2title:"Download & Install",step2text:"Pick your platform below — each has specific install steps:",
+    step2ios:"<strong>🍎 iPhone / iPad</strong><br>Open <strong>App Store</strong> → Search <strong>\"WireGuard\"</strong> (by WireGuard Development Team) or <strong>\"NordVPN\"</strong> → Tap <strong>Get</strong> → Confirm with Face ID / Touch ID → Tap <strong>Open</strong>",
+    step2android:"<strong>🤖 Android</strong><br>Open <strong>Google Play Store</strong> → Search <strong>\"WireGuard\"</strong> or <strong>\"ProtonVPN\"</strong> → Tap <strong>Install</strong> → Wait → Tap <strong>Open</strong>",
+    step2windows:"<strong>💻 Windows</strong><br>Go to <strong>wireguard.com/install</strong> → Click <strong>Download Windows Installer</strong> → Run the .msi file → Click <strong>Next → Install → Finish</strong>",
+    step2mac:"<strong>🍎 macOS</strong><br>Open <strong>App Store</strong> → Search <strong>\"WireGuard\"</strong> → Click <strong>Get</strong>. Or: <code>brew install wireguard-tools</code> in Terminal",
+    step2linux:"<strong>🐧 Linux</strong><br><code>sudo apt install wireguard</code> (Ubuntu/Debian) or <code>sudo dnf install wireguard-tools</code> (Fedora)",
+    step2builtin:"<strong>🌐 Built-in Browser VPN</strong><br>No install needed! Just open <strong>Opera</strong> → Settings → Privacy & Security → Toggle <strong>\"Enable VPN\"</strong> ON. Done in 10 seconds!",
+    step3title:"Create Account & Connect",step3text:"Almost there! Set up your account and connect to a server:",
+    step3tip1:"👨‍👩‍👧 Use a parent's email address for signup",
+    step3tip2:"🔐 Pick a strong password (long + unique)",
+    step3tip3:"⏭️ Skip premium upsells (for free VPNs, tap \"Skip\" or \"Continue with Free\")",
+    step3tip4:"🌐 Built-in VPNs (Opera, iCloud Relay): No account needed — just toggle ON!",
+    step3demo:"👆 Try the demo below — click Connect!",
+    step4title:"Test Your VPN",step4text:"Let's make sure your shields are working! Complete each test:",
+    step4check1:"🕵️ Go to whatismyip.com — is your IP different from before?",
+    step4check2:"📍 Connect to Japan — does the site show Japan as your location?",
+    step4check3:"⚡ Go to fast.com — is your speed acceptable? (small drop is normal)",
+    step4check4:"🔒 Go to dnsleaktest.com — run Extended Test — no leaks?",
+    step4check5:"🌐 Try a geo-blocked website — can you access content from another country?",
     step5title:"You're Protected!",step5text:"Amazing work, Commander! Your shields are up and running. You're now browsing safely! 🎉",
+    step5next:"🚀 What's next, Commander?",
+    step5tip1:"📦 Set up VPN on your Freebox router — protect ALL home devices",
+    step5tip2:"🍓 Host your own VPN server on a Raspberry Pi",
+    step5tip3:"🧠 Learn advanced concepts in the Academy",
+    step5tip4:"📚 Read the full documentation",
+    step5tips:"💡 Quick Tips",
+    step5tipA:"Disconnect VPN when not needed — it saves battery on phones",
+    step5tipB:"A VPN doesn't make you invincible — still avoid suspicious links!",
+    step5tipC:"Keep your VPN app updated for the latest security fixes",
     // Concept cards - Newbie
     n1t:"What is a VPN?",n1h:"Your invisible bubble",
     n1m:"A VPN is like an invisible bubble around you. When you go on the internet, nobody can see what you're doing inside your bubble!",
@@ -1407,7 +1451,8 @@ let currentStep = 0;
 let completedCards = { newbie: new Set(), explorer: new Set(), advanced: new Set() };
 let bytebotClicks = 0;
 let selectedServer = 0;
-let checks = [false, false, false, false];
+let checks = [false, false, false, false, false];
+let lpVpnOn = false;
 let freeboxStep = 0;
 let freeboxChecks = [false, false, false, false, false];
 let konamiSeq = [];
@@ -1785,36 +1830,174 @@ const totalSteps = 5;
 function renderStep() {
   const el = document.getElementById('stepContent');
   const s = currentStep;
+  lpVpnOn = false;
   let html = '';
   if (s === 0) {
+    // Step 1: Choose Your VPN — expandable cards + built-in VPNs + decision flow
     html = `<div class="step-card"><div class="step-header"><div class="step-num">1</div><div class="step-title">${t('step1title')}</div></div>
       <div class="step-content"><p>${t('step1text')}</p>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('step1free')}</div>
-        <div class="card" style="padding:12px">${t('step1paid')}</div>
-        <div class="card" style="padding:12px">${t('step1builtin')}</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div class="card lp-expand" style="padding:14px;border-left:3px solid var(--accent)" onclick="toggleStepDetail('sd-free')">
+          ${t('step1free')}
+          <div class="lp-expand-detail" id="sd-free">${t('step1freeDetail')}</div>
+        </div>
+        <div class="card lp-expand" style="padding:14px;border-left:3px solid var(--accent2)" onclick="toggleStepDetail('sd-paid')">
+          ${t('step1paid')}
+          <div class="lp-expand-detail" id="sd-paid">${t('step1paidDetail')}</div>
+        </div>
+        <div class="card lp-expand" style="padding:14px;border-left:3px solid var(--accent3)" onclick="toggleStepDetail('sd-builtin')">
+          ${t('step1builtin')}
+          <div class="lp-expand-detail" id="sd-builtin">
+            <p style="margin-bottom:10px">${t('step1builtinDetail')}</p>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--red)">${t('step1opera')}</div>
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('step1brave')}</div>
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--orange)">${t('step1firefox')}</div>
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--text3)">${t('step1icloud')}</div>
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent)">${t('step1androidvpn')}</div>
+              <div class="card" style="padding:10px;font-size:.82rem;border-left:3px solid var(--accent2)">${t('step1iosvpn')}</div>
+            </div>
+            <div style="margin-top:12px;font-size:.82rem">
+              <strong>${t('step1compare')}</strong>
+              <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:.75rem">
+                <tr style="background:var(--bg3)"><th style="padding:5px 6px;text-align:left;border:1px solid var(--border)">Type</th><th style="padding:5px 6px;border:1px solid var(--border)">Free?</th><th style="padding:5px 6px;border:1px solid var(--border)">Scope</th><th style="padding:5px 6px;border:1px solid var(--border)">Example</th></tr>
+                <tr><td style="padding:5px 6px;border:1px solid var(--border)">Browser VPN</td><td style="padding:5px 6px;border:1px solid var(--border)">Yes</td><td style="padding:5px 6px;border:1px solid var(--border)">Browser only</td><td style="padding:5px 6px;border:1px solid var(--border)">Opera</td></tr>
+                <tr><td style="padding:5px 6px;border:1px solid var(--border)">VPN App</td><td style="padding:5px 6px;border:1px solid var(--border)">Free/Paid</td><td style="padding:5px 6px;border:1px solid var(--border)">Full device</td><td style="padding:5px 6px;border:1px solid var(--border)">NordVPN</td></tr>
+                <tr><td style="padding:5px 6px;border:1px solid var(--border)">OS Built-in</td><td style="padding:5px 6px;border:1px solid var(--border)">Yes</td><td style="padding:5px 6px;border:1px solid var(--border)">Full device</td><td style="padding:5px 6px;border:1px solid var(--border)">Android/iOS</td></tr>
+                <tr><td style="padding:5px 6px;border:1px solid var(--border)">Private Relay</td><td style="padding:5px 6px;border:1px solid var(--border)">iCloud+</td><td style="padding:5px 6px;border:1px solid var(--border)">Safari only</td><td style="padding:5px 6px;border:1px solid var(--border)">Apple</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
-      <p style="margin-top:12px;color:var(--yellow);font-weight:700">${t('step1warn')}</p></div></div>`;
+      <div class="fbx-diagram" style="margin-top:16px">
+        <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:8px">💡 Decision Helper</div>
+        <div class="fbx-flow">
+          <div class="fbx-flow-node"><div style="font-size:1.5rem">🤔</div><div class="fbx-flow-label">Want free?</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">→</div></div>
+          <div class="fbx-flow-node" style="cursor:pointer" onclick="toggleStepDetail('sd-builtin')"><div style="font-size:1.5rem">🌐</div><div class="fbx-flow-label">Opera VPN</div><div style="font-size:.55rem;color:var(--accent)">Instant!</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">→</div></div>
+          <div class="fbx-flow-node" style="cursor:pointer" onclick="toggleStepDetail('sd-free')"><div style="font-size:1.5rem">🆓</div><div class="fbx-flow-label">ProtonVPN</div><div style="font-size:.55rem;color:var(--accent)">Best free</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">→</div></div>
+          <div class="fbx-flow-node" style="cursor:pointer" onclick="toggleStepDetail('sd-paid')"><div style="font-size:1.5rem">💎</div><div class="fbx-flow-label">NordVPN</div><div style="font-size:.55rem;color:var(--accent2)">Full power</div></div>
+        </div>
+      </div>
+      <p style="margin-top:8px;color:var(--accent);font-weight:700;font-size:.85rem">${t('step1decision')}</p>
+      <p style="margin-top:6px;color:var(--yellow);font-weight:700">${t('step1warn')}</p></div></div>`;
+
   } else if (s === 1) {
+    // Step 2: Download & Install — per platform + browser mockup
     html = `<div class="step-card"><div class="step-header"><div class="step-num">2</div><div class="step-title">${t('step2title')}</div></div>
       <div class="step-content"><p>${t('step2text')}</p>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div class="card" style="padding:12px">${t('step2ios')}</div>
-        <div class="card" style="padding:12px">${t('step2android')}</div>
-        <div class="card" style="padding:12px">${t('step2pc')}</div>
+        <div class="card" style="padding:12px;font-size:.88rem">${t('step2ios')}</div>
+        <div class="card" style="padding:12px;font-size:.88rem">${t('step2android')}</div>
+        <div class="card" style="padding:12px;font-size:.88rem">${t('step2windows')}</div>
+        <div class="card" style="padding:12px;font-size:.88rem">${t('step2mac')}</div>
+        <div class="card" style="padding:12px;font-size:.88rem">${t('step2linux')}</div>
+        <div class="card" style="padding:14px;font-size:.88rem;border-left:3px solid var(--accent3);background:var(--bg3)">${t('step2builtin')}</div>
+      </div>
+      <div class="fbx-diagram" style="margin-top:16px">
+        <div class="fbx-browser">
+          <div class="fbx-bbar">
+            <span class="fbx-bdots"><span style="background:var(--red)"></span><span style="background:var(--yellow)"></span><span style="background:var(--accent)"></span></span>
+            <div class="fbx-url">🔒 <span style="color:var(--accent)">VPN</span> wireguard.com/install</div>
+          </div>
+          <div class="fbx-bbody">
+            <div style="font-size:1.5rem;margin-bottom:4px">⚡</div>
+            <div style="font-family:var(--font-display);font-size:.85rem;font-weight:700">WireGuard</div>
+            <div style="font-size:.68rem;color:var(--text3)">Fast, modern, simple VPN</div>
+            <div style="margin-top:8px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
+              <span class="fbx-os-item">🍎 macOS</span>
+              <span class="fbx-os-item fbx-os-active">💻 Windows</span>
+              <span class="fbx-os-item">🐧 Linux</span>
+              <span class="fbx-os-item">📱 iOS</span>
+              <span class="fbx-os-item">🤖 Android</span>
+            </div>
+          </div>
+        </div>
       </div></div></div>`;
+
   } else if (s === 2) {
+    // Step 3: Create Account & Connect — tips + interactive demo
     html = `<div class="step-card"><div class="step-header"><div class="step-num">3</div><div class="step-title">${t('step3title')}</div></div>
-      <div class="step-content"><p>${t('step3text')}</p></div></div>`;
+      <div class="step-content"><p>${t('step3text')}</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:10px;font-size:.85rem">${t('step3tip1')}</div>
+        <div class="card" style="padding:10px;font-size:.85rem">${t('step3tip2')}</div>
+        <div class="card" style="padding:10px;font-size:.85rem">${t('step3tip3')}</div>
+        <div class="card" style="padding:10px;font-size:.85rem;border-left:3px solid var(--accent3)">${t('step3tip4')}</div>
+      </div>
+      <div class="fbx-diagram" style="margin-top:16px">
+        <div style="font-family:var(--font-display);font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--text2)">${t('step3demo')}</div>
+        <div class="fbx-dash">
+          <div style="text-align:center;font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:10px">🚀 RocketVPN</div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;justify-content:center">
+            <div class="lp-server" onclick="document.querySelectorAll('.lp-server').forEach(s=>s.classList.remove('selected'));this.classList.add('selected')">🗽 USA</div>
+            <div class="lp-server selected" onclick="document.querySelectorAll('.lp-server').forEach(s=>s.classList.remove('selected'));this.classList.add('selected')">🗼 Japan</div>
+            <div class="lp-server" onclick="document.querySelectorAll('.lp-server').forEach(s=>s.classList.remove('selected'));this.classList.add('selected')">🏰 UK</div>
+            <div class="lp-server" onclick="document.querySelectorAll('.lp-server').forEach(s=>s.classList.remove('selected'));this.classList.add('selected')">🗼 France</div>
+          </div>
+          <div class="fbx-mini-orb" id="lpOrb" style="width:60px;height:60px;margin:0 auto">
+            <div class="fbx-morb-ring"></div>
+            <div class="fbx-morb-ring"></div>
+            <div class="fbx-morb-center" id="lpOrbIcon" style="font-size:1.2rem">🔴</div>
+          </div>
+          <div class="fbx-dash-status" id="lpStatus" style="color:var(--red);font-size:.8rem">Disconnected</div>
+          <div style="text-align:center;margin-top:8px">
+            <button class="btn btn-primary" style="font-size:.8rem;padding:8px 24px" onclick="lpToggleVpn()">🚀 Connect</button>
+          </div>
+        </div>
+      </div></div></div>`;
+
   } else if (s === 3) {
+    // Step 4: Test Your VPN — progress ring + 5 checks + IP flow diagram
+    const done = checks.filter(c=>c).length;
+    const pct = done / 5 * 100;
     html = `<div class="step-card"><div class="step-header"><div class="step-num">4</div><div class="step-title">${t('step4title')}</div></div>
-      <div class="step-content"><p>${t('step4text')}</p>
-      ${[0,1,2,3].map(i => `<div class="check-item ${checks[i]?'checked':''}" onclick="toggleCheck(${i})"><div class="check-box">${checks[i]?'✓':''}</div><span>${t('step4check'+(i+1))}</span></div>`).join('')}
+      <div class="step-content">
+      <div class="fbx-diagram">
+        <div class="fbx-ring" style="background:conic-gradient(var(--accent) ${pct}%, var(--bg3) ${pct}%)">
+          <div class="fbx-ring-inner"><span>${done}</span>/5</div>
+        </div>
+        <div class="fbx-ring-icons">
+          ${['🕵️','📍','⚡','🔒','🌐'].map((e,i) => `<span class="${checks[i]?'lit':''}">${e}</span>`).join('')}
+        </div>
+      </div>
+      <p style="margin-bottom:10px">${t('step4text')}</p>
+      ${[0,1,2,3,4].map(i => `<div class="check-item ${checks[i]?'checked':''}" onclick="toggleCheck(${i})"><div class="check-box">${checks[i]?'✓':''}</div><span>${t('step4check'+(i+1))}</span></div>`).join('')}
+      <div class="fbx-diagram" style="margin-top:16px">
+        <div style="font-family:var(--font-display);font-size:.82rem;font-weight:700;margin-bottom:6px">🔄 What changes when VPN is ON?</div>
+        <div class="fbx-flow">
+          <div class="fbx-flow-node"><div style="font-size:1.3rem">🏠</div><div class="fbx-flow-label">Before</div><div style="font-size:.65rem;color:var(--red);font-family:monospace">203.0.113.42</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">🔒</div></div>
+          <div class="fbx-flow-node"><div style="font-size:1.3rem">🛡️</div><div class="fbx-flow-label">VPN Tunnel</div></div>
+          <div class="fbx-flow-pipe"><div class="fbx-flow-file">🔒</div></div>
+          <div class="fbx-flow-node"><div style="font-size:1.3rem">🗼</div><div class="fbx-flow-label">After</div><div style="font-size:.65rem;color:var(--accent);font-family:monospace">10.8.0.1 🇯🇵</div></div>
+        </div>
+      </div>
       </div></div>`;
+
   } else if (s === 4) {
+    // Step 5: Celebration + next steps + tips
     html = `<div class="step-card"><div class="step-header"><div class="step-num">5</div><div class="step-title">${t('step5title')}</div></div>
       <div class="step-content"><p>${t('step5text')}</p>
-      <div style="text-align:center;margin-top:20px;font-size:3rem">🎉🚀🛡️</div></div></div>`;
+      <div style="text-align:center;margin:20px 0;font-size:3rem;animation:float 3s ease-in-out infinite">🎉🚀🛡️</div>
+      <div style="font-family:var(--font-display);font-size:.95rem;font-weight:700;margin:16px 0 10px">${t('step5next')}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="padding:12px;font-size:.85rem;cursor:pointer" onclick="showPage('freebox')">${t('step5tip1')}</div>
+        <div class="card" style="padding:12px;font-size:.85rem;cursor:pointer" onclick="showPage('freebox')">${t('step5tip2')}</div>
+        <div class="card" style="padding:12px;font-size:.85rem;cursor:pointer" onclick="showPage('academy')">${t('step5tip3')}</div>
+        <div class="card" style="padding:12px;font-size:.85rem"><a href="docs.html" style="text-decoration:none">${t('step5tip4')}</a></div>
+      </div>
+      <div style="margin-top:16px;background:var(--bg3);border-radius:var(--radius);padding:14px;border:1px solid var(--border)">
+        <div style="font-family:var(--font-display);font-size:.88rem;font-weight:700;margin-bottom:8px">${t('step5tips')}</div>
+        <div style="font-size:.82rem;color:var(--text2);line-height:1.8">
+          • ${t('step5tipA')}<br>• ${t('step5tipB')}<br>• ${t('step5tipC')}
+        </div>
+      </div>
+      </div></div>`;
+    fireConfetti();
   }
   el.innerHTML = html;
   document.getElementById('stepPrev').style.visibility = s === 0 ? 'hidden' : 'visible';
@@ -1838,6 +2021,34 @@ function toggleCheck(i) {
   checks[i] = !checks[i];
   renderStep();
   if (checks.every(c => c)) fireConfetti();
+}
+
+function toggleStepDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('active');
+}
+
+function lpToggleVpn() {
+  const orb = document.getElementById('lpOrb');
+  const icon = document.getElementById('lpOrbIcon');
+  const status = document.getElementById('lpStatus');
+  const servers = document.querySelectorAll('.lp-server');
+  if (lpVpnOn) {
+    lpVpnOn = false;
+    orb.classList.remove('connected','connecting');
+    icon.textContent = '🔴'; status.textContent = 'Disconnected'; status.style.color = 'var(--red)';
+    servers.forEach(s => s.style.opacity = '0.5');
+  } else {
+    lpVpnOn = true;
+    orb.classList.add('connecting');
+    icon.textContent = '🟡'; status.textContent = 'Connecting...'; status.style.color = 'var(--yellow)';
+    setTimeout(() => {
+      if (!lpVpnOn) return;
+      orb.classList.remove('connecting'); orb.classList.add('connected');
+      icon.textContent = '🟢'; status.textContent = 'Connected to Tokyo!'; status.style.color = 'var(--accent)';
+      servers.forEach(s => s.style.opacity = '1');
+    }, 1500);
+  }
 }
 
 // ═══════════════════════════════════════════
