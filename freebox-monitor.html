@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Freebox Monitor</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--accent-glow:rgba(68,229,160,.4);--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--red:#ff5c5c;--yellow:#ffc857;--accent-glow:rgba(255,140,66,.4)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--red:#f87171;--yellow:#fde047;--accent-glow:rgba(244,114,182,.4)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--accent:#22966a;--accent2:#2563eb;--red:#dc3545;--yellow:#d4a017;--accent-glow:rgba(34,150,106,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:12px;align-items:center;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.main{max-width:1000px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.6rem;text-align:center;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:16px}
+.tab{flex:1;padding:10px;border-radius:12px;background:transparent;border:none;color:var(--text2);cursor:pointer;font-family:var(--font-display);font-weight:600;font-size:.85rem}
+.tab.active{background:var(--accent);color:var(--bg);box-shadow:0 4px 16px var(--accent-glow)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.card h2{font-family:var(--font-display);font-size:1.05rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.stat .lbl{font-size:.65rem;text-transform:uppercase;color:var(--text3)}
+.stat .val{font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-top:4px}
+.stat .val.on{color:var(--accent)}
+.stat .val.off{color:var(--red)}
+.devices{display:flex;flex-direction:column;gap:8px}
+.device{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.device-icon{font-size:1.5rem;width:40px;text-align:center}
+.device-info{flex:1;min-width:0}
+.device-name{font-weight:700;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.device-meta{font-size:.7rem;color:var(--text3);font-family:'Fira Code',monospace}
+.bandwidth{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:80px}
+.bw-bar{width:80px;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.bw-fill{height:100%;background:var(--accent);transition:width .5s}
+.bw-text{font-size:.68rem;font-family:'Fira Code',monospace;color:var(--text2)}
+.status-dot{width:10px;height:10px;border-radius:50%;margin-left:8px}
+.status-dot.on{background:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+.status-dot.off{background:var(--red)}
+.controls{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.controls button{padding:8px 16px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font-body);font-size:.82rem}
+.controls button.primary{background:var(--accent);color:var(--bg);font-weight:700}
+.auth-note{font-size:.78rem;color:var(--text2);padding:12px;background:var(--bg3);border-left:3px solid var(--accent2);border-radius:var(--radius-sm);margin-bottom:16px}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">📦 Freebox Monitor</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>📦 Freebox Monitor</h1>
+  <p class="sub">Real-time dashboard for your Freebox router</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchMode('demo')">🎮 Demo</button>
+    <button class="tab" onclick="switchMode('live')">📡 Live API</button>
+  </div>
+
+  <div id="modeContent"></div>
+
+  <div class="controls">
+    <button class="primary" onclick="refresh()">🔄 Refresh</button>
+    <button onclick="toggleAuto()"><span id="autoBtn">▶️ Auto (10s)</span></button>
+    <span style="margin-left:auto;font-size:.75rem;color:var(--text3)" id="updated"></span>
+  </div>
+
+  <!-- Connection Info -->
+  <div class="card">
+    <h2>🌐 Internet Connection <span class="status-dot on" id="connDot"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="lbl">Status</div><div class="val on" id="connStatus">UP</div></div>
+      <div class="stat"><div class="lbl">Download</div><div class="val" id="connDown">0 Mbps</div></div>
+      <div class="stat"><div class="lbl">Upload</div><div class="val" id="connUp">0 Mbps</div></div>
+      <div class="stat"><div class="lbl">Public IP</div><div class="val" id="connIp" style="font-size:.85rem;font-family:'Fira Code',monospace">—</div></div>
+    </div>
+  </div>
+
+  <!-- System -->
+  <div class="card">
+    <h2>🖥️ System Info</h2>
+    <div class="stats">
+      <div class="stat"><div class="lbl">Model</div><div class="val" id="sysModel" style="font-size:.95rem">—</div></div>
+      <div class="stat"><div class="lbl">Firmware</div><div class="val" id="sysFw" style="font-size:.95rem">—</div></div>
+      <div class="stat"><div class="lbl">Uptime</div><div class="val" id="sysUptime" style="font-size:.95rem">—</div></div>
+      <div class="stat"><div class="lbl">Temperature</div><div class="val" id="sysTemp">—</div></div>
+    </div>
+  </div>
+
+  <!-- VPN Server -->
+  <div class="card">
+    <h2>🔒 VPN Server <span class="status-dot on" id="vpnDot"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="lbl">WireGuard</div><div class="val on" id="vpnWg">ON</div></div>
+      <div class="stat"><div class="lbl">Port</div><div class="val" id="vpnPort">62088</div></div>
+      <div class="stat"><div class="lbl">Connected Peers</div><div class="val" id="vpnPeers">0</div></div>
+    </div>
+  </div>
+
+  <!-- Devices -->
+  <div class="card">
+    <h2>📱 Connected Devices (<span id="deviceCount">0</span>)</h2>
+    <div class="devices" id="deviceList"></div>
+  </div>
+
+</main>
+
+<script>
+let mode = 'demo';
+let autoTimer = null;
+
+function switchMode(m) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['demo','live'][i] === m));
+  renderMode();
+  refresh();
+}
+
+function renderMode() {
+  const el = document.getElementById('modeContent');
+  if (mode === 'live') {
+    el.innerHTML = `<div class="auth-note">
+      📡 <strong>Live API mode</strong> — connects to <code>http://mafreebox.freebox.fr/api/v8/</code>.
+      First time: you'll need to authorize this app on your Freebox (LCD screen confirmation).
+      Works only on your local network.
+      <br><br>⚠️ Browser CORS may block the connection. If so, use Demo mode or open Freebox OS directly.
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="auth-note">🎮 <strong>Demo mode</strong> — showing simulated Freebox data based on a typical home setup.</div>`;
+  }
+}
+
+const demoDevices = [
+  {name:'iPhone-Abdelhak',icon:'📱',ip:'192.168.1.45',mac:'A4:83:E7:xx:xx',type:'WiFi',rx:15700000,tx:4200000},
+  {name:'MacBook-Pro',icon:'💻',ip:'192.168.1.67',mac:'F0:18:98:xx:xx',type:'WiFi',rx:125000000,tx:42000000},
+  {name:'raspberrypi',icon:'🍓',ip:'192.168.1.100',mac:'DC:A6:32:xx:xx',type:'Ethernet',rx:890000000,tx:1200000000},
+  {name:'Smart-TV-Samsung',icon:'📺',ip:'192.168.1.123',mac:'FC:A1:3E:xx:xx',type:'WiFi',rx:2100000000,tx:4500000},
+  {name:'HP-Printer',icon:'🖨️',ip:'192.168.1.200',mac:'3C:2A:F4:xx:xx',type:'WiFi',rx:450000,tx:320000},
+  {name:'esp32-home',icon:'🔌',ip:'192.168.1.150',mac:'48:3F:DA:xx:xx',type:'WiFi',rx:12000,tx:5800}
+];
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function refresh() {
+  if (mode === 'demo') {
+    // Animate values
+    const down = (350 + Math.random() * 150).toFixed(1);
+    const up = (45 + Math.random() * 30).toFixed(1);
+
+    document.getElementById('connStatus').textContent = 'UP';
+    document.getElementById('connStatus').className = 'val on';
+    document.getElementById('connDot').className = 'status-dot on';
+    document.getElementById('connDown').textContent = down + ' Mbps';
+    document.getElementById('connUp').textContent = up + ' Mbps';
+    document.getElementById('connIp').textContent = '82.64.123.45';
+
+    document.getElementById('sysModel').textContent = 'Freebox Pop';
+    document.getElementById('sysFw').textContent = '4.9.x';
+    document.getElementById('sysUptime').textContent = '42 days';
+    document.getElementById('sysTemp').textContent = (48 + Math.random()*4).toFixed(0) + '°C';
+
+    document.getElementById('vpnWg').textContent = 'ON';
+    document.getElementById('vpnWg').className = 'val on';
+    document.getElementById('vpnDot').className = 'status-dot on';
+    document.getElementById('vpnPort').textContent = '62088';
+    document.getElementById('vpnPeers').textContent = '2/4';
+
+    // Devices
+    demoDevices.forEach(d => {
+      d.rx += Math.floor(Math.random() * 50000);
+      d.tx += Math.floor(Math.random() * 20000);
+    });
+    renderDevices(demoDevices);
+  } else {
+    // Live mode - attempt real API call
+    document.getElementById('connStatus').textContent = 'CORS?';
+    document.getElementById('connStatus').className = 'val off';
+    fetchLive();
+  }
+  document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+}
+
+async function fetchLive() {
+  try {
+    const res = await fetch('http://mafreebox.freebox.fr/api/v8/login/', {mode:'cors'});
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('connStatus').textContent = 'API OK';
+      document.getElementById('connStatus').className = 'val on';
+    }
+  } catch(e) {
+    // CORS typically blocks this
+    document.getElementById('sysModel').textContent = 'CORS blocked';
+    document.getElementById('sysFw').textContent = '—';
+    document.getElementById('sysUptime').textContent = '—';
+    document.getElementById('sysTemp').textContent = '—';
+  }
+}
+
+function renderDevices(devices) {
+  document.getElementById('deviceCount').textContent = devices.length;
+  const total = Math.max(...devices.map(d => d.rx + d.tx));
+  document.getElementById('deviceList').innerHTML = devices.map(d => {
+    const usage = (d.rx + d.tx) / total * 100;
+    return `<div class="device">
+      <div class="device-icon">${d.icon}</div>
+      <div class="device-info">
+        <div class="device-name">${d.name}</div>
+        <div class="device-meta">${d.ip} · ${d.mac} · ${d.type}</div>
+      </div>
+      <div class="bandwidth">
+        <div class="bw-text">↓${formatBytes(d.rx)} ↑${formatBytes(d.tx)}</div>
+        <div class="bw-bar"><div class="bw-fill" style="width:${usage}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer); autoTimer = null;
+    document.getElementById('autoBtn').textContent = '▶️ Auto (10s)';
+  } else {
+    autoTimer = setInterval(refresh, 10000);
+    document.getElementById('autoBtn').textContent = '⏸️ Stop';
+  }
+}
+
+renderMode();
+refresh();
+toggleAuto();
+</script>
+</body>
+</html>

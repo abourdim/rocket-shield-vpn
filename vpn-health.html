@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Health Monitor</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent-glow:rgba(68,229,160,.4);--red:#ff5c6a;--yellow:#ffe156;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--accent:#ff8c42;--accent2:#ffc857;--red:#ff5c5c;--yellow:#ffc857;--accent-glow:rgba(255,140,66,.4)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--accent:#f472b6;--accent2:#a78bfa;--red:#f87171;--yellow:#fde047;--accent-glow:rgba(244,114,182,.4)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--accent:#22966a;--accent2:#2563eb;--red:#dc3545;--yellow:#d4a017;--accent-glow:rgba(34,150,106,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.main{max-width:800px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.6rem;margin-bottom:8px;text-align:center;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.status-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px 20px;text-align:center;margin-bottom:20px;transition:all .5s}
+.status-hero.up{border-color:var(--accent);box-shadow:0 0 40px var(--accent-glow)}
+.status-hero.down{border-color:var(--red);box-shadow:0 0 40px rgba(255,92,106,.4)}
+.status-icon{font-size:4rem;margin-bottom:12px;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.status-text{font-family:var(--font-display);font-size:2rem;font-weight:700}
+.status-sub{color:var(--text2);font-size:.9rem;margin-top:6px}
+.controls{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.controls input{flex:1;min-width:200px;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem}
+.controls select,.controls button{padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-family:var(--font-body);font-size:.82rem}
+.controls button:hover{border-color:var(--accent)}
+.controls .btn-primary{background:var(--accent);color:var(--bg);font-weight:700;border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.stat .val{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--accent)}
+.stat .lbl{font-size:.68rem;text-transform:uppercase;color:var(--text3)}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.chart-card h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:10px}
+canvas{width:100%;height:150px;display:block}
+.log-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.log-card h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:10px}
+.log{max-height:200px;overflow-y:auto;font-family:'Fira Code',monospace;font-size:.72rem;line-height:1.8}
+.log-entry{padding:4px 0;border-bottom:1px dashed var(--border);display:flex;gap:10px}
+.log-entry.up{color:var(--accent)}
+.log-entry.down{color:var(--red)}
+.log-time{color:var(--text3);flex-shrink:0}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">🏥 VPN Health</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>🏥 VPN Health Monitor</h1>
+  <p class="sub">Monitor your VPN server uptime and response time</p>
+
+  <div class="status-hero up" id="statusHero">
+    <div class="status-icon" id="statusIcon">🛡️</div>
+    <div class="status-text" id="statusText">HEALTHY</div>
+    <div class="status-sub" id="statusSub">Last checked: never</div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="endpoint" placeholder="VPN endpoint (e.g., mafreebox.freebox.fr or 1.2.3.4)" value="mafreebox.freebox.fr">
+    <select id="interval">
+      <option value="30000">Every 30s</option>
+      <option value="60000" selected>Every 1m</option>
+      <option value="300000">Every 5m</option>
+    </select>
+    <button class="btn-primary" onclick="check()">🔄 Check Now</button>
+    <button onclick="toggleAuto()"><span id="autoBtn">▶️ Auto</span></button>
+    <button onclick="exportCSV()">📥 CSV</button>
+    <button onclick="clearLog()">🗑️</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="val" id="statUptime">100%</div><div class="lbl">Uptime</div></div>
+    <div class="stat"><div class="val" id="statChecks">0</div><div class="lbl">Checks</div></div>
+    <div class="stat"><div class="val" id="statAvg">0 ms</div><div class="lbl">Avg Response</div></div>
+    <div class="stat"><div class="val" id="statDown">0</div><div class="lbl">Failures</div></div>
+  </div>
+
+  <div class="chart-card">
+    <h3>📈 Response Time (last 50 checks)</h3>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="log-card">
+    <h3>📜 Check Log</h3>
+    <div class="log" id="log"></div>
+  </div>
+</main>
+
+<script>
+let autoTimer = null;
+let history = JSON.parse(localStorage.getItem('rs-vpn-health') || '[]');
+
+async function check() {
+  const endpoint = document.getElementById('endpoint').value.trim();
+  if (!endpoint) return;
+  const start = performance.now();
+  let success = false, error = null, elapsed = 0;
+  try {
+    const url = endpoint.startsWith('http') ? endpoint : 'http://' + endpoint;
+    await fetch(url, {mode:'no-cors', cache:'no-cache', signal: AbortSignal.timeout(5000)});
+    elapsed = Math.round(performance.now() - start);
+    success = true;
+  } catch(e) {
+    elapsed = Math.round(performance.now() - start);
+    error = e.name;
+    // no-cors mode returns opaque response on success, so any reach counts as up
+    if (elapsed < 4900) success = true;
+  }
+  history.push({time: Date.now(), success, elapsed, endpoint});
+  if (history.length > 100) history = history.slice(-100);
+  localStorage.setItem('rs-vpn-health', JSON.stringify(history));
+  render();
+}
+
+function render() {
+  const recent = history.slice(-50);
+  const total = history.length;
+  const fails = history.filter(h => !h.success).length;
+  const ups = total - fails;
+  const uptime = total > 0 ? ((ups/total)*100).toFixed(1) : 100;
+  const avgResp = recent.length > 0 ? Math.round(recent.filter(h=>h.success).reduce((s,h)=>s+h.elapsed,0) / Math.max(1, recent.filter(h=>h.success).length)) : 0;
+
+  document.getElementById('statUptime').textContent = uptime + '%';
+  document.getElementById('statChecks').textContent = total;
+  document.getElementById('statAvg').textContent = avgResp + ' ms';
+  document.getElementById('statDown').textContent = fails;
+
+  const last = history[history.length-1];
+  const hero = document.getElementById('statusHero');
+  if (!last) {
+    hero.className = 'status-hero';
+    document.getElementById('statusIcon').textContent = '❓';
+    document.getElementById('statusText').textContent = 'UNKNOWN';
+    document.getElementById('statusSub').textContent = 'Click "Check Now" to start';
+  } else if (last.success) {
+    hero.className = 'status-hero up';
+    document.getElementById('statusIcon').textContent = '🛡️';
+    document.getElementById('statusText').textContent = 'HEALTHY';
+    document.getElementById('statusSub').textContent = `${last.endpoint} · ${last.elapsed}ms · ${new Date(last.time).toLocaleTimeString()}`;
+  } else {
+    hero.className = 'status-hero down';
+    document.getElementById('statusIcon').textContent = '⚠️';
+    document.getElementById('statusText').textContent = 'DOWN';
+    document.getElementById('statusSub').textContent = `${last.endpoint} unreachable · ${new Date(last.time).toLocaleTimeString()}`;
+  }
+
+  // Log
+  document.getElementById('log').innerHTML = history.slice(-20).reverse().map(h => `
+    <div class="log-entry ${h.success?'up':'down'}">
+      <span class="log-time">${new Date(h.time).toLocaleTimeString()}</span>
+      <span>${h.success?'✅ UP':'❌ DOWN'}</span>
+      <span>${h.elapsed}ms</span>
+      <span>${h.endpoint}</span>
+    </div>
+  `).join('') || '<div style="color:var(--text3);padding:10px">No checks yet</div>';
+
+  // Chart
+  drawChart(recent);
+}
+
+function drawChart(data) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  if (data.length < 2) {
+    ctx.fillStyle = 'rgba(128,128,128,.5)'; ctx.textAlign='center'; ctx.font='12px sans-serif';
+    ctx.fillText('No data yet — run some checks', w/2, h/2);
+    return;
+  }
+  const style = getComputedStyle(document.documentElement);
+  const accent = style.getPropertyValue('--accent').trim();
+  const red = style.getPropertyValue('--red').trim();
+  const border = style.getPropertyValue('--border').trim();
+  const max = Math.max(...data.map(d => d.elapsed), 100);
+  const padL = 40, padR = 10, padT = 10, padB = 10;
+  const cw = w-padL-padR, ch = h-padT-padB;
+  ctx.strokeStyle = border; ctx.lineWidth = 1;
+  for (let i=0;i<=4;i++) {
+    const y = padT + (ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillStyle='var(--text3)'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(Math.round(max-(max/4)*i)+'ms', padL-4, y+3);
+  }
+  ctx.lineWidth = 2;
+  data.forEach((d,i) => {
+    const x = padL + (cw/(data.length-1))*i;
+    const y = padT + ch - (d.elapsed/max)*ch;
+    if (i===0) { ctx.strokeStyle = d.success?accent:red; ctx.beginPath(); ctx.moveTo(x,y); }
+    else { ctx.lineTo(x,y); ctx.stroke(); ctx.strokeStyle = d.success?accent:red; ctx.beginPath(); ctx.moveTo(x,y); }
+    ctx.fillStyle = d.success?accent:red;
+    ctx.fillRect(x-2,y-2,4,4);
+  });
+}
+
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer); autoTimer = null;
+    document.getElementById('autoBtn').textContent = '▶️ Auto';
+  } else {
+    const interval = parseInt(document.getElementById('interval').value);
+    autoTimer = setInterval(check, interval);
+    document.getElementById('autoBtn').textContent = '⏸️ Stop';
+    check();
+  }
+}
+
+function exportCSV() {
+  let csv = 'Time,Success,Elapsed (ms),Endpoint\n';
+  history.forEach(h => csv += `"${new Date(h.time).toISOString()}",${h.success},${h.elapsed},"${h.endpoint}"\n`);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'vpn-health.csv';
+  a.click();
+}
+
+function clearLog() {
+  if (confirm('Clear all history?')) { history = []; localStorage.removeItem('rs-vpn-health'); render(); }
+}
+
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>

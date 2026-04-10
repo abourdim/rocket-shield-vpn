@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Traffic Visualizer</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--orange:#fb923c;--red:#f87171;--yellow:#fde047}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--orange:#ea6c20;--red:#dc3545;--yellow:#d4a017}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:12px;align-items:center;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.main{max-width:1000px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.6rem;text-align:center;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.stat.up::before{background:var(--orange)}
+.stat .lbl{font-size:.68rem;text-transform:uppercase;color:var(--text3)}
+.stat .val{font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-top:4px}
+.tunnel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.tunnel-card h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:12px}
+.tunnel{position:relative;height:80px;background:var(--bg3);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);margin:10px 0}
+.tunnel-label{position:absolute;top:8px;left:12px;font-size:.7rem;color:var(--text2);font-family:var(--font-display);font-weight:700;z-index:5}
+.tunnel-nodes{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:2;font-size:1.8rem}
+.packet{position:absolute;top:50%;margin-top:-5px;width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px currentColor}
+.packet.down{background:var(--accent);color:var(--accent)}
+.packet.up{background:var(--orange);color:var(--orange)}
+.controls{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.controls button,.controls select{padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-family:var(--font-body);font-size:.82rem}
+.controls .btn-primary{background:var(--accent);color:var(--bg);font-weight:700}
+.pie-container{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+@media(max-width:600px){.pie-container{grid-template-columns:1fr;text-align:center}}
+.pie{width:160px;height:160px;border-radius:50%;margin:0 auto;position:relative}
+.pie::after{content:'';position:absolute;inset:30px;background:var(--bg2);border-radius:50%}
+.pie-legend{display:flex;flex-direction:column;gap:8px}
+.pie-legend-item{display:flex;align-items:center;gap:10px;font-size:.85rem}
+.pie-legend-dot{width:14px;height:14px;border-radius:3px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+canvas{width:100%;height:180px;display:block}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">📊 Traffic Visualizer</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>📊 Network Traffic Visualizer</h1>
+  <p class="sub">Watch data flow through your VPN tunnel in real-time</p>
+
+  <div class="controls">
+    <button class="btn-primary" id="playBtn" onclick="toggle()">⏸️ Pause</button>
+    <label style="font-size:.82rem;color:var(--text2)">Speed:
+      <select id="speed" onchange="setSpeed(this.value)">
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+    </label>
+    <button onclick="burstTraffic()">💥 Burst</button>
+    <span style="margin-left:auto;font-size:.75rem;color:var(--text3)" id="sessionTime">0:00</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="lbl">↓ Download</div><div class="val" id="downSpeed">0</div><div style="font-size:.7rem;color:var(--text3)">Mbps</div></div>
+    <div class="stat up"><div class="lbl">↑ Upload</div><div class="val" id="upSpeed">0</div><div style="font-size:.7rem;color:var(--text3)">Mbps</div></div>
+    <div class="stat"><div class="lbl">Total Down</div><div class="val" id="totalDown">0 KB</div></div>
+    <div class="stat up"><div class="lbl">Total Up</div><div class="val" id="totalUp">0 KB</div></div>
+    <div class="stat"><div class="lbl">Packets/sec</div><div class="val" id="pps">0</div></div>
+  </div>
+
+  <div class="tunnel-card">
+    <h3>🔒 Encrypted VPN Tunnel</h3>
+    <div class="tunnel" id="tunnel">
+      <div class="tunnel-label">⬇️ Download Stream</div>
+      <div class="tunnel-nodes"><span>🌐</span><span>📱</span></div>
+    </div>
+    <div class="tunnel" id="tunnel2">
+      <div class="tunnel-label">⬆️ Upload Stream</div>
+      <div class="tunnel-nodes"><span>📱</span><span>🌐</span></div>
+    </div>
+  </div>
+
+  <div class="pie-container">
+    <div class="pie" id="pie" style="background:conic-gradient(var(--accent) 0% 65%, var(--accent2) 65% 75%, var(--accent3) 75% 95%, var(--orange) 95% 100%)"></div>
+    <div>
+      <h3 style="font-family:var(--font-display);margin-bottom:10px">🥧 Protocol Breakdown</h3>
+      <div class="pie-legend">
+        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--accent)"></div>HTTPS — 65%</div>
+        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--accent2)"></div>DNS — 10%</div>
+        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--accent3)"></div>VPN Control — 20%</div>
+        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--orange)"></div>Other — 5%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h3 style="font-family:var(--font-display);font-size:.95rem;margin-bottom:10px">📈 Bandwidth (last 60s)</h3>
+    <canvas id="chart"></canvas>
+  </div>
+</main>
+
+<script>
+let playing = true, speed = 1, startTime = Date.now();
+let down = 0, up = 0, totalDown = 0, totalUp = 0, pps = 0;
+let history = [];
+let packets = [];
+
+function toggle() {
+  playing = !playing;
+  document.getElementById('playBtn').textContent = playing ? '⏸️ Pause' : '▶️ Play';
+}
+
+function setSpeed(v) { speed = parseFloat(v); }
+
+function burstTraffic() {
+  for (let i = 0; i < 20; i++) setTimeout(spawnPacket, i * 30);
+}
+
+function spawnPacket() {
+  if (!playing) return;
+  const isDown = Math.random() > 0.3;
+  const tunnel = document.getElementById(isDown ? 'tunnel' : 'tunnel2');
+  const p = document.createElement('div');
+  p.className = 'packet ' + (isDown ? 'down' : 'up');
+  p.style.left = '10px';
+  tunnel.appendChild(p);
+  const duration = 1500 / speed;
+  const startLeft = 10;
+  const endLeft = tunnel.clientWidth - 20;
+  p.animate([{left: startLeft+'px'},{left: endLeft+'px'}], {duration, easing:'linear'}).onfinish = () => p.remove();
+  pps++;
+  const bytes = 500 + Math.random() * 5000;
+  if (isDown) totalDown += bytes; else totalUp += bytes;
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b.toFixed(0) + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function tick() {
+  if (playing) {
+    // Spawn packets based on speed
+    const count = Math.floor(1 + Math.random() * 3 * speed);
+    for (let i = 0; i < count; i++) setTimeout(spawnPacket, i * 100);
+
+    // Simulate bandwidth (Mbps)
+    down = 25 + Math.sin(Date.now()/3000) * 15 + Math.random() * 10;
+    up = 5 + Math.sin(Date.now()/2500) * 3 + Math.random() * 4;
+
+    history.push({down, up, time: Date.now()});
+    if (history.length > 60) history.shift();
+  }
+
+  // Update UI
+  document.getElementById('downSpeed').textContent = down.toFixed(1);
+  document.getElementById('upSpeed').textContent = up.toFixed(1);
+  document.getElementById('totalDown').textContent = formatBytes(totalDown);
+  document.getElementById('totalUp').textContent = formatBytes(totalUp);
+  document.getElementById('pps').textContent = pps;
+  pps = 0;
+
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('sessionTime').textContent = `${Math.floor(elapsed/60)}:${(elapsed%60).toString().padStart(2,'0')}`;
+
+  drawChart();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  if (history.length < 2) return;
+
+  const style = getComputedStyle(document.documentElement);
+  const accent = style.getPropertyValue('--accent').trim();
+  const orange = style.getPropertyValue('--orange').trim();
+  const border = style.getPropertyValue('--border').trim();
+  const text3 = style.getPropertyValue('--text3').trim();
+
+  const max = 60;
+  const padL = 40, padR = 10, padT = 10, padB = 20;
+  const cw = w-padL-padR, ch = h-padT-padB;
+
+  ctx.strokeStyle = border; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w-padR, y); ctx.stroke();
+    ctx.fillStyle = text3; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(max-(max/4)*i) + 'Mbps', padL-4, y+3);
+  }
+
+  // Download area
+  ctx.fillStyle = accent + '33';
+  ctx.beginPath();
+  history.forEach((h,i) => {
+    const x = padL + (cw/(history.length-1))*i;
+    const y = padT + ch - (h.down/max)*ch;
+    if (i === 0) ctx.moveTo(x, padT+ch); else ctx.lineTo(x, y);
+    if (i === 0) ctx.lineTo(x, y);
+  });
+  ctx.lineTo(padL + cw, padT + ch);
+  ctx.closePath();
+  ctx.fill();
+
+  // Download line
+  ctx.strokeStyle = accent; ctx.lineWidth = 2;
+  ctx.beginPath();
+  history.forEach((h,i) => {
+    const x = padL + (cw/(history.length-1))*i;
+    const y = padT + ch - (h.down/max)*ch;
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Upload line
+  ctx.strokeStyle = orange;
+  ctx.beginPath();
+  history.forEach((h,i) => {
+    const x = padL + (cw/(history.length-1))*i;
+    const y = padT + ch - (h.up/max)*ch;
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+}
+
+setInterval(tick, 500);
+window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>

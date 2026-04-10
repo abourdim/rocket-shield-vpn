@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Auto-Config Deployer</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--orange:#ff8c42;--red:#ff5c6a;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:12px;align-items:center;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.6rem;text-align:center;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:12px 0}
+h2{font-family:var(--font-display);font-size:1.1rem;margin-bottom:12px}
+label{display:block;font-size:.78rem;color:var(--text2);margin-bottom:4px;margin-top:10px}
+input[type="text"],input[type="number"]{width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem}
+input:focus{outline:none;border-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.btn{padding:12px 24px;border-radius:var(--radius-sm);background:var(--accent);color:var(--bg);border:none;font-family:var(--font-display);font-weight:700;font-size:.95rem;cursor:pointer;width:100%;margin-top:14px}
+.btn:hover{transform:translateY(-1px)}
+.btn-small{padding:6px 14px;font-size:.75rem;width:auto;margin-top:0}
+.btn-outline{background:var(--bg3);color:var(--text);border:1px solid var(--border);margin-left:6px}
+.device-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.device-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.device-item input{flex:1;border:none;background:transparent;color:var(--text);font-family:var(--font-body);font-size:.88rem;padding:4px 0}
+.device-item .rm{cursor:pointer;color:var(--red);padding:4px 8px;font-size:.9rem}
+pre{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:.75rem;line-height:1.5;margin-top:10px;white-space:pre-wrap;word-break:break-all}
+.config-card{margin:12px 0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.config-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.config-title{font-family:var(--font-display);font-weight:700}
+.warn{background:rgba(255,140,66,.1);border-left:4px solid var(--orange);padding:10px 14px;border-radius:var(--radius-sm);margin:12px 0;font-size:.82rem;color:var(--orange)}
+.success{background:rgba(68,229,160,.1);border-left:4px solid var(--accent);padding:10px 14px;border-radius:var(--radius-sm);margin:12px 0;font-size:.82rem;color:var(--accent)}
+.qr-canvas{background:white;padding:10px;border-radius:var(--radius-sm);display:block;margin:10px auto}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">⚙️ Auto-Config</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>⚙️ Auto-Config Deployer</h1>
+  <p class="sub">Enter server details → generate configs for all your devices in one click</p>
+
+  <div class="card">
+    <h2>1. Server Settings</h2>
+    <div class="row">
+      <div>
+        <label>Server Public IP or Domain</label>
+        <input type="text" id="endpoint" placeholder="vpn.example.com or 82.64.123.45" value="vpn.example.com">
+      </div>
+      <div>
+        <label>Port</label>
+        <input type="number" id="port" value="51820">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>VPN Subnet</label>
+        <input type="text" id="subnet" value="10.99.99">
+      </div>
+      <div>
+        <label>DNS Servers</label>
+        <input type="text" id="dns" value="1.1.1.1, 8.8.8.8">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Devices</h2>
+    <div class="device-list" id="deviceList"></div>
+    <button class="btn btn-small btn-outline" onclick="addDevice()">+ Add Device</button>
+  </div>
+
+  <button class="btn" onclick="generateAll()">🚀 Generate All Configs</button>
+
+  <div class="warn">⚠️ This tool uses randomly generated demo keys. For production deployment, generate real keys on your server with <code>wg genkey</code>.</div>
+
+  <div id="output"></div>
+</main>
+
+<script>
+let devices = [
+  {name: 'phone', icon: '📱'},
+  {name: 'laptop', icon: '💻'},
+  {name: 'tablet', icon: '📱'}
+];
+
+function renderDevices() {
+  document.getElementById('deviceList').innerHTML = devices.map((d, i) => `
+    <div class="device-item">
+      <span>${d.icon}</span>
+      <input type="text" value="${d.name}" oninput="devices[${i}].name=this.value">
+      <span class="rm" onclick="removeDevice(${i})">✕</span>
+    </div>
+  `).join('');
+}
+
+function addDevice() {
+  if (devices.length >= 20) return;
+  const icons = ['📱','💻','🖥️','📺','⌚'];
+  devices.push({name: 'device' + (devices.length+1), icon: icons[devices.length % icons.length]});
+  renderDevices();
+}
+
+function removeDevice(i) {
+  devices.splice(i, 1);
+  renderDevices();
+}
+
+function randomBase64(bytes = 32) {
+  const arr = new Uint8Array(bytes);
+  crypto.getRandomValues(arr);
+  return btoa(String.fromCharCode(...arr));
+}
+
+function generateAll() {
+  const endpoint = document.getElementById('endpoint').value.trim();
+  const port = document.getElementById('port').value;
+  const subnet = document.getElementById('subnet').value.trim();
+  const dns = document.getElementById('dns').value.trim();
+
+  if (!endpoint || devices.length === 0) return;
+
+  const serverPrivate = randomBase64();
+  const serverPublic = randomBase64();
+
+  let serverConfig = `# Rocket Shield VPN Server
+# Generated: ${new Date().toISOString()}
+
+[Interface]
+Address = ${subnet}.1/24
+ListenPort = ${port}
+PrivateKey = ${serverPrivate}
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+`;
+
+  const clientConfigs = [];
+  devices.forEach((d, i) => {
+    const ip = `${subnet}.${i+2}`;
+    const clientPrivate = randomBase64();
+    const clientPublic = randomBase64();
+    const psk = randomBase64();
+
+    serverConfig += `
+# Client: ${d.name}
+[Peer]
+PublicKey = ${clientPublic}
+PresharedKey = ${psk}
+AllowedIPs = ${ip}/32
+`;
+
+    const clientConf = `# ${d.icon} ${d.name}
+[Interface]
+Address = ${ip}/24
+PrivateKey = ${clientPrivate}
+DNS = ${dns}
+
+[Peer]
+PublicKey = ${serverPublic}
+PresharedKey = ${psk}
+Endpoint = ${endpoint}:${port}
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25
+`;
+    clientConfigs.push({name: d.name, icon: d.icon, conf: clientConf});
+  });
+
+  renderOutput(serverConfig, clientConfigs);
+}
+
+function renderOutput(serverConfig, clients) {
+  let html = `<div class="success">✅ Generated ${clients.length} client configs + 1 server config with demo keys</div>`;
+
+  html += `<div class="config-card">
+    <div class="config-header">
+      <div class="config-title">🛰️ Server — wg0.conf</div>
+      <div>
+        <button class="btn btn-small" onclick="copyText(\`${serverConfig.replace(/`/g,'\\`')}\`)">📋 Copy</button>
+        <button class="btn btn-small btn-outline" onclick="downloadConf('wg0.conf', \`${serverConfig.replace(/`/g,'\\`')}\`)">📥 Download</button>
+      </div>
+    </div>
+    <pre>${escapeHtml(serverConfig)}</pre>
+  </div>`;
+
+  clients.forEach((c, i) => {
+    html += `<div class="config-card">
+      <div class="config-header">
+        <div class="config-title">${c.icon} ${c.name}.conf</div>
+        <div>
+          <button class="btn btn-small" onclick="copyText(\`${c.conf.replace(/`/g,'\\`')}\`)">📋 Copy</button>
+          <button class="btn btn-small btn-outline" onclick="downloadConf('${c.name}.conf', \`${c.conf.replace(/`/g,'\\`')}\`)">📥 Download</button>
+        </div>
+      </div>
+      <pre>${escapeHtml(c.conf)}</pre>
+    </div>`;
+  });
+
+  document.getElementById('output').innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyText(t) {
+  navigator.clipboard.writeText(t).then(() => {
+    alert('Copied to clipboard!');
+  });
+}
+
+function downloadConf(filename, content) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type:'text/plain'}));
+  a.download = filename;
+  a.click();
+}
+
+renderDevices();
+</script>
+</body>
+</html>

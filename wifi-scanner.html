@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — WiFi Security Scanner</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--red:#ff5c5c;--yellow:#ffc857}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--red:#f87171;--yellow:#fde047}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--red:#dc3545;--yellow:#d4a017}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+.main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.6rem;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+.sub{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:12px 0}
+h2{font-family:var(--font-display);font-size:1.1rem;margin-bottom:12px}
+.connection{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.conn-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.conn-item .lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase}
+.conn-item .val{font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-top:4px}
+.checklist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.check{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s}
+.check:hover{border-color:var(--accent)}
+.check.checked{background:var(--accent-soft);border-color:var(--accent)}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check.checked .check-box{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+.check-text{font-size:.88rem;flex:1}
+.check-hint{font-size:.7rem;color:var(--text3);display:block;margin-top:2px}
+.score-circle{width:140px;height:140px;border-radius:50%;margin:20px auto;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;transition:all .5s;position:relative}
+.score-inner{width:110px;height:110px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-val{font-size:2rem}
+.score-grade{font-size:1rem;margin-top:4px}
+.risk{padding:14px 18px;border-radius:var(--radius-sm);margin:12px 0;border-left:4px solid}
+.risk.low{background:rgba(68,229,160,.1);border-color:var(--accent);color:var(--accent)}
+.risk.med{background:rgba(255,225,86,.1);border-color:var(--yellow);color:var(--yellow)}
+.risk.high{background:rgba(255,92,106,.1);border-color:var(--red);color:var(--red)}
+.viz{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:600px){.viz{grid-template-columns:1fr}}
+.viz-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.viz-card h4{font-family:var(--font-display);font-size:.9rem;margin-bottom:8px}
+.viz-item{padding:6px 10px;background:var(--bg2);border-radius:6px;font-size:.75rem;margin:4px 0;font-family:monospace}
+.viz-card.ok .viz-item{color:var(--accent)}
+.viz-card.bad .viz-item{color:var(--red)}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">📶 WiFi Scanner</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>📶 WiFi Security Scanner</h1>
+  <p class="sub">Check your current connection and WiFi security posture</p>
+
+  <div class="card">
+    <h2>🌐 Your Connection</h2>
+    <div class="connection" id="connInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>🔒 Security Checklist</h2>
+    <p style="font-size:.82rem;color:var(--text2)">Check each item you've done on your home network:</p>
+    <div class="checklist" id="checklist"></div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Security Score</h2>
+    <div class="score-circle" id="scoreCircle" style="background:conic-gradient(var(--red) 0%, var(--bg3) 0%)">
+      <div class="score-inner">
+        <div class="score-val" id="scoreVal">0</div>
+        <div class="score-grade" id="scoreGrade">F</div>
+      </div>
+    </div>
+    <div id="riskBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>👁️ What Hackers Can See</h2>
+    <div class="viz">
+      <div class="viz-card bad">
+        <h4>❌ Without VPN</h4>
+        <div class="viz-item">Real IP: 203.0.113.42 (visible)</div>
+        <div class="viz-item">DNS queries: all websites visible</div>
+        <div class="viz-item">Unencrypted traffic: readable</div>
+        <div class="viz-item">Cookies: trackable</div>
+        <div class="viz-item">Location: exposed</div>
+      </div>
+      <div class="viz-card ok">
+        <h4>✅ With VPN</h4>
+        <div class="viz-item">Real IP: hidden 🔒</div>
+        <div class="viz-item">DNS queries: encrypted 🔒</div>
+        <div class="viz-item">Traffic: encrypted 🔒</div>
+        <div class="viz-item">Cookies: still tracked (browser)</div>
+        <div class="viz-item">Location: VPN server 🔒</div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:14px;color:var(--accent);font-weight:700">💡 Always use a VPN on public WiFi!</p>
+  </div>
+</main>
+
+<script>
+const checks = [
+  {key:'wpa',text:'Using WPA2 or WPA3 encryption (not WEP or open)',hint:'Check router settings → Security mode'},
+  {key:'pass',text:'Strong WiFi password (12+ chars, mixed)',hint:'Long passwords are much harder to crack'},
+  {key:'fw',text:'Router firmware is up to date',hint:'Old firmware has security holes'},
+  {key:'wps',text:'WPS is disabled',hint:'WPS is vulnerable to PIN brute force'},
+  {key:'remote',text:'Remote management is disabled',hint:'Only admin from inside the network'},
+  {key:'guest',text:'Guest network is enabled & isolated',hint:'Keep guests off your main network'},
+  {key:'default',text:'Changed default admin password',hint:'admin/admin is the first thing hackers try'},
+  {key:'update',text:'Devices on network are updated',hint:'Phones, laptops, IoT need patches too'},
+];
+
+let checked = JSON.parse(localStorage.getItem('rs-wifi-checks') || '{}');
+
+function renderConnection() {
+  const el = document.getElementById('connInfo');
+  const c = navigator.connection || {};
+  const type = c.effectiveType || 'unknown';
+  const downlink = c.downlink ? c.downlink + ' Mbps' : 'unknown';
+  const rtt = c.rtt ? c.rtt + ' ms' : 'unknown';
+  const connType = c.type || (c.effectiveType ? 'wifi/cellular' : 'unknown');
+  el.innerHTML = `
+    <div class="conn-item"><div class="lbl">Type</div><div class="val">${connType}</div></div>
+    <div class="conn-item"><div class="lbl">Speed Tier</div><div class="val">${type}</div></div>
+    <div class="conn-item"><div class="lbl">Downlink</div><div class="val">${downlink}</div></div>
+    <div class="conn-item"><div class="lbl">Latency (RTT)</div><div class="val">${rtt}</div></div>
+  `;
+}
+
+function renderChecklist() {
+  const el = document.getElementById('checklist');
+  el.innerHTML = checks.map(c => `
+    <div class="check ${checked[c.key]?'checked':''}" onclick="toggleCheck('${c.key}')">
+      <div class="check-box">${checked[c.key]?'✓':''}</div>
+      <div class="check-text">${c.text}<span class="check-hint">${c.hint}</span></div>
+    </div>
+  `).join('');
+  updateScore();
+}
+
+function toggleCheck(key) {
+  checked[key] = !checked[key];
+  localStorage.setItem('rs-wifi-checks', JSON.stringify(checked));
+  renderChecklist();
+}
+
+function updateScore() {
+  const done = Object.values(checked).filter(v=>v).length;
+  const score = Math.round((done / checks.length) * 100);
+  document.getElementById('scoreVal').textContent = score;
+  let grade = 'F', color = 'var(--red)', riskClass = 'high', riskText = 'Your network is vulnerable! Fix the items above.';
+  if (score >= 90) { grade = 'A'; color = 'var(--accent)'; riskClass = 'low'; riskText = '✅ Excellent! Your network is well-protected.'; }
+  else if (score >= 75) { grade = 'B'; color = 'var(--accent)'; riskClass = 'low'; riskText = '✅ Good! Minor improvements possible.'; }
+  else if (score >= 60) { grade = 'C'; color = 'var(--yellow)'; riskClass = 'med'; riskText = '⚠️ Okay — fix the unchecked items to improve security.'; }
+  else if (score >= 40) { grade = 'D'; color = 'var(--orange)'; riskClass = 'med'; riskText = '⚠️ Weak — multiple security gaps. Action needed.'; }
+
+  document.getElementById('scoreGrade').textContent = grade;
+  document.getElementById('scoreCircle').style.background = `conic-gradient(${color} ${score}%, var(--bg3) ${score}%)`;
+  document.getElementById('riskBox').innerHTML = `<div class="risk ${riskClass}">${riskText}</div>`;
+}
+
+renderConnection();
+renderChecklist();
+</script>
+</body>
+</html>
