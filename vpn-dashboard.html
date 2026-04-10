@@ -122,6 +122,18 @@ a{color:var(--accent);text-decoration:none}
 
 <main class="main">
 
+  <div id="httpsWarning" style="display:none;padding:14px 18px;background:rgba(255,140,66,.1);border-left:4px solid var(--orange);border-radius:var(--radius-sm);margin-bottom:16px;font-size:.88rem">
+    <strong style="color:var(--orange)">⚠️ Mixed Content Warning</strong><br>
+    This page is served over <strong>HTTPS</strong>, but the Freebox API uses <strong>HTTP</strong>. Browsers block this for security.<br><br>
+    <strong>Solutions:</strong>
+    <ul style="margin:6px 0 6px 20px">
+      <li>Open <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">vpn-dashboard.html</code> locally from your computer</li>
+      <li>Or serve locally: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">python3 -m http.server 8080</code></li>
+      <li>Or use Demo/Paste modes which work on HTTPS</li>
+    </ul>
+  </div>
+  <script>if(location.protocol==='https:')document.getElementById('httpsWarning').style.display='block';</script>
+
   <!-- Mode Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="switchMode('demo')">🎮 Demo</button>
