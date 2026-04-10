@@ -54,6 +54,15 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 | [vpn-dashboard.html](../vpn-dashboard.html) | 📡 See real connected VPN devices — Freebox API, wg show parser, demo |
 | [vpngate.html](../vpngate.html) | 🎓 Browse 5,000+ free VPN Gate servers, download OpenVPN configs |
 | [network-scanner.html](../network-scanner.html) | 📡 Discover devices on your local network — Freebox API, scan, paste |
+| [freebox-monitor.html](../freebox-monitor.html) | 📦 Real-time Freebox dashboard (connection, devices, VPN, system) |
+| [traffic-visualizer.html](../traffic-visualizer.html) | 📊 Animated network traffic visualizer with bandwidth chart |
+| [protocol-lab.html](../protocol-lab.html) | 🧪 WireGuard vs OpenVPN head-to-head race and metrics |
+| [wifi-scanner.html](../wifi-scanner.html) | 📶 WiFi security checklist with score and grade |
+| [vpn-health.html](../vpn-health.html) | 🏥 VPN uptime monitor with response time chart and CSV export |
+| [auto-config.html](../auto-config.html) | ⚙️ One-click multi-device WireGuard config generator |
+| [monitoring.html](../monitoring.html) | 📈 Grafana-style monitoring dashboard with uptime heatmap |
+| [escape-room.html](../escape-room.html) | 🗝️ 5-level crypto puzzle escape room game |
+| [network-detective.html](../network-detective.html) | 🕵️ 5 cybersecurity investigation cases to solve |
 | [docs.html](../docs.html) | 📚 Full HTML documentation hub with search and sidebar |
 
 ---
