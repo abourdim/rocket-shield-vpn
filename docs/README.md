@@ -40,6 +40,7 @@ Welcome to the **Rocket Shield VPN** documentation. This project is an education
 | Page | Description |
 |------|-------------|
 | [start-here.html](../start-here.html) | 🚀 Server-first VPN setup guide — the recommended starting point |
+| [vpn-test.html](../vpn-test.html) | 🧪 VPN Test Hub — 15+ tools to verify your VPN is working (IP, DNS, WebRTC, speed) |
 | [packet-journey.html](../packet-journey.html) | 🎬 Watch a packet travel through a VPN tunnel with encryption animation |
 | [attack-simulator.html](../attack-simulator.html) | 🎮 10-level defense game — block hackers with VPN, firewall, 2FA |
 | [config-generator.html](../config-generator.html) | ⚙️ Generate WireGuard/OpenVPN configs with QR codes in browser |

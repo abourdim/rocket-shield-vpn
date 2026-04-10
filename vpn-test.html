@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Test Hub</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--accent-glow:rgba(68,229,160,.4);--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--orange:#ff8c42;--red:#ff5c5c;--yellow:#ffc857;--accent-glow:rgba(255,140,66,.4)}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--orange:#fb923c;--red:#f87171;--yellow:#fde047;--accent-glow:rgba(244,114,182,.4)}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--orange:#ea6c20;--red:#dc3545;--yellow:#d4a017;--accent-glow:rgba(34,150,106,.3)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:12px;align-items:center;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+
+.main{max-width:1000px;margin:0 auto;padding:24px 20px 60px}
+h1{font-family:var(--font-display);font-size:1.8rem;text-align:center;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--text2);font-size:.95rem;margin-bottom:24px}
+
+h2{font-family:var(--font-display);font-size:1.15rem;margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+h3{font-family:var(--font-display);font-size:.95rem;margin:16px 0 8px;color:var(--accent)}
+
+/* Quick IP check hero */
+.hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient-hero)}
+.hero-status{font-size:3rem;margin-bottom:8px}
+.hero-title{font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+.hero-sub{color:var(--text2);font-size:.88rem;margin-top:4px}
+.hero-ip{font-family:'Fira Code',monospace;font-size:1.1rem;color:var(--accent);margin:10px 0;padding:8px 14px;background:var(--bg3);border-radius:var(--radius-sm);display:inline-block}
+.hero-country{font-size:.9rem;color:var(--text2)}
+
+/* Tool cards */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.tool{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.tool:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px var(--accent-glow)}
+.tool-head{display:flex;align-items:center;gap:10px}
+.tool-icon{font-size:1.6rem}
+.tool-name{font-family:var(--font-display);font-weight:700;font-size:.98rem;flex:1}
+.tool-badge{font-size:.62rem;padding:3px 8px;border-radius:10px;background:var(--bg3);color:var(--text3);text-transform:uppercase;letter-spacing:.03em}
+.badge-internal{background:var(--accent-soft);color:var(--accent)}
+.badge-external{background:rgba(77,201,246,.12);color:var(--accent2)}
+.badge-cli{background:rgba(255,140,66,.12);color:var(--orange)}
+.tool-desc{font-size:.8rem;color:var(--text2);line-height:1.5;flex:1}
+
+/* Checklist */
+.checklist{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.check{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);margin:8px 0;cursor:pointer;transition:all .2s}
+.check:hover{border-color:var(--accent)}
+.check.done{background:rgba(68,229,160,.08);border-color:var(--accent)}
+.check-box{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.check.done .check-box{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+.check-body{flex:1}
+.check-title{font-weight:700;font-size:.92rem;margin-bottom:2px}
+.check-desc{font-size:.78rem;color:var(--text2)}
+.check-link{font-size:.75rem;color:var(--accent);text-decoration:none;margin-top:4px;display:inline-block}
+.check-link:hover{text-decoration:underline}
+
+/* CLI commands */
+pre{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-family:'Fira Code',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;margin:8px 0;color:var(--text2);white-space:pre-wrap}
+code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'Fira Code',monospace;font-size:.82rem;color:var(--accent)}
+pre code{background:none;padding:0;color:inherit}
+
+.tip{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid var(--accent);background:rgba(68,229,160,.08);color:var(--accent)}
+.warn{padding:12px 16px;border-radius:var(--radius-sm);margin:12px 0;font-size:.88rem;border-left:4px solid var(--yellow);background:rgba(255,225,86,.08);color:var(--yellow)}
+
+.btn{display:inline-block;padding:10px 20px;border-radius:var(--radius-sm);background:var(--accent);color:var(--bg);font-family:var(--font-display);font-weight:700;border:none;cursor:pointer;font-size:.88rem;text-decoration:none;margin:4px 4px 4px 0}
+.btn:hover{transform:translateY(-1px);text-decoration:none}
+.btn-outline{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span class="hdr-logo">🧪 VPN Test Hub</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>🧪 VPN Test Hub</h1>
+  <p class="sub">One-stop hub to verify your VPN is working — 15+ tools and tests</p>
+
+  <!-- Quick IP hero -->
+  <div class="hero">
+    <div class="hero-status" id="heroIcon">⏳</div>
+    <div class="hero-title" id="heroTitle">Checking your IP...</div>
+    <div class="hero-ip" id="heroIp">—</div>
+    <div class="hero-country" id="heroCountry"></div>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="checkIP()">🔄 Re-check</button>
+      <a class="btn btn-outline" href="vpn-status.html">📊 Full Status</a>
+    </div>
+    <div class="hero-sub" style="margin-top:10px">⚠️ This shows your current IP — if it matches your real location, your VPN may not be active.</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>🚀 Quick Tests (one click)</h2>
+  <div class="tool-grid">
+
+    <div class="tool" onclick="window.open('https://whatismyip.com/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">🕵️</span>
+        <span class="tool-name">whatismyip.com</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Shows your current public IP, location, ISP. Should match your VPN server when connected.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://www.dnsleaktest.com/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">🔒</span>
+        <span class="tool-name">dnsleaktest.com</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Run the <strong>Extended Test</strong>. DNS servers should belong to your VPN, not your ISP.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://ipleak.net/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">💧</span>
+        <span class="tool-name">ipleak.net</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">All-in-one: IP, DNS leak, WebRTC leak, geolocation — the most complete leak test.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://browserleaks.com/webrtc','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">🌐</span>
+        <span class="tool-name">browserleaks WebRTC</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Detects WebRTC IP leaks — your browser may reveal your real IP even with VPN on.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://test-ipv6.com/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">6️⃣</span>
+        <span class="tool-name">test-ipv6.com</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Checks if your VPN handles IPv6 properly. Leaking IPv6 = exposed real location.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://fast.com/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">⚡</span>
+        <span class="tool-name">fast.com</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Netflix's speed test. Small drop (5-10% WireGuard, 15-30% OpenVPN) is normal.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://www.speedtest.net/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">📊</span>
+        <span class="tool-name">speedtest.net</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Ookla's detailed speed test — shows download, upload, ping, jitter.</div>
+    </div>
+
+    <div class="tool" onclick="window.open('https://whoer.net/','_blank')">
+      <div class="tool-head">
+        <span class="tool-icon">🔍</span>
+        <span class="tool-name">whoer.net</span>
+        <span class="tool-badge badge-external">External</span>
+      </div>
+      <div class="tool-desc">Anonymity check — IP, DNS, WebRTC, browser fingerprint, timezone mismatch.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>🛠️ Our Own Tools</h2>
+  <div class="tool-grid">
+
+    <div class="tool" onclick="location.href='vpn-status.html'">
+      <div class="tool-head">
+        <span class="tool-icon">🛡️</span>
+        <span class="tool-name">VPN Status</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">Live IP, location, ISP, WebRTC leak check, VPN detection. Protected/Exposed indicator.</div>
+    </div>
+
+    <div class="tool" onclick="location.href='speed-test.html'">
+      <div class="tool-head">
+        <span class="tool-icon">⚡</span>
+        <span class="tool-name">Speed Test Dashboard</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">Visual gauges for download, upload, ping, jitter. Before/after VPN comparison.</div>
+    </div>
+
+    <div class="tool" onclick="location.href='vpn-health.html'">
+      <div class="tool-head">
+        <span class="tool-icon">🏥</span>
+        <span class="tool-name">VPN Health Monitor</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">Continuous uptime monitoring with response time chart and CSV export.</div>
+    </div>
+
+    <div class="tool" onclick="location.href='vpn-dashboard.html'">
+      <div class="tool-head">
+        <span class="tool-icon">📡</span>
+        <span class="tool-name">VPN Dashboard</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">See connected peers via Freebox API, wg show parser, or demo mode.</div>
+    </div>
+
+    <div class="tool" onclick="location.href='network-scanner.html'">
+      <div class="tool-head">
+        <span class="tool-icon">🔎</span>
+        <span class="tool-name">Network Scanner</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">Discover devices on your local network. Check if VPN isolates you correctly.</div>
+    </div>
+
+    <div class="tool" onclick="location.href='wifi-scanner.html'">
+      <div class="tool-head">
+        <span class="tool-icon">📶</span>
+        <span class="tool-name">WiFi Scanner</span>
+        <span class="tool-badge badge-internal">Built-in</span>
+      </div>
+      <div class="tool-desc">Check current connection, WiFi security score, hacker visibility comparison.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>✅ The 5-Point Verification Checklist</h2>
+  <div class="checklist">
+    <p style="color:var(--text2);font-size:.88rem;margin-bottom:12px">Complete these 5 tests to confirm your VPN is fully working:</p>
+    <div class="check" onclick="this.classList.toggle('done')">
+      <div class="check-box">✓</div>
+      <div class="check-body">
+        <div class="check-title">🕵️ IP Address Changed</div>
+        <div class="check-desc">Visit whatismyip.com — IP should match VPN server, not your ISP</div>
+        <a class="check-link" href="https://whatismyip.com" target="_blank" onclick="event.stopPropagation()">Open whatismyip.com →</a>
+      </div>
+    </div>
+    <div class="check" onclick="this.classList.toggle('done')">
+      <div class="check-box">✓</div>
+      <div class="check-body">
+        <div class="check-title">📍 Location Matches Server</div>
+        <div class="check-desc">Connect to a specific country (e.g., Japan) — the site should show Japan</div>
+        <a class="check-link" href="https://ipapi.co/" target="_blank" onclick="event.stopPropagation()">Open ipapi.co →</a>
+      </div>
+    </div>
+    <div class="check" onclick="this.classList.toggle('done')">
+      <div class="check-box">✓</div>
+      <div class="check-body">
+        <div class="check-title">🔒 No DNS Leaks</div>
+        <div class="check-desc">Run Extended Test — all DNS servers should belong to VPN, not your ISP</div>
+        <a class="check-link" href="https://www.dnsleaktest.com/" target="_blank" onclick="event.stopPropagation()">Open dnsleaktest.com →</a>
+      </div>
+    </div>
+    <div class="check" onclick="this.classList.toggle('done')">
+      <div class="check-box">✓</div>
+      <div class="check-body">
+        <div class="check-title">🌐 No WebRTC Leaks</div>
+        <div class="check-desc">Your browser might reveal your real IP via WebRTC — check if public IP matches VPN</div>
+        <a class="check-link" href="https://browserleaks.com/webrtc" target="_blank" onclick="event.stopPropagation()">Open browserleaks →</a>
+      </div>
+    </div>
+    <div class="check" onclick="this.classList.toggle('done')">
+      <div class="check-box">✓</div>
+      <div class="check-body">
+        <div class="check-title">⚡ Speed Acceptable</div>
+        <div class="check-desc">Speed test — small drop is normal (5-10% WG, 15-30% OVPN)</div>
+        <a class="check-link" href="https://fast.com" target="_blank" onclick="event.stopPropagation()">Open fast.com →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>💻 Command-Line Tests</h2>
+
+  <h3>Check Public IP</h3>
+  <pre><code># Linux / macOS
+curl ifconfig.me
+curl ipinfo.io
+curl api.ipify.org
+
+# Windows PowerShell
+Invoke-RestMethod ifconfig.me
+(Invoke-RestMethod ipinfo.io).ip</code></pre>
+
+  <h3>DNS Resolution Check</h3>
+  <pre><code># Linux / macOS
+dig google.com
+nslookup google.com
+resolvectl status        # shows which DNS is being used
+
+# Windows
+nslookup google.com
+ipconfig /all            # look for DNS Servers line</code></pre>
+
+  <h3>Check VPN Interface</h3>
+  <pre><code># WireGuard
+sudo wg show             # shows handshake + data + peers
+ip addr show wg0         # Linux: interface info
+ifconfig utun4           # macOS: WireGuard uses utun* interfaces
+
+# OpenVPN
+ip addr show tun0
+ps aux | grep openvpn</code></pre>
+
+  <h3>Traceroute (see the path your packets take)</h3>
+  <pre><code># Linux / macOS
+traceroute google.com
+mtr google.com           # better interactive version
+
+# Windows
+tracert google.com</code></pre>
+
+  <h3>Ping the VPN Server</h3>
+  <pre><code># Replace with your server's IP
+ping -c 10 vpn-server.com
+ping -c 10 10.88.88.1    # WireGuard internal IP</code></pre>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>📱 The Ultimate Phone Test</h2>
+  <div class="tip">
+    <strong>This is the definitive test for your home VPN server:</strong>
+    <ol style="margin:8px 0 0 20px">
+      <li>Turn OFF WiFi on your phone → use <strong>4G/5G</strong> mobile data</li>
+      <li>Open WireGuard app → toggle VPN <strong>ON</strong></li>
+      <li>Open browser → type <code>192.168.1.254</code></li>
+      <li><strong>If Freebox OS loads → VPN works!</strong> You're reaching your home router through mobile data via the encrypted tunnel.</li>
+      <li>Disconnect VPN → try again → should <strong>fail</strong> (proves the VPN was doing the work)</li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <h2>🎯 Quick Reference Table</h2>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <thead>
+      <tr style="background:var(--bg3)">
+        <th style="padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:var(--font-display);color:var(--accent)">Test</th>
+        <th style="padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:var(--font-display);color:var(--accent)">Without VPN</th>
+        <th style="padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:var(--font-display);color:var(--accent)">With VPN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">Public IP</td><td style="padding:10px;border-bottom:1px solid var(--border)">Your ISP's IP</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">VPN server IP</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">Location</td><td style="padding:10px;border-bottom:1px solid var(--border)">Your real city</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">Server's city</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">DNS</td><td style="padding:10px;border-bottom:1px solid var(--border)">ISP DNS (Free, Orange...)</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">VPN DNS (1.1.1.1, etc.)</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">ISP visible traffic</td><td style="padding:10px;border-bottom:1px solid var(--border)">Everything you visit</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">Encrypted blob only</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">Speed</td><td style="padding:10px;border-bottom:1px solid var(--border)">Full ISP speed</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">5-30% slower (normal)</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid var(--border)">Home network access</td><td style="padding:10px;border-bottom:1px solid var(--border)">❌ Not from outside</td><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--accent)">✅ Via tunnel</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn">
+    ⚠️ <strong>Warning:</strong> A VPN is not magic. It hides your IP and encrypts traffic, but it does NOT protect you from:
+    <ul style="margin:6px 0 0 20px">
+      <li>Phishing websites or malicious downloads</li>
+      <li>Browser fingerprinting (canvas, fonts, plugins)</li>
+      <li>Logged-in accounts (Google, Facebook still know who you are)</li>
+      <li>Tracking cookies (unless you use a blocker)</li>
+    </ul>
+  </div>
+
+</main>
+
+<script>
+async function checkIP() {
+  const icon = document.getElementById('heroIcon');
+  const title = document.getElementById('heroTitle');
+  const ipEl = document.getElementById('heroIp');
+  const countryEl = document.getElementById('heroCountry');
+
+  icon.textContent = '⏳';
+  title.textContent = 'Checking your IP...';
+  ipEl.textContent = '—';
+  countryEl.textContent = '';
+
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    const ip = data.ip;
+    ipEl.textContent = ip;
+
+    // Geo lookup
+    try {
+      const geo = await fetch(`https://ipapi.co/${ip}/json/`).then(r => r.json());
+      if (geo.country_name) {
+        const flag = geo.country_code ? getFlagEmoji(geo.country_code) : '🌍';
+        countryEl.textContent = `${flag} ${geo.city || ''} ${geo.region || ''}, ${geo.country_name} · ${geo.org || geo.asn || ''}`;
+
+        // Detect VPN (heuristic)
+        const org = (geo.org || '').toLowerCase();
+        const vpnProviders = ['nordvpn','protonvpn','mullvad','surfshark','expressvpn','cyberghost','private internet','hide','torguard','ivpn','windscribe','hidemy','purevpn','perfect privacy','hosting','datacenter','cloud','vps','digital ocean','linode','vultr','hetzner','ovh','aws','amazon','azure','google cloud'];
+        const isVpnLikely = vpnProviders.some(p => org.includes(p));
+
+        if (isVpnLikely) {
+          icon.textContent = '🛡️';
+          title.textContent = 'VPN LIKELY ACTIVE';
+          title.style.color = 'var(--accent)';
+        } else {
+          icon.textContent = '⚠️';
+          title.textContent = 'VPN PROBABLY OFF';
+          title.style.color = 'var(--yellow)';
+        }
+      }
+    } catch(e) {
+      countryEl.textContent = '(geolocation unavailable)';
+      icon.textContent = '📍';
+      title.textContent = 'IP detected';
+    }
+  } catch(e) {
+    icon.textContent = '❌';
+    title.textContent = 'Could not detect IP';
+    title.style.color = 'var(--red)';
+    ipEl.textContent = 'Check connection';
+  }
+}
+
+function getFlagEmoji(countryCode) {
+  return countryCode.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt()));
+}
+
+checkIP();
+</script>
+</body>
+</html>
