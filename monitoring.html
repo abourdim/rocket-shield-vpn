@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket Shield VPN — Monitoring Dashboard</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="space"]{--bg:#0b0e2a;--bg2:#0d1133;--bg3:#151b4a;--card:rgba(15,20,60,.92);--border:rgba(100,140,255,.15);--border-hover:rgba(68,229,160,.5);--text:#e8ecf4;--text2:#7a82a6;--text3:#4a5280;--accent:#44e5a0;--accent2:#4dc9f6;--accent3:#b066ff;--accent-soft:rgba(68,229,160,.12);--accent-glow:rgba(68,229,160,.4);--orange:#ff8c42;--red:#ff5c6a;--yellow:#ffe156;--pink:#ff6eb4;--gradient-hero:linear-gradient(135deg,#44e5a0,#4dc9f6,#b066ff,#ff6eb4);--radius:16px;--radius-sm:10px;--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif}
+[data-theme="desert"]{--bg:#1a0f05;--bg2:#241508;--bg3:#3a2210;--card:rgba(40,25,10,.92);--border:rgba(255,160,60,.2);--text:#fde8d0;--text2:#b08a60;--text3:#6b5030;--accent:#ff8c42;--accent2:#ffc857;--accent3:#ff6b6b;--accent-soft:rgba(255,140,66,.12);--accent-glow:rgba(255,140,66,.4);--red:#ff5c5c;--yellow:#ffc857}
+[data-theme="synthwave"]{--bg:#0d0221;--bg2:#150530;--bg3:#1f0845;--card:rgba(25,8,55,.92);--border:rgba(168,85,247,.2);--text:#f0e6ff;--text2:#9a7abf;--text3:#5a3d80;--accent:#f472b6;--accent2:#a78bfa;--accent3:#22d3ee;--accent-soft:rgba(244,114,182,.12);--accent-glow:rgba(244,114,182,.4);--red:#f87171;--yellow:#fde047}
+[data-theme="paper"]{--bg:#f5f0e8;--bg2:#ebe5da;--bg3:#dfd8cc;--card:rgba(255,255,255,.92);--border:rgba(180,160,130,.3);--text:#2c2518;--text2:#7a6e5c;--text3:#b0a48e;--accent:#22966a;--accent2:#2563eb;--accent3:#9333ea;--accent-soft:rgba(34,150,106,.1);--accent-glow:rgba(34,150,106,.3);--red:#dc3545;--yellow:#d4a017}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+.hdr{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.hdr-logo{font-family:var(--font-display);font-weight:700;font-size:1.1rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-spacer{flex:1}
+.hdr select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+.hdr-link{font-size:.78rem;padding:6px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+
+.main{max-width:1100px;margin:0 auto;padding:20px}
+h1{font-family:var(--font-display);font-size:1.6rem;margin-bottom:8px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--text2);font-size:.9rem;margin-bottom:20px}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.stat.blue::before{background:var(--accent2)}
+.stat.purple::before{background:var(--accent3)}
+.stat.orange::before{background:var(--orange)}
+.stat .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)}
+.stat .val{font-family:var(--font-display);font-size:1.8rem;font-weight:700;margin:6px 0}
+.stat .sub-val{font-size:.75rem;color:var(--text2)}
+.stat .trend{position:absolute;top:14px;right:14px;font-size:.75rem;font-weight:700}
+.trend.up{color:var(--accent)}
+.trend.down{color:var(--red)}
+
+/* Chart cards */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:800px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.chart-card h3{font-family:var(--font-display);font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+canvas{width:100%;height:200px;display:block}
+
+/* Uptime bars */
+.uptime-bars{display:flex;gap:2px;height:40px;margin:10px 0}
+.uptime-bar{flex:1;background:var(--bg3);border-radius:2px;transition:all .3s;cursor:pointer}
+.uptime-bar.up{background:var(--accent)}
+.uptime-bar.down{background:var(--red)}
+.uptime-bar.partial{background:var(--yellow)}
+.uptime-bar:hover{transform:scaleY(1.1)}
+
+/* Table */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:10px 8px;font-family:var(--font-display);font-weight:600;border-bottom:2px solid var(--border);color:var(--text2);font-size:.72rem;text-transform:uppercase}
+td{padding:10px 8px;border-bottom:1px solid var(--border);font-family:'Fira Code',monospace;font-size:.78rem}
+tr:hover td{background:var(--bg3)}
+
+/* Status dot */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot.up{background:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+.dot.down{background:var(--red)}
+.dot.partial{background:var(--yellow)}
+
+/* Controls */
+.controls{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
+.controls label{font-size:.82rem;color:var(--text2);display:flex;align-items:center;gap:6px}
+.controls select,.controls button{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;font-size:.82rem;font-family:var(--font-body);cursor:pointer}
+.controls button:hover{border-color:var(--accent)}
+
+/* Grafana-style section */
+.section{margin-top:24px}
+.section-title{font-family:var(--font-display);font-size:1.1rem;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <span class="hdr-logo">📊 VPN Monitoring</span>
+  <span class="hdr-spacer"></span>
+  <select onchange="document.documentElement.setAttribute('data-theme',this.value)">
+    <option value="space">🌌 Space</option><option value="desert">🏜️ Desert</option>
+    <option value="synthwave">🎮 Synth</option><option value="paper">📜 Paper</option>
+  </select>
+  <a href="index.html" class="hdr-link">← App</a>
+  <a href="docs.html" class="hdr-link">📚 Docs</a>
+</header>
+
+<main class="main">
+  <h1>📊 Monitoring Dashboard</h1>
+  <p class="sub">Grafana-style VPN uptime, usage, and performance tracking. Data stored in localStorage.</p>
+
+  <div class="controls">
+    <label>Time range:
+      <select id="timeRange" onchange="render()">
+        <option value="24">Last 24 hours</option>
+        <option value="168" selected>Last 7 days</option>
+        <option value="720">Last 30 days</option>
+      </select>
+    </label>
+    <label>Refresh:
+      <select id="refresh" onchange="setRefresh(this.value)">
+        <option value="0">Manual</option>
+        <option value="10" selected>10s</option>
+        <option value="60">1m</option>
+        <option value="300">5m</option>
+      </select>
+    </label>
+    <button onclick="simulateData()">🎲 Load Demo Data</button>
+    <button onclick="clearData()">🗑️ Clear</button>
+    <button onclick="exportCSV()">📥 Export CSV</button>
+    <span style="margin-left:auto;font-size:.75rem;color:var(--text3)" id="lastUpdate"></span>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats">
+    <div class="stat">
+      <div class="lbl">Uptime</div>
+      <div class="val" id="statUptime">—</div>
+      <div class="sub-val" id="statUptimeSub">Last 7 days</div>
+      <div class="trend up" id="statUptimeTrend"></div>
+    </div>
+    <div class="stat blue">
+      <div class="lbl">Connected Peers</div>
+      <div class="val" id="statPeers">0</div>
+      <div class="sub-val">Currently online</div>
+    </div>
+    <div class="stat purple">
+      <div class="lbl">Total Data</div>
+      <div class="val" id="statData">0 B</div>
+      <div class="sub-val">This period</div>
+    </div>
+    <div class="stat orange">
+      <div class="lbl">Avg Latency</div>
+      <div class="val" id="statLatency">0 ms</div>
+      <div class="sub-val">Response time</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📈 Bandwidth Over Time</h3>
+      <canvas id="bandwidthChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>🥧 Traffic Breakdown</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Uptime bars -->
+  <div class="section">
+    <div class="section-title">🟢 Uptime Heatmap</div>
+    <div class="chart-card">
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:8px">Each bar = 1 hour. Green = up, Yellow = partial, Red = down</div>
+      <div class="uptime-bars" id="uptimeBars"></div>
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--text3);margin-top:6px">
+        <span id="uptimeStart"></span>
+        <span id="uptimeEnd">Now</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event log -->
+  <div class="section">
+    <div class="section-title">📜 Event Log</div>
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Type</th><th>Event</th><th>Details</th></tr>
+        </thead>
+        <tbody id="eventLog"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Per-peer stats -->
+  <div class="section">
+    <div class="section-title">👥 Per-Peer Stats</div>
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr><th>Peer</th><th>Status</th><th>Last Seen</th><th>Received</th><th>Sent</th><th>Sessions</th></tr>
+        </thead>
+        <tbody id="peerStats"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const STORAGE_KEY = 'rs-monitoring-data';
+let refreshTimer = null;
+let data = loadData();
+
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return {
+      events: d.events || [],
+      bandwidth: d.bandwidth || [],
+      peers: d.peers || {},
+      uptime: d.uptime || []
+    };
+  } catch { return {events:[],bandwidth:[],peers:{},uptime:[]}; }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function simulateData() {
+  data.events = [];
+  data.bandwidth = [];
+  data.peers = {
+    'gazza': {rx: 158000000, tx: 524000000, status: 'up', lastSeen: Date.now()-45000, sessions: 12},
+    'naanaa': {rx: 89000000, tx: 312000000, status: 'up', lastSeen: Date.now()-180000, sessions: 8},
+    'laptop-work': {rx: 2100000000, tx: 5200000000, status: 'up', lastSeen: Date.now()-120000, sessions: 23},
+    'tablet-kids': {rx: 45000000, tx: 102000000, status: 'down', lastSeen: Date.now()-7200000, sessions: 4}
+  };
+
+  // Generate 7 days of hourly uptime (168 hours)
+  data.uptime = [];
+  for (let i = 0; i < 168; i++) {
+    const rand = Math.random();
+    data.uptime.push(rand < 0.92 ? 'up' : rand < 0.97 ? 'partial' : 'down');
+  }
+
+  // Bandwidth samples (24 hours)
+  for (let i = 0; i < 24; i++) {
+    data.bandwidth.push({
+      time: Date.now() - (24-i)*3600000,
+      down: Math.floor(Math.random()*50 + 10),
+      up: Math.floor(Math.random()*20 + 5)
+    });
+  }
+
+  // Events
+  const eventTypes = [
+    {type: 'connect', name: 'gazza', detail: 'Connected from 4G (Orange)'},
+    {type: 'connect', name: 'laptop-work', detail: 'Connected from café WiFi'},
+    {type: 'disconnect', name: 'tablet-kids', detail: 'Idle timeout'},
+    {type: 'high-usage', name: 'laptop-work', detail: '1.2 GB/hour'},
+    {type: 'new-peer', name: 'naanaa', detail: 'First connection'},
+    {type: 'connect', name: 'naanaa', detail: 'Reconnected'},
+    {type: 'warning', name: 'system', detail: 'DNS leak check passed'},
+  ];
+  for (let i = 0; i < 15; i++) {
+    const e = eventTypes[Math.floor(Math.random()*eventTypes.length)];
+    data.events.push({
+      time: Date.now() - Math.floor(Math.random()*86400000*7),
+      ...e
+    });
+  }
+  data.events.sort((a,b) => b.time - a.time);
+
+  saveData();
+  render();
+}
+
+function clearData() {
+  if (confirm('Clear all monitoring data?')) {
+    data = {events:[],bandwidth:[],peers:{},uptime:[]};
+    saveData();
+    render();
+  }
+}
+
+function exportCSV() {
+  let csv = 'Time,Type,Peer,Details\n';
+  data.events.forEach(e => {
+    csv += `"${new Date(e.time).toISOString()}","${e.type}","${e.name}","${e.detail}"\n`;
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vpn-monitoring.csv';
+  a.click();
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function timeAgo(ts) {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+function render() {
+  // Stats
+  const upCount = data.uptime.filter(u => u === 'up').length;
+  const uptimePct = data.uptime.length ? (upCount / data.uptime.length * 100).toFixed(2) : 0;
+  document.getElementById('statUptime').textContent = uptimePct + '%';
+  document.getElementById('statUptimeTrend').textContent = uptimePct >= 99 ? '↑' : uptimePct >= 95 ? '→' : '↓';
+  document.getElementById('statUptimeTrend').className = 'trend ' + (uptimePct >= 95 ? 'up' : 'down');
+
+  const onlinePeers = Object.values(data.peers).filter(p => p.status === 'up').length;
+  document.getElementById('statPeers').textContent = onlinePeers + '/' + Object.keys(data.peers).length;
+
+  const totalData = Object.values(data.peers).reduce((s, p) => s + (p.rx || 0) + (p.tx || 0), 0);
+  document.getElementById('statData').textContent = formatBytes(totalData);
+
+  document.getElementById('statLatency').textContent = Math.floor(Math.random()*30 + 15) + ' ms';
+
+  // Uptime bars
+  const barsEl = document.getElementById('uptimeBars');
+  barsEl.innerHTML = data.uptime.map((u, i) =>
+    `<div class="uptime-bar ${u}" title="${timeAgo(Date.now() - (data.uptime.length-i)*3600000)}: ${u}"></div>`
+  ).join('');
+
+  if (data.uptime.length > 0) {
+    document.getElementById('uptimeStart').textContent = Math.floor(data.uptime.length/24) + 'd ago';
+  }
+
+  // Bandwidth chart
+  drawBandwidthChart();
+  drawPieChart();
+
+  // Event log
+  const logEl = document.getElementById('eventLog');
+  logEl.innerHTML = data.events.slice(0, 20).map(e => {
+    const icons = {connect: '🟢', disconnect: '🔴', 'high-usage': '📊', 'new-peer': '✨', warning: '⚠️'};
+    return `<tr>
+      <td>${new Date(e.time).toLocaleString()}</td>
+      <td>${icons[e.type] || '•'} ${e.type}</td>
+      <td><strong>${e.name}</strong></td>
+      <td>${e.detail}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">No events — click "Load Demo Data"</td></tr>`;
+
+  // Peer stats
+  const peerEl = document.getElementById('peerStats');
+  const peers = Object.entries(data.peers);
+  peerEl.innerHTML = peers.map(([name, p]) => `
+    <tr>
+      <td><strong>${name}</strong></td>
+      <td><span class="dot ${p.status}"></span>${p.status}</td>
+      <td>${timeAgo(p.lastSeen)}</td>
+      <td>${formatBytes(p.rx)}</td>
+      <td>${formatBytes(p.tx)}</td>
+      <td>${p.sessions}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No peers</td></tr>`;
+
+  document.getElementById('lastUpdate').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+}
+
+function drawBandwidthChart() {
+  const canvas = document.getElementById('bandwidthChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  if (data.bandwidth.length < 2) {
+    ctx.fillStyle = 'rgba(128,128,128,0.5)';
+    ctx.textAlign = 'center';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('No data — click "Load Demo Data"', w/2, h/2);
+    return;
+  }
+
+  const style = getComputedStyle(document.documentElement);
+  const accent = style.getPropertyValue('--accent').trim();
+  const orange = style.getPropertyValue('--orange').trim();
+  const border = style.getPropertyValue('--border').trim();
+  const text3 = style.getPropertyValue('--text3').trim();
+
+  const max = Math.max(...data.bandwidth.flatMap(b => [b.down, b.up])) * 1.2;
+  const padL = 40, padR = 10, padT = 10, padB = 20;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+
+  // Grid
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (chartH/4)*i;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w - padR, y);
+    ctx.stroke();
+    ctx.fillStyle = text3;
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(max - (max/4)*i) + ' Mbps', padL - 4, y + 3);
+  }
+
+  // Download line (green)
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  data.bandwidth.forEach((b, i) => {
+    const x = padL + (chartW / (data.bandwidth.length-1)) * i;
+    const y = padT + chartH - (b.down / max) * chartH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Upload line (orange)
+  ctx.strokeStyle = orange;
+  ctx.beginPath();
+  data.bandwidth.forEach((b, i) => {
+    const x = padL + (chartW / (data.bandwidth.length-1)) * i;
+    const y = padT + chartH - (b.up / max) * chartH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Legend
+  ctx.fillStyle = accent;
+  ctx.fillRect(w - 100, 5, 10, 3);
+  ctx.fillStyle = text3;
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('↓ Download', w - 86, 9);
+  ctx.fillStyle = orange;
+  ctx.fillRect(w - 100, 20, 10, 3);
+  ctx.fillStyle = text3;
+  ctx.fillText('↑ Upload', w - 86, 24);
+}
+
+function drawPieChart() {
+  const canvas = document.getElementById('pieChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const style = getComputedStyle(document.documentElement);
+  const colors = [
+    style.getPropertyValue('--accent').trim(),
+    style.getPropertyValue('--accent2').trim(),
+    style.getPropertyValue('--accent3').trim(),
+    style.getPropertyValue('--orange').trim(),
+  ];
+  const labels = ['HTTPS', 'DNS', 'VPN', 'Other'];
+  const values = [65, 10, 20, 5];
+
+  const cx = w/2, cy = h/2 - 10;
+  const r = Math.min(w, h)/2 - 30;
+
+  let angle = -Math.PI/2;
+  const total = values.reduce((a,b) => a+b, 0);
+
+  values.forEach((v, i) => {
+    const slice = (v/total) * Math.PI * 2;
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fill();
+    angle += slice;
+  });
+
+  // Donut hole
+  ctx.fillStyle = style.getPropertyValue('--card').trim();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*0.55, 0, Math.PI*2);
+  ctx.fill();
+
+  // Legend
+  ctx.font = '10px sans-serif';
+  labels.forEach((l, i) => {
+    const y = h - 16 + (i % 2) * -12;
+    const x = 10 + Math.floor(i/2) * 80;
+    ctx.fillStyle = colors[i];
+    ctx.fillRect(x, y, 8, 8);
+    ctx.fillStyle = style.getPropertyValue('--text2').trim();
+    ctx.fillText(`${l} ${values[i]}%`, x + 12, y + 7);
+  });
+}
+
+function setRefresh(seconds) {
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (seconds > 0) {
+    refreshTimer = setInterval(render, seconds * 1000);
+  }
+}
+
+// Init
+if (Object.keys(data.peers).length === 0) simulateData();
+render();
+setRefresh(10);
+window.addEventListener('resize', () => { drawBandwidthChart(); drawPieChart(); });
+</script>
+</body>
+</html>
