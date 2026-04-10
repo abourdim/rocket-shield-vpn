@@ -112,7 +112,6 @@ tr:hover td{background:var(--bg3)}
         <option value="300">5m</option>
       </select>
     </label>
-    <button onclick="simulateData()">🎲 Load Demo Data</button>
     <button onclick="clearData()">🗑️ Clear</button>
     <button onclick="exportCSV()">📥 Export CSV</button>
     <span style="margin-left:auto;font-size:.75rem;color:var(--text3)" id="lastUpdate"></span>
@@ -217,54 +216,6 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function simulateData() {
-  data.events = [];
-  data.bandwidth = [];
-  data.peers = {
-    'gazza': {rx: 158000000, tx: 524000000, status: 'up', lastSeen: Date.now()-45000, sessions: 12},
-    'naanaa': {rx: 89000000, tx: 312000000, status: 'up', lastSeen: Date.now()-180000, sessions: 8},
-    'laptop-work': {rx: 2100000000, tx: 5200000000, status: 'up', lastSeen: Date.now()-120000, sessions: 23},
-    'tablet-kids': {rx: 45000000, tx: 102000000, status: 'down', lastSeen: Date.now()-7200000, sessions: 4}
-  };
-
-  // Generate 7 days of hourly uptime (168 hours)
-  data.uptime = [];
-  for (let i = 0; i < 168; i++) {
-    const rand = Math.random();
-    data.uptime.push(rand < 0.92 ? 'up' : rand < 0.97 ? 'partial' : 'down');
-  }
-
-  // Bandwidth samples (24 hours)
-  for (let i = 0; i < 24; i++) {
-    data.bandwidth.push({
-      time: Date.now() - (24-i)*3600000,
-      down: Math.floor(Math.random()*50 + 10),
-      up: Math.floor(Math.random()*20 + 5)
-    });
-  }
-
-  // Events
-  const eventTypes = [
-    {type: 'connect', name: 'gazza', detail: 'Connected from 4G (Orange)'},
-    {type: 'connect', name: 'laptop-work', detail: 'Connected from café WiFi'},
-    {type: 'disconnect', name: 'tablet-kids', detail: 'Idle timeout'},
-    {type: 'high-usage', name: 'laptop-work', detail: '1.2 GB/hour'},
-    {type: 'new-peer', name: 'naanaa', detail: 'First connection'},
-    {type: 'connect', name: 'naanaa', detail: 'Reconnected'},
-    {type: 'warning', name: 'system', detail: 'DNS leak check passed'},
-  ];
-  for (let i = 0; i < 15; i++) {
-    const e = eventTypes[Math.floor(Math.random()*eventTypes.length)];
-    data.events.push({
-      time: Date.now() - Math.floor(Math.random()*86400000*7),
-      ...e
-    });
-  }
-  data.events.sort((a,b) => b.time - a.time);
-
-  saveData();
-  render();
-}
 
 function clearData() {
   if (confirm('Clear all monitoring data?')) {
@@ -341,7 +292,7 @@ function render() {
       <td><strong>${e.name}</strong></td>
       <td>${e.detail}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">No events — click "Load Demo Data"</td></tr>`;
+  }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">No events yet. Monitoring data will appear here once real data is imported.</td></tr>`;
 
   // Peer stats
   const peerEl = document.getElementById('peerStats');
@@ -375,7 +326,7 @@ function drawBandwidthChart() {
     ctx.fillStyle = 'rgba(128,128,128,0.5)';
     ctx.textAlign = 'center';
     ctx.font = '12px sans-serif';
-    ctx.fillText('No data — click "Load Demo Data"', w/2, h/2);
+    ctx.fillText('No data yet', w/2, h/2);
     return;
   }
 
@@ -503,7 +454,6 @@ function setRefresh(seconds) {
 }
 
 // Init
-if (Object.keys(data.peers).length === 0) simulateData();
 render();
 setRefresh(10);
 window.addEventListener('resize', () => { drawBandwidthChart(); drawPieChart(); });

@@ -136,8 +136,7 @@ a{color:var(--accent);text-decoration:none}
 
   <!-- Mode Tabs -->
   <div class="tabs">
-    <button class="tab active" onclick="switchMode('demo')">🎮 Demo</button>
-    <button class="tab" onclick="switchMode('paste')">📋 Paste wg show</button>
+    <button class="tab active" onclick="switchMode('paste')">📋 Paste wg show</button>
     <button class="tab" onclick="switchMode('live')">📡 Freebox Live</button>
   </div>
 
@@ -182,33 +181,17 @@ a{color:var(--accent);text-decoration:none}
 </main>
 
 <script>
-let mode = 'demo';
+let mode = 'paste';
 let refreshTimer = null;
 let devices = [];
 let events = [];
 let freeboxToken = localStorage.getItem('rs-fbx-token') || '';
 
-// ═══ Demo Data ═══
-const demoDevices = [
-  {name:'gazza (Phone)',icon:'📱',ip:'192.168.27.65',pubkey:'aB3d...xY9z',endpoint:'82.64.123.45:48291',handshake:Date.now()-45000,rx:15728640,tx:52428800,allowed:'0.0.0.0/0'},
-  {name:'Laptop Work',icon:'💻',ip:'192.168.27.66',pubkey:'kL7m...pQ2r',endpoint:'176.15.67.89:39182',handshake:Date.now()-120000,rx:104857600,tx:314572800,allowed:'0.0.0.0/0'},
-  {name:'Tablet Kids',icon:'📱',ip:'192.168.27.67',pubkey:'nR4s...wU8v',endpoint:'90.42.18.203:52847',handshake:Date.now()-3600000,rx:2097152,tx:5242880,allowed:'192.168.1.0/24'},
-  {name:'Desktop Home',icon:'🖥️',ip:'192.168.27.68',pubkey:'fG6h...jK1l',endpoint:'(none)',handshake:0,rx:0,tx:0,allowed:'0.0.0.0/0'},
-];
-
-const demoEvents = [
-  {time:Date.now()-45000,type:'connect',device:'gazza (Phone)',detail:'Connected from 4G'},
-  {time:Date.now()-120000,type:'connect',device:'Laptop Work',detail:'Connected from café WiFi'},
-  {time:Date.now()-1800000,type:'disconnect',device:'Tablet Kids',detail:'Disconnected'},
-  {time:Date.now()-3600000,type:'connect',device:'Tablet Kids',detail:'Connected from home WiFi'},
-  {time:Date.now()-7200000,type:'connect',device:'Desktop Home',detail:'Added as peer'},
-];
-
 // ═══ Mode Switching ═══
 function switchMode(m) {
   mode = m;
   document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['demo','paste','live'][i] === m);
+    t.classList.toggle('active', ['paste','live'][i] === m);
   });
   renderContent();
   refreshData();
@@ -256,29 +239,12 @@ peer: kL7m...pQ2r
       `;
       fetchFreeboxData();
     }
-  } else {
-    area.innerHTML = `
-      <div style="text-align:center;padding:8px;font-size:.8rem;color:var(--text3)">
-        🎮 Demo mode — showing simulated connected devices
-      </div>
-    `;
   }
 }
 
 // ═══ Refresh ═══
 function refreshData() {
-  if (mode === 'demo') {
-    // Simulate live changes
-    demoDevices[0].handshake = Date.now() - Math.floor(Math.random()*60000);
-    demoDevices[0].rx += Math.floor(Math.random()*100000);
-    demoDevices[0].tx += Math.floor(Math.random()*300000);
-    demoDevices[1].handshake = Date.now() - Math.floor(Math.random()*180000);
-    demoDevices[1].rx += Math.floor(Math.random()*500000);
-    demoDevices[1].tx += Math.floor(Math.random()*1000000);
-    devices = demoDevices;
-    events = demoEvents;
-    renderDevices();
-  } else if (mode === 'live' && freeboxToken) {
+  if (mode === 'live' && freeboxToken) {
     fetchFreeboxData();
   }
   document.getElementById('lastUpdated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
@@ -550,7 +516,7 @@ function renderDevices() {
   }).join('');
 
   // Timeline
-  const evts = mode === 'demo' ? demoEvents : events;
+  const evts = events;
   if (evts.length > 0) {
     timelineEl.innerHTML = `<h3>📜 Connection History</h3>` +
       evts.slice(0, 10).map(e => {
